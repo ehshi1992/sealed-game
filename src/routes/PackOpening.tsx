@@ -1,4 +1,4 @@
-import { useState, useOptimistic, startTransition } from 'react'
+import { useState, useEffect, useOptimistic, startTransition } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import PackRip from '../components/PackRip/PackRip'
@@ -24,10 +24,11 @@ export default function PackOpening() {
     (_state: Card[], newCards: Card[]) => newCards
   )
 
-  useState(() => {
+  useEffect(() => {
     if (!packId) { navigate('/shop'); return }
     openPack()
-  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function openPack() {
     try {
