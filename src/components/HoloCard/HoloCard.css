@@ -1,0 +1,137 @@
+.card {
+  position: relative;
+  border-radius: 4.75% / 3.5%;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transform:
+    perspective(600px)
+    rotateX(var(--rotateX))
+    rotateY(var(--rotateY));
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+  overflow: hidden;
+  display: block;
+  line-height: 0;
+}
+
+.card--sm { width: 120px; height: 167px; }
+.card--md { width: 200px; height: 279px; }
+.card--lg { width: 300px; height: 418px; }
+
+.card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* Shared layer styles */
+.card__translucent,
+.card__holo,
+.card__sparkle,
+.card__glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Holo shimmer layer — color-dodge over card image */
+.card__holo {
+  z-index: 2;
+  opacity: 0;
+  mix-blend-mode: color-dodge;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      hsl(calc(var(--bgX) * 3.6), 100%, 50%, 0.5) 0%,
+      hsl(calc(var(--bgX) * 3.6 + 60), 100%, 50%, 0.5) 20%,
+      hsl(calc(var(--bgX) * 3.6 + 120), 100%, 50%, 0.5) 40%,
+      hsl(calc(var(--bgX) * 3.6 + 180), 100%, 50%, 0.5) 60%,
+      hsl(calc(var(--bgX) * 3.6 + 240), 100%, 50%, 0.5) 80%,
+      hsl(calc(var(--bgX) * 3.6 + 300), 100%, 50%, 0.5) 100%
+    );
+  background-size: 200% 200%;
+  background-position: var(--bgX) var(--bgY);
+  transition: opacity 0.3s;
+}
+
+/* Sparkle layer */
+.card__sparkle {
+  z-index: 3;
+  opacity: 0;
+  mix-blend-mode: color-dodge;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-position: var(--bgX) var(--bgY);
+  animation: sparkle-pan 8s linear infinite;
+  transition: opacity 0.3s;
+}
+
+@keyframes sparkle-pan {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200px 200px; }
+}
+
+/* Glare sweep */
+.card__glare {
+  z-index: 4;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  background: radial-gradient(
+    circle at var(--mx) var(--my),
+    rgba(255,255,255,0.35) 0%,
+    transparent 60%
+  );
+  transition: opacity 0.3s;
+}
+
+/* --- Holo type activations --- */
+
+/* standard: holo_rare */
+[data-holo-type="standard"] .card__holo,
+[data-holo-type="standard"] .card__glare {
+  opacity: calc(0.4 + var(--pointer-from-center) * 0.4);
+}
+[data-holo-type="standard"] .card__sparkle {
+  opacity: calc(0.1 + var(--pointer-from-center) * 0.2);
+}
+
+/* reverse: reverse holo */
+[data-holo-type="reverse"] .card__holo {
+  opacity: calc(0.2 + var(--pointer-from-center) * 0.3);
+}
+[data-holo-type="reverse"] .card__glare {
+  opacity: calc(0.3 + var(--pointer-from-center) * 0.3);
+}
+
+/* full_art: ultra_rare */
+[data-holo-type="full_art"] .card__holo {
+  opacity: calc(0.5 + var(--pointer-from-center) * 0.4);
+}
+[data-holo-type="full_art"] .card__sparkle {
+  opacity: calc(0.2 + var(--pointer-from-center) * 0.4);
+}
+[data-holo-type="full_art"] .card__glare {
+  opacity: calc(0.5 + var(--pointer-from-center) * 0.4);
+}
+
+/* rainbow: secret_rare */
+[data-holo-type="rainbow"] .card__holo {
+  opacity: calc(0.6 + var(--pointer-from-center) * 0.4);
+  animation: rainbow-shift 3s linear infinite;
+}
+[data-holo-type="rainbow"] .card__sparkle {
+  opacity: calc(0.3 + var(--pointer-from-center) * 0.5);
+}
+[data-holo-type="rainbow"] .card__glare {
+  opacity: calc(0.6 + var(--pointer-from-center) * 0.4);
+}
+
+@keyframes rainbow-shift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
