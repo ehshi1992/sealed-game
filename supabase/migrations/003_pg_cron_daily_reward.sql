@@ -1,0 +1,15 @@
+-- Enable pg_cron extension (run in Supabase dashboard SQL editor if not already enabled)
+-- create extension if not exists pg_cron;
+
+-- This migration documents the cron job — run manually in dashboard:
+-- select cron.schedule('daily-currency', '0 0 * * *', $$
+--   update public.profiles set currency = currency + 50
+--   where id in (
+--     select distinct user_id from public.transactions
+--     where created_at > now() - interval '30 days'
+--   );
+-- $$);
+--
+-- NOTE: pg_cron grants are managed per-project. The client-side claimDailyReward()
+-- function in queries.ts handles the actual per-user gating (checks for existing
+-- daily_reward transaction today before crediting).
