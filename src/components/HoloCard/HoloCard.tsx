@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react'
+import { useRef, useCallback } from 'react'
 import type { Card, HoloMode, HoloSeed } from '../../types'
 import { useHoloShader } from './useHoloShader'
 import './HoloCard.css'
@@ -29,9 +29,8 @@ export default function HoloCard({
   holoSeed,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const canvasRef = useRef<HTMLCanvasElement>(null) as React.RefObject<HTMLCanvasElement>
-  const [pointer, setPointer] = useState({ x: 0.5, y: 0.5 })
+  const pointerRef = useRef({ x: 0.5, y: 0.5 })
 
   const canvasDims = CANVAS_SIZES[size]
   const seed: HoloSeed = holoSeed ?? { x: 0.5, y: 0.5 }
@@ -42,7 +41,7 @@ export default function HoloCard({
     seedOffset: seed,
     artworkBounds,
     holoMode,
-    pointer,
+    pointer: pointerRef.current,
   })
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -72,7 +71,7 @@ export default function HoloCard({
     el.style.setProperty('--my', `${my}%`)
     el.style.setProperty('--pointer-from-center', `${pfc}`)
 
-    setPointer({ x: x / rect.width, y: y / rect.height })
+    pointerRef.current = { x: x / rect.width, y: y / rect.height }
   }, [interactive])
 
   const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
@@ -101,7 +100,7 @@ export default function HoloCard({
     el.style.setProperty('--my', `${bgY}%`)
     el.style.setProperty('--pointer-from-center', `${pfc}`)
 
-    setPointer({ x: x / rect.width, y: y / rect.height })
+    pointerRef.current = { x: x / rect.width, y: y / rect.height }
   }, [interactive])
 
   const handleLeave = useCallback(() => {
@@ -114,7 +113,7 @@ export default function HoloCard({
     el.style.setProperty('--mx', '50%')
     el.style.setProperty('--my', '50%')
     el.style.setProperty('--pointer-from-center', '0')
-    setPointer({ x: 0.5, y: 0.5 })
+    pointerRef.current = { x: 0.5, y: 0.5 }
   }, [])
 
   return (
