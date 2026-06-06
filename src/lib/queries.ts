@@ -46,18 +46,30 @@ export async function claimDailyReward(userId: string): Promise<number | null> {
     .eq('type', 'daily_reward')
     .gte('created_at', today)
     .maybeSingle()
-  if (error) return null
-  if (data) return null // already claimed
+  if (error) {
+    console.error('[claimDailyReward] check existing failed:', error)
+    return null
+  }
+  if (data) {
+    console.log('[claimDailyReward] already claimed today')
+    return null
+  }
 
   const { error: insertError } = await supabase.from('transactions').insert({
     user_id: userId,
     type: 'daily_reward',
     amount: 50,
   })
-  if (insertError) return null
+  if (insertError) {
+    console.error('[claimDailyReward] transaction insert failed:', insertError)
+    return null
+  }
 
   const { data: newCurrency, error: rpcError } = await supabase
     .rpc('increment_currency', { uid: userId, delta: 50 })
-  if (rpcError || newCurrency === null) return null
+  if (rpcError || newCurrency === null) {
+    console.error('[claimDailyReward] increment_currency RPC failed:', rpcError)
+    return null
+  }
   return newCurrency as number
 }

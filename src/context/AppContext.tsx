@@ -48,7 +48,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const user = session?.user ?? null
       dispatch({ type: 'SET_USER', user })
       if (user) loadUserData(user)
-    })
+    }).catch(() => {})
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {

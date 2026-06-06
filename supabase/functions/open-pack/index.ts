@@ -1,5 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
+import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,7 +37,7 @@ function buildPack(cardPool: Card[]): string[] {
   return cards
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -49,22 +48,26 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
     }
 
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? 'https://gcwqxxnaccxjmrndowbu.supabase.co'
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    console.log('SUPABASE_URL:', supabaseUrl)
+    console.log('SERVICE_ROLE_KEY prefix:', serviceKey?.slice(0, 20))
+
     // User client (respects RLS for reads)
     const userClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
+      supabaseUrl,
+      anonKey,
       { global: { headers: { authorization: authHeader } } }
     )
 
     // Service client (bypasses RLS for writes)
-    const serviceClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
+    const serviceClient = createClient(supabaseUrl, serviceKey)
 
-    const { data: { user } } = await userClient.auth.getUser()
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await serviceClient.auth.getUser(token)
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized', detail: userError?.message }), { status: 401, headers: corsHeaders })
     }
 
     const { packId } = await req.json() as { packId: string }
@@ -80,22 +83,27 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Pack not found' }), { status: 404, headers: corsHeaders })
     }
 
-    // Validate and deduct currency atomically
+    // Fetch current currency and check balance
     const { data: profile, error: profileError } = await serviceClient
       .from('profiles')
       .select('currency')
       .eq('id', user.id)
       .single()
 
-    if (profileError || !profile || profile.currency < pack.price) {
-      return new Response(JSON.stringify({ error: 'Insufficient currency' }), { status: 400, headers: corsHeaders })
+    if (profileError || !profile) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), { status: 404, headers: corsHeaders })
     }
 
-    const { data: newCurrency, error: rpcError } = await serviceClient
+    if (profile.currency < pack.price) {
+      return new Response(JSON.stringify({ error: 'Insufficient currency' }), { status: 402, headers: corsHeaders })
+    }
+
+    // Deduct currency
+    const { data: newCurrency, error: deductError } = await serviceClient
       .rpc('increment_currency', { uid: user.id, delta: -pack.price })
 
-    if (rpcError || newCurrency === null) {
-      return new Response(JSON.stringify({ error: 'Currency update failed' }), { status: 500, headers: corsHeaders })
+    if (deductError || newCurrency === null) {
+      return new Response(JSON.stringify({ error: 'Failed to deduct currency' }), { status: 500, headers: corsHeaders })
     }
 
     // Fetch cards in this pack's pool

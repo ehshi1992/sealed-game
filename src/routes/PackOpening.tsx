@@ -58,7 +58,8 @@ export default function PackOpening() {
 
   if (pageState === 'loading') {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '1rem' }}>
+        <div className="spinner" />
         <p style={{ color: 'var(--text-muted)' }}>Preparing your pack…</p>
       </div>
     )

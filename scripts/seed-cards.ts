@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
-import 'dotenv/config'
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,
@@ -64,24 +65,30 @@ async function seed() {
 
   console.log(`Inserting ${cards.length} cards from set ${setId}…`)
 
-  const { data: insertedCards, error: cardError } = await supabase
+  const { error: cardError } = await supabase
     .from('cards')
-    .upsert(cards, { onConflict: 'name,set,number' })
+    .insert(cards)
+
+  if (cardError && cardError.code !== '23505') { console.error(cardError); process.exit(1) }
+
+  const { data: fetchedCards, error: fetchError } = await supabase
+    .from('cards')
     .select('id')
+    .eq('set', setId)
 
-  if (cardError) { console.error(cardError); process.exit(1) }
+  if (fetchError) { console.error(fetchError); process.exit(1) }
 
-  const cardIds = insertedCards!.map((c: { id: string }) => c.id)
+  const cardIds = fetchedCards!.map((c: { id: string }) => c.id)
 
   // Create a Base Set pack
   const { error: packError } = await supabase
     .from('packs')
-    .upsert({
+    .insert({
       name: 'Base Set Booster',
       price: 100,
       image_url: 'https://images.pokemontcg.io/base1/logo.png',
       card_pool: cardIds,
-    }, { onConflict: 'name' })
+    })
 
   if (packError) { console.error(packError); process.exit(1) }
 

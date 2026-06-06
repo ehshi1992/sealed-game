@@ -1,3 +1,4 @@
+/* ─── Page wrapper ─────────────────────────────────────── */
 .pack-rip {
   display: flex;
   flex-direction: column;
@@ -5,25 +6,33 @@
   justify-content: center;
   min-height: 100vh;
   gap: 2rem;
+  padding: 2rem 1rem;
   background: var(--bg);
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
-/* Pack wrapper */
+/* ─── Pack image wrapper ────────────────────────────────── */
 .pack-rip__pack {
   position: relative;
   width: 200px;
+  height: 280px;          /* explicit height so children don't collapse parent */
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
 }
 
-.pack-rip__pack img {
+.pack-rip__top,
+.pack-rip__bottom {
+  position: absolute;
+  inset: 0;
   width: 100%;
+  height: 100%;
+  object-fit: contain;
   border-radius: 8px;
   filter: drop-shadow(0 0 24px var(--accent-glow));
 }
 
-/* Hover idle shimmer */
+/* Idle shimmer overlay */
 .pack-rip__pack::after {
   content: '';
   position: absolute;
@@ -32,119 +41,138 @@
   background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
   opacity: 0;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
-
 .pack-rip__pack:hover::after { opacity: 1; }
 
-/* Shake animation */
+/* ─── Shake animation ───────────────────────────────────── */
 @keyframes pack-shake {
-  0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(-3deg) translateX(-4px); }
-  40% { transform: rotate(3deg) translateX(4px); }
-  60% { transform: rotate(-2deg) translateX(-2px); }
-  80% { transform: rotate(2deg) translateX(2px); }
+  0%,100% { transform: rotate(0deg) scale(1); }
+  15%     { transform: rotate(-4deg) translateX(-6px) scale(1.02); }
+  30%     { transform: rotate(5deg) translateX(8px) scale(1.02); }
+  50%     { transform: rotate(-3deg) translateX(-4px) scale(1.01); }
+  70%     { transform: rotate(2deg) translateX(2px) scale(1); }
+  85%     { transform: rotate(-1deg) translateX(-1px); }
 }
+.pack-rip__pack--shaking { animation: pack-shake 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-.pack-rip__pack--shaking { animation: pack-shake 0.5s ease-in-out; }
-
-/* Tear animation */
-@keyframes pack-tear-top {
-  0% { clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: translateY(0) rotate(0deg); }
-  100% { clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: translateY(-120%) rotate(-8deg); }
-}
-
-@keyframes pack-tear-bottom {
-  0% { clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%); transform: translateY(0) rotate(0deg); }
-  100% { clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%); transform: translateY(120%) rotate(8deg); }
-}
-
+/* ─── Tear animation ────────────────────────────────────── */
 .pack-rip__top {
-  position: absolute;
-  inset: 0;
   clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%);
 }
-
 .pack-rip__bottom {
-  position: absolute;
-  inset: 0;
   clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%);
 }
 
-.pack-rip__top--tearing { animation: pack-tear-top 0.4s ease-in forwards; }
-.pack-rip__bottom--tearing { animation: pack-tear-bottom 0.4s ease-in forwards; }
-
-/* Cards fan */
-.pack-rip__cards {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 900px;
-  gap: 1rem;
-  padding: 1rem;
+@keyframes pack-tear-top {
+  0%   { clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%); transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%); transform: translateY(-130%) rotate(-12deg); opacity: 0.6; }
 }
 
-/* Individual card reveal */
+@keyframes pack-tear-bottom {
+  0%   { clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%); transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%); transform: translateY(130%) rotate(12deg); opacity: 0.6; }
+}
+
+.pack-rip__top--tearing    { animation: pack-tear-top    0.5s ease-in forwards; }
+.pack-rip__bottom--tearing { animation: pack-tear-bottom 0.5s ease-in forwards; }
+
+/* ─── Cards grid ────────────────────────────────────────── */
+.pack-rip__cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  max-width: min(960px, 100%);
+  width: 100%;
+}
+
+/* ─── Card reveal animation ─────────────────────────────── */
 @keyframes card-reveal {
-  0% { opacity: 0; transform: translateY(40px) scale(0.8); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0%   { opacity: 0; transform: translateY(50px) scale(0.7) rotateX(45deg); }
+  60%  { transform: translateY(-8px) scale(1.05) rotateX(0deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); }
 }
 
 .pack-rip__card-slot {
-  animation: card-reveal 0.4s ease-out forwards;
+  animation: card-reveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   opacity: 0;
 }
 
-/* Card flip */
+@keyframes card-reveal-rare {
+  0%   { opacity: 0; transform: translateY(50px) scale(0.5) rotateX(45deg); filter: drop-shadow(0 0 0px rgba(255,215,0,0)); }
+  50%  { transform: translateY(-15px) scale(1.1) rotateX(0deg); filter: drop-shadow(0 0 20px rgba(255,215,0,0.9)); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); filter: drop-shadow(0 0 6px rgba(255,215,0,0.3)); }
+}
+.pack-rip__card-slot--rare {
+  animation: card-reveal-rare 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+/* ─── Card flip ─────────────────────────────────────────── */
 .card-flip {
-  perspective: 600px;
+  perspective: 800px;
   cursor: pointer;
+  width: 120px;
+  height: 167px;
 }
 
 .card-flip__inner {
   position: relative;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .card-flip__inner--flipped { transform: rotateY(180deg); }
 
 .card-flip__front,
 .card-flip__back {
-  backface-visibility: hidden;
   position: absolute;
-  top: 0; left: 0;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; /* Chromium */
 }
 
 .card-flip__back {
   transform: rotateY(180deg);
-  position: relative;
+  /* HoloCard fills this slot — let it size naturally */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-back {
-  width: 200px;
-  height: 279px;
+  width: 120px;
+  height: 167px;
   background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
   border-radius: 4.75% / 3.5%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  font-size: 2rem;
 }
 
-.pack-rip__actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
+/* ─── Hint text ─────────────────────────────────────────── */
 .pack-rip__hint {
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   text-align: center;
-  animation: pulse 2s ease-in-out infinite;
+  animation: hint-pulse 2s ease-in-out infinite;
+  user-select: none;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+/* ─── Actions ───────────────────────────────────────────── */
+.pack-rip__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
