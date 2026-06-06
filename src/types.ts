@@ -10,6 +10,20 @@ export type Rarity =
 
 export type HoloType = 'none' | 'standard' | 'reverse' | 'full_art' | 'rainbow'
 
+export type HoloMode = 'none' | 'full_holo' | 'reverse_holo'
+
+export type ArtworkBounds = {
+  x: number  // 0–1 fraction of card width
+  y: number  // 0–1 fraction of card height
+  w: number  // 0–1 fraction of card width
+  h: number  // 0–1 fraction of card height
+}
+
+export type HoloSeed = {
+  x: number  // 0–1, shifts cosmo pattern horizontally
+  y: number  // 0–1, shifts cosmo pattern vertically
+}
+
 export type Card = {
   id: string
   name: string
@@ -18,6 +32,19 @@ export type Card = {
   rarity: Rarity
   image_url: string
   holo_type: HoloType
+  // New metadata fields (optional — may be null on legacy rows)
+  card_layout_type?: string
+  artwork_bounds?: ArtworkBounds | null
+  supertype?: string | null
+  subtypes?: string[] | null
+  hp?: number | null
+  types?: string[] | null
+  artist?: string | null
+  flavor_text?: string | null
+  national_pokedex_numbers?: number[] | null
+  set_name?: string | null
+  set_code?: string | null
+  rarity_raw?: string | null
 }
 
 export type Pack = {
@@ -35,6 +62,7 @@ export type CollectionEntry = {
   card: Card
   acquired_at: string
   count: number
+  holo_seed?: HoloSeed | null  // unique per card instance
 }
 
 export type Transaction = {
