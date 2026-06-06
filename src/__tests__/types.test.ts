@@ -1,4 +1,4 @@
-import type { Card, Pack, CollectionEntry, AppState, AppAction } from '../types'
+import type { Card, AppState } from '../types'
 
 describe('types compile', () => {
   it('Card type has required fields', () => {
