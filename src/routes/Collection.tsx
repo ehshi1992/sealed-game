@@ -34,7 +34,7 @@ export default function Collection() {
               className="collection__slot"
               onClick={() => setSelected(entry)}
             >
-              <HoloCard card={entry.card} size="sm" interactive={false} />
+              <HoloCard card={entry.card} size="sm" interactive={false} holoSeed={entry.holo_seed ?? undefined} />
               {entry.count > 1 && (
                 <span className="collection__count-badge">×{entry.count}</span>
               )}
@@ -46,7 +46,7 @@ export default function Collection() {
       {selected && (
         <div className="collection__modal" onClick={() => setSelected(null)}>
           <div className="collection__modal-inner" onClick={e => e.stopPropagation()}>
-            <HoloCard card={selected.card} size="lg" interactive />
+            <HoloCard card={selected.card} size="lg" interactive holoSeed={selected.holo_seed ?? undefined} />
             <div className="collection__modal-info">
               <h2>{selected.card.name}</h2>
               <p>{selected.card.set} · #{selected.card.number}</p>
