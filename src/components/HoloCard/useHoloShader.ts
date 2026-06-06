@@ -34,7 +34,7 @@ function compileShader(gl: WebGLRenderingContext, type: number, src: string): We
 
 function initGL(
   canvas: HTMLCanvasElement
-): { gl: WebGLRenderingContext; program: WebGLProgram; uniforms: UniformLocations } | null {
+): { gl: WebGLRenderingContext; program: WebGLProgram; uniforms: UniformLocations; vert: WebGLShader; frag: WebGLShader; buf: WebGLBuffer } | null {
   const gl = canvas.getContext('webgl') as WebGLRenderingContext | null
   if (!gl) return null
 
@@ -53,7 +53,7 @@ function initGL(
   }
   gl.useProgram(program)
 
-  const buf = gl.createBuffer()
+  const buf = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, buf)
   gl.bufferData(
     gl.ARRAY_BUFFER,
@@ -76,7 +76,7 @@ function initGL(
     u_artwork_bounds: gl.getUniformLocation(program, 'u_artwork_bounds'),
   }
 
-  return { gl, program, uniforms }
+  return { gl, program, uniforms, vert, frag, buf }
 }
 
 const HOLO_MODE_INT: Record<HoloMode, number> = {
@@ -99,9 +99,9 @@ export function useHoloShader(
     const glCtx = initGL(canvas)
     if (!glCtx) return
 
-    const { gl, uniforms } = glCtx
+    const { gl, program, uniforms } = glCtx
     const startTime = performance.now()
-    let rafId: number
+    let rafId = 0
 
     function render() {
       const { seedOffset, artworkBounds, holoMode, pointer } = optsRef.current
@@ -126,8 +126,13 @@ export function useHoloShader(
 
     return () => {
       cancelAnimationFrame(rafId)
+      gl.detachShader(program, glCtx.vert)
+      gl.deleteShader(glCtx.vert)
+      gl.detachShader(program, glCtx.frag)
+      gl.deleteShader(glCtx.frag)
+      gl.deleteBuffer(glCtx.buf)
       const ext = gl.getExtension('WEBGL_lose_context')
       ext?.loseContext()
     }
-  }, [canvasRef])
+  }, [])
 }
