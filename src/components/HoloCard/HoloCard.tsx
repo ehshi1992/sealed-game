@@ -29,7 +29,7 @@ export default function HoloCard({
   holoSeed,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null) as React.RefObject<HTMLCanvasElement>
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const pointerRef = useRef({ x: 0.5, y: 0.5 })
 
   const canvasDims = CANVAS_SIZES[size]

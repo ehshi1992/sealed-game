@@ -86,7 +86,7 @@ const HOLO_MODE_INT: Record<HoloMode, number> = {
 }
 
 export function useHoloShader(
-  canvasRef: RefObject<HTMLCanvasElement>,
+  canvasRef: RefObject<HTMLCanvasElement | null>,
   opts: HoloShaderOpts
 ) {
   const optsRef = useRef(opts)
