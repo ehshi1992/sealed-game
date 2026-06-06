@@ -133,3 +133,79 @@ body {
 }
 
 .currency-display__icon { color: var(--gold); }
+
+.collection { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+
+.collection__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.collection__title { font-size: 2rem; font-weight: 700; flex: 1; }
+
+.collection__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: var(--text-muted);
+}
+
+.collection__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1rem;
+}
+
+.collection__slot {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.collection__slot:hover { transform: translateY(-4px); }
+
+.collection__count-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99px;
+}
+
+.collection__modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 2rem;
+}
+
+.collection__modal-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.collection__modal-info { text-align: center; }
+.collection__modal-info h2 { font-size: 1.5rem; font-weight: 700; }
+.collection__modal-info p { color: var(--text-muted); margin-top: 0.25rem; }
+.collection__rarity {
+  margin-top: 0.5rem !important;
+  color: var(--gold) !important;
+  font-weight: 600;
+  text-transform: capitalize;
+}
