@@ -4,7 +4,7 @@ dotenv.config({ path: '.env.local' })
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // service role key — NOT the anon key
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
 const RARITY_MAP: Record<string, string> = {
@@ -30,29 +30,48 @@ const HOLO_MAP: Record<string, string> = {
   'secret_rare': 'rainbow',
 }
 
-async function fetchCards(setId: string) {
+export function deriveLayoutType(supertype: string, subtypes: string[], rarity: string): string {
+  if (supertype === 'Energy') return 'energy'
+  if (supertype === 'Trainer') return 'trainer'
+  if (rarity.includes('Secret') || rarity.includes('Full Art')) return 'full_art'
+  if (subtypes.some(s => ['VMAX', 'VSTAR'].includes(s))) return 'v_vmax'
+  if (subtypes.some(s => ['V', 'EX', 'GX', 'ex'].includes(s))) return 'ex_gx'
+  return 'standard'
+}
+
+type RawCard = {
+  id: string
+  name: string
+  supertype?: string
+  subtypes?: string[]
+  hp?: string
+  types?: string[]
+  number: string
+  artist?: string
+  flavorText?: string
+  nationalPokedexNumbers?: number[]
+  set: { id: string; name: string }
+  rarity?: string
+  images: { large: string }
+}
+
+async function fetchCards(setId: string): Promise<RawCard[]> {
   const res = await fetch(
     `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&pageSize=250`,
     { headers: { 'X-Api-Key': process.env.POKEMONTCG_API_KEY! } }
   )
   const json = await res.json()
-  return json.data as Array<{
-    id: string
-    name: string
-    set: { id: string }
-    number: string
-    rarity?: string
-    images: { large: string }
-  }>
+  return json.data as RawCard[]
 }
 
 async function seed() {
-  // Seed Base Set (base1) as the first pack
   const setId = 'base1'
   const raw = await fetchCards(setId)
 
   const cards = raw.map((c) => {
     const rarity = RARITY_MAP[c.rarity ?? ''] ?? 'common'
+    const supertype = c.supertype ?? 'Pokémon'
+    const subtypes = c.subtypes ?? []
     return {
       name: c.name,
       set: c.set.id,
@@ -60,6 +79,17 @@ async function seed() {
       rarity,
       image_url: c.images.large,
       holo_type: HOLO_MAP[rarity] ?? 'none',
+      card_layout_type: deriveLayoutType(supertype, subtypes, c.rarity ?? ''),
+      supertype,
+      subtypes,
+      hp: c.hp ? parseInt(c.hp, 10) : null,
+      types: c.types ?? null,
+      artist: c.artist ?? null,
+      flavor_text: c.flavorText ?? null,
+      national_pokedex_numbers: c.nationalPokedexNumbers ?? null,
+      set_name: c.set.name,
+      set_code: c.set.id,
+      rarity_raw: c.rarity ?? null,
     }
   })
 
@@ -80,7 +110,6 @@ async function seed() {
 
   const cardIds = fetchedCards!.map((c: { id: string }) => c.id)
 
-  // Create a Base Set pack
   const { error: packError } = await supabase
     .from('packs')
     .insert({
