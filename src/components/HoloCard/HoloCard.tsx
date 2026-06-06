@@ -1,15 +1,49 @@
-import { useRef, useCallback } from 'react'
-import type { Card } from '../../types'
+import { useRef, useCallback, useState } from 'react'
+import type { Card, HoloMode, HoloSeed } from '../../types'
+import { useHoloShader } from './useHoloShader'
 import './HoloCard.css'
 
 type Props = {
   card: Card
   size?: 'sm' | 'md' | 'lg'
   interactive?: boolean
+  holoSeed?: HoloSeed
 }
 
-export default function HoloCard({ card, size = 'md', interactive = true }: Props) {
+const CANVAS_SIZES = {
+  sm: { width: 120, height: 167 },
+  md: { width: 200, height: 279 },
+  lg: { width: 300, height: 418 },
+}
+
+function deriveHoloMode(card: Card): HoloMode {
+  if (card.holo_type === 'reverse') return 'reverse_holo'
+  if (card.holo_type === 'none') return 'none'
+  return 'full_holo'  // standard, full_art, rainbow
+}
+
+export default function HoloCard({
+  card,
+  size = 'md',
+  interactive = true,
+  holoSeed,
+}: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const canvasRef = useRef<HTMLCanvasElement>(null) as React.RefObject<HTMLCanvasElement>
+  const [pointer, setPointer] = useState({ x: 0.5, y: 0.5 })
+
+  const canvasDims = CANVAS_SIZES[size]
+  const seed: HoloSeed = holoSeed ?? { x: 0.5, y: 0.5 }
+  const artworkBounds = card.artwork_bounds ?? null
+  const holoMode = deriveHoloMode(card)
+
+  useHoloShader(canvasRef, {
+    seedOffset: seed,
+    artworkBounds,
+    holoMode,
+    pointer,
+  })
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!interactive) return
@@ -37,6 +71,8 @@ export default function HoloCard({ card, size = 'md', interactive = true }: Prop
     el.style.setProperty('--mx', `${mx}%`)
     el.style.setProperty('--my', `${my}%`)
     el.style.setProperty('--pointer-from-center', `${pfc}`)
+
+    setPointer({ x: x / rect.width, y: y / rect.height })
   }, [interactive])
 
   const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
@@ -64,6 +100,8 @@ export default function HoloCard({ card, size = 'md', interactive = true }: Prop
     el.style.setProperty('--mx', `${bgX}%`)
     el.style.setProperty('--my', `${bgY}%`)
     el.style.setProperty('--pointer-from-center', `${pfc}`)
+
+    setPointer({ x: x / rect.width, y: y / rect.height })
   }, [interactive])
 
   const handleLeave = useCallback(() => {
@@ -76,6 +114,7 @@ export default function HoloCard({ card, size = 'md', interactive = true }: Prop
     el.style.setProperty('--mx', '50%')
     el.style.setProperty('--my', '50%')
     el.style.setProperty('--pointer-from-center', '0')
+    setPointer({ x: 0.5, y: 0.5 })
   }, [])
 
   return (
@@ -102,6 +141,12 @@ export default function HoloCard({ card, size = 'md', interactive = true }: Prop
       <div className="card__holo" />
       <div className="card__sparkle" />
       <div className="card__glare" />
+      <canvas
+        ref={canvasRef}
+        className="card__holo-canvas"
+        width={canvasDims.width}
+        height={canvasDims.height}
+      />
     </div>
   )
 }
