@@ -59,7 +59,7 @@ describe('useHoloShader', () => {
   })
 
   it('initialises WebGL and calls drawArrays', async () => {
-    const { result } = renderHook(() => {
+    renderHook(() => {
       const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
       useHoloShader(canvasRef, {
         seedOffset: { x: 0.3, y: 0.7 },
