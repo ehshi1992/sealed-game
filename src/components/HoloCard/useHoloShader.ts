@@ -131,6 +131,7 @@ export function useHoloShader(
       gl.detachShader(program, glCtx.frag)
       gl.deleteShader(glCtx.frag)
       gl.deleteBuffer(glCtx.buf)
+      gl.deleteProgram(program)
       const ext = gl.getExtension('WEBGL_lose_context')
       ext?.loseContext()
     }

@@ -35,6 +35,7 @@ const makeGLMock = () => ({
   detachShader: vi.fn(),
   deleteShader: vi.fn(),
   deleteBuffer: vi.fn(),
+  deleteProgram: vi.fn(),
   COLOR_BUFFER_BIT: 0x4000,
   VERTEX_SHADER: 0x8B31,
   FRAGMENT_SHADER: 0x8B30,

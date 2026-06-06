@@ -71,7 +71,8 @@ export default function HoloCard({
     el.style.setProperty('--my', `${my}%`)
     el.style.setProperty('--pointer-from-center', `${pfc}`)
 
-    pointerRef.current = { x: x / rect.width, y: y / rect.height }
+    pointerRef.current.x = x / rect.width
+    pointerRef.current.y = y / rect.height
   }, [interactive])
 
   const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
@@ -100,7 +101,8 @@ export default function HoloCard({
     el.style.setProperty('--my', `${bgY}%`)
     el.style.setProperty('--pointer-from-center', `${pfc}`)
 
-    pointerRef.current = { x: x / rect.width, y: y / rect.height }
+    pointerRef.current.x = x / rect.width
+    pointerRef.current.y = y / rect.height
   }, [interactive])
 
   const handleLeave = useCallback(() => {
@@ -113,7 +115,8 @@ export default function HoloCard({
     el.style.setProperty('--mx', '50%')
     el.style.setProperty('--my', '50%')
     el.style.setProperty('--pointer-from-center', '0')
-    pointerRef.current = { x: 0.5, y: 0.5 }
+    pointerRef.current.x = 0.5
+    pointerRef.current.y = 0.5
   }, [])
 
   return (
