@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cosmo Foil — Full Pattern Preview</title>
+<style>
+  body { background: #080808; color: #ccc; font-family: monospace; margin: 0; padding: 20px; }
+  h1 { color: #fff; font-size: 13px; margin-bottom: 6px; letter-spacing: 2px; text-transform: uppercase; }
+  .sub { font-size: 10px; color: #444; margin-bottom: 24px; }
+  .row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; align-items: flex-start; }
+  .card { display: flex; flex-direction: column; gap: 6px; }
+  .label { font-size: 10px; color: #666; letter-spacing: 1px; }
+  canvas { border: 1px solid #111; display: block; }
+  hr { border-color: #151515; margin: 20px 0; }
+</style>
+</head>
+<body>
+<h1>Cosmo Foil — Full Pattern</h1>
+<div class="sub">Spirals + sparse orbs + sparse dot field. Dark base — card shows through gaps.</div>
+<div id="container"></div>
+
+<script>
+// ── utils ──────────────────────────────────────────────────────────────────
+function h1(x, y) { const n = Math.sin(x*127.1+y*311.7)*43758.5453; return n-Math.floor(n) }
+function h2(x, y) { return [h1(x,y), h1(y+31.41, x+27.18)] }
+function ss(e0,e1,x){ const t=Math.max(0,Math.min(1,(x-e0)/(e1-e0))); return t*t*(3-2*t) }
+function hsl(h,s,l){
+  h=((h%1)+1)%1
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h*6)%2-1)), m=l-c/2
+  let r,g,b
+  if(h<1/6)[r,g,b]=[c,x,0]
+  else if(h<2/6)[r,g,b]=[x,c,0]
+  else if(h<3/6)[r,g,b]=[0,c,x]
+  else if(h<4/6)[r,g,b]=[0,x,c]
+  else if(h<5/6)[r,g,b]=[x,0,c]
+  else[r,g,b]=[c,0,x]
+  return [(r+m)*255,(g+m)*255,(b+m)*255]
+}
+
+// ── spiral dot generator (D-params = primary, B-params = accent) ──────────
+function buildSpiral({numArms=2,N=300,b=0.22,armSpread=0.28,
+                      minR=0.3,maxR=10,pow=2.5,outerR=0.88}={}) {
+  const dots=[], maxTheta=2.8*Math.PI
+  for(let arm=0;arm<numArms;arm++){
+    const off=(arm/numArms)*2*Math.PI, perArm=Math.floor(N/numArms)
+    for(let i=0;i<perArm;i++){
+      const t=(i+1)/perArm
+      const rBase=Math.exp(b*t*maxTheta/(2*Math.PI))-1
+      const rNorm=rBase/(Math.exp(b*maxTheta/(2*Math.PI))-1)*outerR
+      if(rNorm<0.03) continue
+      const sc=(h1(i*3.7+arm*91,i*2.1)*2-1)*armSpread
+      const theta=t*maxTheta+off+sc/Math.max(rNorm,0.1)
+      const rsc=(h1(i*5.3+arm*17,i+3)*2-1)*0.06
+      const r=Math.max(0.02,Math.min(outerR,rNorm+rsc))
+      const rnd=h1(i*7.1+arm*53,i*4.3+1)
+      const tSize=Math.pow(rnd*0.65+(r/outerR)*0.35, pow)
+      dots.push({r,theta,dotR:minR+(maxR-minR)*tSize,bright:0.35+tSize*0.65})
+    }
+  }
+  const extras=Math.floor(N*0.12)
+  for(let i=0;i<extras;i++){
+    const r=(0.15+h1(i*11.3,i*6.7)*0.75)*outerR
+    const theta=h1(i*3.9,i+77)*2*Math.PI
+    const tp=Math.pow(h1(i*2.1,i*8.4),pow*0.6)
+    dots.push({r,theta,dotR:minR*1.5+maxR*0.6*tp,bright:0.5+tp*0.5})
+  }
+  return dots
+}
+
+// rasterise dot list → Float32Array [0,1]
+function rasterise(dots, size) {
+  const buf=new Float32Array(size*size)
+  const cx=size/2, scale=size*0.46
+  for(const {r,theta,dotR,bright} of dots){
+    const px=cx+r*scale*Math.cos(theta), py=cx+r*scale*Math.sin(theta)
+    const sr=Math.ceil(dotR+1.5)
+    for(let dy=-sr;dy<=sr;dy++) for(let dx=-sr;dx<=sr;dx++){
+      const ix=Math.round(px+dx), iy=Math.round(py+dy)
+      if(ix<0||ix>=size||iy<0||iy>=size) continue
+      const v=ss(dotR,dotR*0.2,Math.sqrt(dx*dx+dy*dy))*bright
+      const idx=iy*size+ix
+      if(v>buf[idx]) buf[idx]=v
+    }
+  }
+  return buf
+}
+
+// ── scattered orbs (sparse, no grid) ─────────────────────────────────────
+// Returns array of {cx,cy,r,bright} in [0,1] coords
+// seed: arbitrary integer offset for different cards
+function buildOrbs({
+  largeN=22,  largeMinR=0.012, largeMaxR=0.038,
+  medN=45,    medMinR=0.006,   medMaxR=0.015,
+  seed=0
+}={}) {
+  const orbs=[]
+  // Large
+  for(let i=0;i<largeN;i++){
+    const cx=0.08+h1(i*3.7+seed,i*9.1)*0.84
+    const cy=0.08+h1(i*5.3+seed,i*2.7+1)*0.84
+    const r=largeMinR+(largeMaxR-largeMinR)*Math.pow(h1(i*11.3+seed,i*4.1),1.5)
+    orbs.push({cx,cy,r,bright:0.6+h1(i+seed,i*7)*0.4,type:'large'})
+  }
+  // Medium
+  for(let i=0;i<medN;i++){
+    const cx=0.04+h1(i*7.1+seed+100,i*3.3)*0.92
+    const cy=0.04+h1(i*4.9+seed+100,i*8.2+2)*0.92
+    const r=medMinR+(medMaxR-medMinR)*Math.pow(h1(i*6.7+seed+100,i*2.9),1.8)
+    orbs.push({cx,cy,r,bright:0.5+h1(i+seed+100,i*5)*0.5,type:'med'})
+  }
+  return orbs
+}
+
+// ── sparse dot field ──────────────────────────────────────────────────────
+// Returns array of {cx,cy} in [0,1] — tiny dots, low density
+function buildDotField({N=180, seed=0}={}) {
+  const dots=[]
+  for(let i=0;i<N;i++){
+    dots.push({
+      cx: h1(i*13.7+seed, i*5.3),
+      cy: h1(i*7.9+seed,  i*11.1+3),
+      bright: 0.4+h1(i+seed+200, i*2)*0.6
+    })
+  }
+  return dots
+}
+
+// ── pre-bake spiral stamps at multiple densities ──────────────────────────
+const STAMP_SIZE = 96
+// 4 density variants for the primary style, 3 for accent — chosen per instance via hash
+const primStamps = [
+  rasterise(buildSpiral({N:180,b:0.22,armSpread:0.28,minR:0.3,maxR:10,pow:2.5}), STAMP_SIZE), // sparse
+  rasterise(buildSpiral({N:260,b:0.22,armSpread:0.28,minR:0.3,maxR:10,pow:2.5}), STAMP_SIZE), // medium
+  rasterise(buildSpiral({N:350,b:0.22,armSpread:0.30,minR:0.3,maxR:10,pow:2.2}), STAMP_SIZE), // dense
+  rasterise(buildSpiral({N:200,b:0.18,armSpread:0.35,minR:0.4,maxR: 9,pow:2.8}), STAMP_SIZE), // open/loose
+]
+const accStamps = [
+  rasterise(buildSpiral({N:140,b:0.28,armSpread:0.16,minR:0.4,maxR:12,pow:3.0}), STAMP_SIZE), // tight sparse
+  rasterise(buildSpiral({N:200,b:0.28,armSpread:0.20,minR:0.4,maxR:11,pow:2.8}), STAMP_SIZE), // tight medium
+  rasterise(buildSpiral({N:160,b:0.32,armSpread:0.14,minR:0.4,maxR:10,pow:3.2}), STAMP_SIZE), // very tight
+]
+
+// ── composite rasteriser ───────────────────────────────────────────────────
+function renderComposite(size, px, py, seed=0) {
+  const orbs  = buildOrbs({ seed })
+  const field = buildDotField({ N:200, seed })
+
+  const out = new Uint8ClampedArray(size*size*4)
+  const tiltHue = px*0.85 + py*0.2
+
+  function blendPixel(x, y, col, alpha) {
+    if(x<0||x>=size||y<0||y>=size||alpha<0.01) return
+    const i=(y*size+x)*4
+    out[i+0] = out[i+0]*(1-alpha) + col[0]*alpha
+    out[i+1] = out[i+1]*(1-alpha) + col[1]*alpha
+    out[i+2] = out[i+2]*(1-alpha) + col[2]*alpha
+    out[i+3] = Math.min(255, out[i+3] + alpha*200)
+  }
+
+  function drawOrb(cx,cy, r, hue, bright, alpha) {
+    const ppx=cx*size, ppy=cy*size, pr=r*size
+    const sr=Math.ceil(pr+1)
+    for(let dy=-sr;dy<=sr;dy++) for(let dx=-sr;dx<=sr;dx++){
+      const d=Math.sqrt(dx*dx+dy*dy)
+      if(d>pr) continue
+      // Hard-edged with slight feather only at very edge
+      const v=ss(pr, pr*0.85, d)*bright*alpha
+      if(v<0.01) continue
+      blendPixel(Math.round(ppx+dx), Math.round(ppy+dy), hsl(hue,1.0,0.35+v*0.5), v)
+    }
+  }
+
+  // stamp with rotation + density variant selection
+  function drawSpiralStamp(stamps, scx, scy, scale, hue, rotation) {
+    const stamp = stamps[Math.floor(h1(scx*100,scy*100) * stamps.length)]
+    const stampPx = scale * size
+    const cos = Math.cos(rotation), sin = Math.sin(rotation)
+    const cx2 = scx*size, cy2 = scy*size
+    const half = stampPx / 2
+    for(let sy=0; sy<STAMP_SIZE; sy++) for(let sx=0; sx<STAMP_SIZE; sx++){
+      const v = stamp[sy*STAMP_SIZE+sx]; if(v < 0.03) continue
+      // local coords in [-0.5, 0.5]
+      const lx = sx/STAMP_SIZE - 0.5, ly = sy/STAMP_SIZE - 0.5
+      // rotate
+      const rx = lx*cos - ly*sin, ry = lx*sin + ly*cos
+      const tx = Math.round(cx2 + rx*stampPx)
+      const ty = Math.round(cy2 + ry*stampPx)
+      blendPixel(tx, ty, hsl(hue + v*0.15, 1.0, 0.30+v*0.55), v*0.90)
+    }
+  }
+
+  // 1. Fine dot field
+  for(const {cx,cy,bright} of field){
+    const dotPx = 1.0 + h1(cx*99,cy*77)*1.6
+    const radA = Math.atan2(cy-0.5, cx-0.5)/(2*Math.PI)
+    const hue = tiltHue + radA*0.14
+    const ppx=cx*size, ppy=cy*size
+    for(let dy=-3;dy<=3;dy++) for(let dx=-3;dx<=3;dx++){
+      const d=Math.sqrt(dx*dx+dy*dy)
+      const v=ss(dotPx, 0, d)*bright*0.75; if(v<0.01) continue
+      blendPixel(Math.round(ppx+dx), Math.round(ppy+dy), hsl(hue,1.0,0.45+v*0.4), v)
+    }
+  }
+
+  // 2. Medium orbs
+  for(const {cx,cy,r,bright} of orbs.filter(o=>o.type==='med')){
+    const radA=Math.atan2(cy-0.5,cx-0.5)/(2*Math.PI)
+    drawOrb(cx,cy,r, tiltHue+h1(cx*97,cy*83)*0.35+radA*0.12, bright, 0.88)
+  }
+
+  // 3. Spiral stamps — min distance between instances
+  const spiralCentres = []
+  const MIN_SPIRAL_DIST = 0.22  // min distance between any two spiral centres
+
+  function tryPlaceSpiral(stamps, cx, cy, scale, hue, rot) {
+    for(const [px,py] of spiralCentres){
+      const d = Math.sqrt((cx-px)**2+(cy-py)**2)
+      if(d < MIN_SPIRAL_DIST) return false
+    }
+    spiralCentres.push([cx,cy])
+    drawSpiralStamp(stamps, cx, cy, scale, hue, rot)
+    return true
+  }
+
+  for(let i=0, placed=0; i<30 && placed<3; i++){
+    const scx   = 0.1+h1(i*7.3+seed,   i*3.1+seed  )*0.80
+    const scy   = 0.1+h1(i*4.9+seed+1, i*8.7+seed  )*0.80
+    const scale = 0.10+h1(i+seed,       i*5         )*0.04
+    const rot   = h1(i*17+seed, i*23+seed) * Math.PI * 2
+    if(tryPlaceSpiral(primStamps, scx, scy, scale, tiltHue+h1(scx*100,scy*100)*0.4, rot)) placed++
+  }
+  for(let i=0, placed=0; i<30 && placed<4; i++){
+    const scx   = 0.08+h1(i*11.3+seed+33, i*6.7+seed)*0.84
+    const scy   = 0.08+h1(i*5.7+seed+33,  i*9.3+seed)*0.84
+    const scale = 0.065+h1(i+seed+33,      i*3       )*0.03
+    const rot   = h1(i*13+seed+33, i*19+seed) * Math.PI * 2
+    if(tryPlaceSpiral(accStamps, scx, scy, scale, tiltHue+h1(scx*100+50,scy*100+50)*0.4+0.15, rot)) placed++
+  }
+
+  // 4. Large orbs — smaller max size
+  for(const {cx,cy,r,bright} of orbs.filter(o=>o.type==='large')){
+    const radA=Math.atan2(cy-0.5,cx-0.5)/(2*Math.PI)
+    drawOrb(cx,cy,r, tiltHue+h1(cx*97,cy*83)*0.35+radA*0.12, bright, 0.95)
+  }
+
+  return out
+}
+
+// ── render canvas ──────────────────────────────────────────────────────────
+function makeCanvas(size, px, py, seed) {
+  const c=document.createElement('canvas'); c.width=c.height=size
+  const ctx=c.getContext('2d')
+  ctx.fillStyle='#07070a'; ctx.fillRect(0,0,size,size)
+  const data=renderComposite(size,px,py,seed)
+  const img=ctx.createImageData(size,size)
+  // composite over dark bg
+  for(let i=0;i<size*size;i++){
+    const a=data[i*4+3]/255
+    img.data[i*4+0]=Math.round(7*(1-a)+data[i*4+0]*a)
+    img.data[i*4+1]=Math.round(7*(1-a)+data[i*4+1]*a)
+    img.data[i*4+2]=Math.round(10*(1-a)+data[i*4+2]*a)
+    img.data[i*4+3]=255
+  }
+  ctx.putImageData(img,0,0)
+  return c
+}
+
+// ── build UI ───────────────────────────────────────────────────────────────
+const container=document.getElementById('container')
+const SIZE=260
+
+// Different tilt angles
+const tilts=[
+  {px:0.7,py:0.25,label:'tilt top-right'},
+  {px:0.15,py:0.7,label:'tilt bottom-left'},
+  {px:0.5,py:0.5,label:'centre'},
+  {px:0.9,py:0.1,label:'extreme top-right'},
+]
+
+// Row 1: same seed, different tilts
+const r1label=document.createElement('div')
+r1label.style.cssText='font-size:11px;color:#666;margin-bottom:10px;letter-spacing:1px'
+r1label.textContent='SEED 0 — DIFFERENT TILT ANGLES'
+container.appendChild(r1label)
+
+const row1=document.createElement('div'); row1.className='row'
+tilts.forEach(({px,py,label})=>{
+  const card=document.createElement('div'); card.className='card'
+  const l=document.createElement('div'); l.className='label'; l.textContent=label
+  card.appendChild(makeCanvas(SIZE,px,py,0))
+  card.appendChild(l)
+  row1.appendChild(card)
+})
+container.appendChild(row1)
+
+const hr=document.createElement('hr'); container.appendChild(hr)
+
+// Row 2: different seeds (different card instances), same tilt
+const r2label=document.createElement('div')
+r2label.style.cssText='font-size:11px;color:#666;margin-bottom:10px;letter-spacing:1px'
+r2label.textContent='TILT 0.65/0.3 — DIFFERENT SEEDS (DIFFERENT CARD INSTANCES)'
+container.appendChild(r2label)
+
+const row2=document.createElement('div'); row2.className='row'
+for(let seed=0;seed<4;seed++){
+  const card=document.createElement('div'); card.className='card'
+  const l=document.createElement('div'); l.className='label'; l.textContent=`seed ${seed}`
+  card.appendChild(makeCanvas(SIZE,0.65,0.3,seed*37))
+  card.appendChild(l)
+  row2.appendChild(card)
+}
+container.appendChild(row2)
+</script>
+</body>
+</html>

@@ -578,6 +578,29 @@ git commit -m "feat: generate holo_seed per card instance at pack open"
 
 ## Task 6: GLSL Shaders
 
+> **UPDATED 2026-06-06 (v3):** Spiral galaxy elements redesigned from `spiralSDF` analytical function to **pre-generated texture** approach. Spiral textures are generated once in JS (log-spiral arm placement + Fermat dot scatter, same algorithm as `cosmo-bitmap-preview.html`), uploaded as two 128×128 WebGL textures (`u_spiral_tex_primary`, `u_spiral_tex_accent`), and sampled per scattered instance. This produces correct dot-cluster galaxy look (reference: eBay 326224249707) which analytical per-pixel SDF cannot replicate cheaply. Locked params: PRIMARY = {numArms:2, N:300, b:0.22, armSpread:0.28, minDotR:0.3, maxDotR:10, sizePower:2.5}, ACCENT = {numArms:2, N:220, b:0.28, armSpread:0.16, minDotR:0.4, maxDotR:12, sizePower:3.0}.
+
+**Uniforms (updated — add `u_holo_density` to `useHoloShader` hook in Task 7):**
+
+```glsl
+uniform vec2  u_resolution;
+uniform vec2  u_seed_offset;    // holo_seed {x,y} — shifts entire orb grid
+uniform vec2  u_pointer;        // normalized mouse/touch [0,1]
+uniform float u_time;
+uniform int   u_holo_mode;      // 0=none, 1=full_holo, 2=reverse_holo
+uniform vec4  u_artwork_bounds; // xywh [0,1] fractions
+uniform int   u_holo_density;   // 0=low(reverse), 1=medium(standard), 2=high(full_art), 3=very_high(rainbow)
+```
+
+**Density → cell sizes per holo_type:**
+
+| `u_holo_density` | `holo_type` | Large cell | Medium cell | Small cell |
+|---|---|---|---|---|
+| 0 | `reverse` | 0.20 | 0.09 | 0.035 |
+| 1 | `standard` | 0.16 | 0.07 | 0.028 |
+| 2 | `full_art` | 0.13 | 0.055 | 0.022 |
+| 3 | `rainbow` | 0.10 | 0.045 | 0.018 |
+
 **Files:**
 - Create: `src/components/HoloCard/shaders.ts`
 
@@ -594,38 +617,29 @@ export const VERT_SRC = /* glsl */`
 export const FRAG_SRC = /* glsl */`
   precision mediump float;
 
-  uniform vec2  u_resolution;
-  uniform vec2  u_seed_offset;
-  uniform vec2  u_pointer;
-  uniform float u_time;
-  uniform int   u_holo_mode;
-  uniform vec4  u_artwork_bounds;
+  uniform vec2      u_resolution;
+  uniform vec2      u_seed_offset;
+  uniform vec2      u_pointer;
+  uniform float     u_time;
+  uniform int       u_holo_mode;
+  uniform vec4      u_artwork_bounds;
+  uniform int       u_holo_density;
+  uniform sampler2D u_spiral_tex_primary;
+  uniform sampler2D u_spiral_tex_accent;
 
-  float hash(vec2 p) {
+  // --- Hashing ---
+
+  float hash1(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
   }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(hash(i),              hash(i + vec2(1.0, 0.0)), u.x),
-      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
-      u.y
+  vec2 hash2(vec2 p) {
+    return vec2(
+      fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453),
+      fract(sin(dot(p, vec2(269.5, 183.3))) * 37623.1122)
     );
   }
 
-  float fbm(vec2 p) {
-    float v = 0.0;
-    float a = 0.5;
-    for (int i = 0; i < 4; i++) {
-      v += a * noise(p);
-      p *= 2.0;
-      a *= 0.5;
-    }
-    return v;
-  }
+  // --- Colour ---
 
   vec3 hsl2rgb(float h, float s, float l) {
     float c = (1.0 - abs(2.0 * l - 1.0)) * s;
@@ -641,6 +655,58 @@ export const FRAG_SRC = /* glsl */`
     return rgb + m;
   }
 
+  // --- Orb layer: draws circles from a hash grid at given cell size ---
+  // Returns vec4(rgb, alpha) — alpha=0 if no orb hit
+
+  vec4 orbLayer(vec2 seeded, float cellSize, float minR, float maxR,
+                float tiltHue, float angleIntensity) {
+    vec2 cell = floor(seeded / cellSize);
+    vec4 result = vec4(0.0);
+    // Check 3x3 neighbourhood so orbs near cell borders aren't clipped
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        vec2 nb = cell + vec2(float(dx), float(dy));
+        vec2 rnd = hash2(nb);
+        // Circle centre: random offset within cell
+        vec2 centre = (nb + rnd) * cellSize;
+        float r = minR + rnd.x * (maxR - minR);
+        float d = length(seeded - centre);
+        if (d < r) {
+          // Per-orb hue: global tilt hue + small hash offset
+          float orbHue = mod(tiltHue + hash1(nb) * 0.35, 1.0);
+          // Brightness: brighter toward orb centre, boosted by tilt intensity
+          float edge   = smoothstep(r, r * 0.3, d);
+          float bright = 0.45 + edge * 0.45 + angleIntensity * 0.2;
+          vec3  col    = hsl2rgb(orbHue, 1.0, clamp(bright, 0.0, 1.0));
+          result = vec4(col, edge * (0.7 + angleIntensity * 0.3));
+        }
+      }
+    }
+    return result;
+  }
+
+  // --- Background sparkle field ---
+
+  float sparkleField(vec2 seeded, float scale) {
+    vec2 cell = floor(seeded * scale);
+    vec2 rnd  = hash2(cell);
+    // Only ~25% of cells get a sparkle dot
+    if (rnd.x > 0.25) return 0.0;
+    vec2 centre = (cell + rnd) / scale;
+    float d = length(seeded - centre);
+    return smoothstep(0.004, 0.0, d);
+  }
+
+  // --- Spiral galaxy (rare, ~3 per card) ---
+
+  float spiralSDF(vec2 seeded, vec2 centre, float spin) {
+    vec2 delta = seeded - centre;
+    float r   = length(delta);
+    float ang = atan(delta.y, delta.x);
+    float spiral = mod(ang + spin * r * 8.0 - u_time * 0.3, 6.2832) / 6.2832;
+    return smoothstep(0.12, 0.0, r) * (1.0 - smoothstep(0.0, 0.15, abs(spiral - 0.5)));
+  }
+
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     uv.y = 1.0 - uv.y;
@@ -654,26 +720,172 @@ export const FRAG_SRC = /* glsl */`
     if (u_holo_mode == 2 &&  in_art) { gl_FragColor = vec4(0.0); return; }
     if (u_holo_mode == 0)             { gl_FragColor = vec4(0.0); return; }
 
-    vec2 seeded = uv + u_seed_offset;
+    // Parallax depth shift
+    vec2 seeded = uv + u_seed_offset + (u_pointer - 0.5) * 0.05;
 
-    vec2 warped = seeded + vec2(
-      fbm(seeded * 3.0 + u_time * 0.12),
-      fbm(seeded * 3.0 + vec2(5.2, 1.3) + u_time * 0.12)
-    ) * 0.4;
+    // Global tilt hue: pointer x/y drives the dominant hue shift seen across all orbs
+    // (matches real foil: tilt left = red band, tilt right = blue band)
+    float tiltHue       = mod(u_pointer.x * 0.8 + u_pointer.y * 0.3 + u_time * 0.02, 1.0);
+    float angleIntensity = length(u_pointer - vec2(0.5)) * 1.8;
 
-    float angle = atan(warped.y - 0.5, warped.x - 0.5);
-    float hue = mod(angle / 6.2832 + u_time * 0.04 + u_pointer.x * 0.25, 1.0);
+    // Cell sizes per density level
+    float largeCell, medCell, smallCell;
+    if (u_holo_density == 3) {
+      largeCell = 0.10; medCell = 0.045; smallCell = 0.018;
+    } else if (u_holo_density == 2) {
+      largeCell = 0.13; medCell = 0.055; smallCell = 0.022;
+    } else if (u_holo_density == 1) {
+      largeCell = 0.16; medCell = 0.070; smallCell = 0.028;
+    } else {
+      largeCell = 0.20; medCell = 0.090; smallCell = 0.035;
+    }
 
-    float dist = length(u_pointer - vec2(0.5));
-    float alpha = 0.35 + dist * 0.35;
+    // --- Orb layers (large → medium → small, painter's algorithm) ---
+    vec4 oLarge  = orbLayer(seeded, largeCell,  largeCell*0.25, largeCell*0.45, tiltHue, angleIntensity);
+    vec4 oMedium = orbLayer(seeded, medCell,    medCell*0.28,   medCell*0.48,   tiltHue, angleIntensity);
+    vec4 oSmall  = orbLayer(seeded, smallCell,  smallCell*0.30, smallCell*0.50, tiltHue, angleIntensity);
 
-    vec3 color = hsl2rgb(hue, 1.0, 0.55);
-    gl_FragColor = vec4(color, alpha);
+    // Composite orb layers (each layer punches through darker ones)
+    vec3  orbCol   = vec3(0.0);
+    float orbAlpha = 0.0;
+    if (oLarge.a  > 0.0) { orbCol = oLarge.rgb;  orbAlpha = oLarge.a;  }
+    if (oMedium.a > 0.0) { orbCol = mix(orbCol, oMedium.rgb, oMedium.a); orbAlpha = max(orbAlpha, oMedium.a); }
+    if (oSmall.a  > 0.0) { orbCol = mix(orbCol, oSmall.rgb,  oSmall.a);  orbAlpha = max(orbAlpha, oSmall.a);  }
+
+    // --- Background sparkle field (fine dots) ---
+    float sp    = sparkleField(seeded, 280.0);
+    vec3  spCol = hsl2rgb(mod(tiltHue + 0.1, 1.0), 0.9, 0.8);
+
+    // --- Spiral galaxies: texture-sampled dot-cluster spirals ---
+    // 5 primary (large, D-params) + 4 accent (tight, B-params) instances per card.
+    // Positions deterministic from u_seed_offset hash.
+    float spiralAcc = 0.0;
+    float spiralHueOff = 0.0;
+    for (int i = 0; i < 5; i++) {
+      vec2  centre  = hash2(u_seed_offset + vec2(float(i) * 7.3, float(i) * 3.1)) * 0.85 + 0.075;
+      float scale   = 0.14 + hash1(centre) * 0.08;
+      vec2  localUV = (seeded - centre) / scale + 0.5;
+      if (localUV.x >= 0.0 && localUV.x <= 1.0 && localUV.y >= 0.0 && localUV.y <= 1.0) {
+        float v = texture2D(u_spiral_tex_primary, localUV).r;
+        if (v > spiralAcc) { spiralAcc = v; spiralHueOff = hash1(centre + vec2(0.1)) * 0.4; }
+      }
+    }
+    for (int i = 0; i < 4; i++) {
+      vec2  centre  = hash2(u_seed_offset + vec2(float(i) * 4.7 + 33.0, float(i) * 8.9)) * 0.80 + 0.10;
+      float scale   = 0.08 + hash1(centre + vec2(0.5)) * 0.06;
+      vec2  localUV = (seeded - centre) / scale + 0.5;
+      if (localUV.x >= 0.0 && localUV.x <= 1.0 && localUV.y >= 0.0 && localUV.y <= 1.0) {
+        float v = texture2D(u_spiral_tex_accent, localUV).r * 0.85;
+        spiralAcc = max(spiralAcc, v);
+      }
+    }
+    spiralAcc = clamp(spiralAcc, 0.0, 1.0);
+    vec3 spiralCol = hsl2rgb(mod(tiltHue + spiralHueOff, 1.0), 1.0, 0.65);
+
+    // --- Final composite ---
+    // Background is transparent (dark card shows through between orbs)
+    vec3  col   = orbCol;
+    float alpha = orbAlpha;
+
+    // Add sparkle dots on top
+    col   = mix(col,   spCol,    sp * 0.9);
+    alpha = max(alpha, sp * (0.5 + angleIntensity * 0.4));
+
+    // Add spiral overlay
+    col   = mix(col,      spiralCol, spiralAcc * 0.6);
+    alpha = max(alpha, spiralAcc * 0.5);
+
+    gl_FragColor = vec4(col, clamp(alpha, 0.0, 1.0));
   }
 `
 ```
 
-- [ ] **Step 2: Verify TypeScript compiles**
+- [ ] **Step 2: Add spiral texture generators to shaders.ts**
+
+Append to `src/components/HoloCard/shaders.ts`:
+
+```ts
+// Spiral texture parameters (locked from cosmo-bitmap-preview.html design session)
+const SPIRAL_TEX_SIZE = 128
+
+interface SpiralParams {
+  numArms: number; N: number; b: number
+  armSpread: number; minDotR: number; maxDotR: number; sizePower: number
+}
+
+const SPIRAL_PRIMARY: SpiralParams = { numArms:2, N:300, b:0.22, armSpread:0.28, minDotR:0.3, maxDotR:10, sizePower:2.5 }
+const SPIRAL_ACCENT:  SpiralParams = { numArms:2, N:220, b:0.28, armSpread:0.16, minDotR:0.4, maxDotR:12, sizePower:3.0 }
+
+function _hash1(x: number, y: number): number {
+  const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453
+  return n - Math.floor(n)
+}
+function _smoothstep(e0: number, e1: number, x: number): number {
+  const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)))
+  return t * t * (3 - 2 * t)
+}
+
+function buildSpiralDots(p: SpiralParams): Array<{r:number,theta:number,dotR:number,brightness:number}> {
+  const dots = []
+  const maxTheta = 2.8 * Math.PI
+  const outerR = 0.88
+  for (let arm = 0; arm < p.numArms; arm++) {
+    const armOffset = (arm / p.numArms) * 2 * Math.PI
+    const perArm = Math.floor(p.N / p.numArms)
+    for (let i = 0; i < perArm; i++) {
+      const t = (i + 1) / perArm
+      const rBase = Math.exp(p.b * t * maxTheta / (2 * Math.PI)) - 1
+      const rNorm = rBase / (Math.exp(p.b * maxTheta / (2 * Math.PI)) - 1) * outerR
+      if (rNorm < 0.03) continue
+      const scatter = (_hash1(i * 3.7 + arm * 91, i * 2.1) * 2 - 1) * p.armSpread
+      const theta   = t * maxTheta + armOffset + scatter / Math.max(rNorm, 0.1)
+      const rSc     = (_hash1(i * 5.3 + arm * 17, i + 3) * 2 - 1) * 0.06
+      const r       = Math.max(0.02, Math.min(outerR, rNorm + rSc))
+      const rnd     = _hash1(i * 7.1 + arm * 53, i * 4.3 + 1)
+      const tSize   = Math.pow(rnd * 0.65 + (r / outerR) * 0.35, p.sizePower)
+      dots.push({ r, theta, dotR: p.minDotR + (p.maxDotR - p.minDotR) * tSize, brightness: 0.35 + tSize * 0.65 })
+    }
+  }
+  // Extras: scattered large orbs
+  const extras = Math.floor(p.N * 0.12)
+  for (let i = 0; i < extras; i++) {
+    const r   = (0.15 + _hash1(i * 11.3, i * 6.7) * 0.75) * outerR
+    const th  = _hash1(i * 3.9, i + 77) * 2 * Math.PI
+    const tPow = Math.pow(_hash1(i * 2.1, i * 8.4), p.sizePower * 0.6)
+    dots.push({ r, theta: th, dotR: p.minDotR * 1.5 + p.maxDotR * 0.6 * tPow, brightness: 0.5 + tPow * 0.5 })
+  }
+  return dots
+}
+
+export function generateSpiralTexture(params: SpiralParams, size = SPIRAL_TEX_SIZE): Uint8Array {
+  const buf = new Float32Array(size * size)
+  const cx = size / 2, cy = size / 2, scale = size * 0.46
+  for (const { r, theta, dotR, brightness } of buildSpiralDots(params)) {
+    const px = cx + r * scale * Math.cos(theta)
+    const py = cy + r * scale * Math.sin(theta)
+    const sr = Math.ceil(dotR + 1.5)
+    for (let dy = -sr; dy <= sr; dy++) {
+      for (let dx = -sr; dx <= sr; dx++) {
+        const ix = Math.round(px + dx), iy = Math.round(py + dy)
+        if (ix < 0 || ix >= size || iy < 0 || iy >= size) continue
+        const v = _smoothstep(dotR, dotR * 0.2, Math.sqrt(dx*dx + dy*dy)) * brightness
+        const idx = iy * size + ix
+        if (v > buf[idx]) buf[idx] = v
+      }
+    }
+  }
+  const out = new Uint8Array(size * size * 4)
+  for (let i = 0; i < size * size; i++) {
+    const v = Math.round(buf[i] * 255)
+    out[i*4+0] = v; out[i*4+1] = v; out[i*4+2] = v; out[i*4+3] = 255
+  }
+  return out
+}
+
+export { SPIRAL_PRIMARY, SPIRAL_ACCENT, SPIRAL_TEX_SIZE }
+```
+
+- [ ] **Step 3: Verify TypeScript compiles**
 
 ```
 npx tsc --noEmit
@@ -681,11 +893,11 @@ npx tsc --noEmit
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add src/components/HoloCard/shaders.ts
-git commit -m "feat: add cosmo foil GLSL vertex and fragment shaders"
+git commit -m "feat: add cosmo foil GLSL shaders — orb hash grid, texture-sampled dot-cluster spirals, sparkles"
 ```
 
 ---
@@ -819,12 +1031,14 @@ Expected: FAIL — `useHoloShader` not found.
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import { VERT_SRC, FRAG_SRC } from './shaders'
-import type { ArtworkBounds, HoloMode, HoloSeed } from '../../types'
+import type { ArtworkBounds, HoloMode, HoloSeed, HoloType } from '../../types'
+import { generateSpiralTexture, SPIRAL_PRIMARY, SPIRAL_ACCENT, SPIRAL_TEX_SIZE } from './shaders'
 
 interface HoloShaderOpts {
   seedOffset: HoloSeed
   artworkBounds: ArtworkBounds | null
   holoMode: HoloMode
+  holoType: HoloType   // drives u_holo_density
   pointer: { x: number; y: number }
 }
 
@@ -835,6 +1049,9 @@ type UniformLocations = {
   u_time: WebGLUniformLocation | null
   u_holo_mode: WebGLUniformLocation | null
   u_artwork_bounds: WebGLUniformLocation | null
+  u_holo_density: WebGLUniformLocation | null
+  u_spiral_tex_primary: WebGLUniformLocation | null
+  u_spiral_tex_accent: WebGLUniformLocation | null
 }
 
 function compileShader(gl: WebGLRenderingContext, type: number, src: string): WebGLShader | null {
@@ -886,13 +1103,34 @@ function initGL(
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
   const uniforms: UniformLocations = {
-    u_resolution:    gl.getUniformLocation(program, 'u_resolution'),
-    u_seed_offset:   gl.getUniformLocation(program, 'u_seed_offset'),
-    u_pointer:       gl.getUniformLocation(program, 'u_pointer'),
-    u_time:          gl.getUniformLocation(program, 'u_time'),
-    u_holo_mode:     gl.getUniformLocation(program, 'u_holo_mode'),
-    u_artwork_bounds: gl.getUniformLocation(program, 'u_artwork_bounds'),
+    u_resolution:         gl.getUniformLocation(program, 'u_resolution'),
+    u_seed_offset:        gl.getUniformLocation(program, 'u_seed_offset'),
+    u_pointer:            gl.getUniformLocation(program, 'u_pointer'),
+    u_time:               gl.getUniformLocation(program, 'u_time'),
+    u_holo_mode:          gl.getUniformLocation(program, 'u_holo_mode'),
+    u_artwork_bounds:     gl.getUniformLocation(program, 'u_artwork_bounds'),
+    u_holo_density:       gl.getUniformLocation(program, 'u_holo_density'),
+    u_spiral_tex_primary: gl.getUniformLocation(program, 'u_spiral_tex_primary'),
+    u_spiral_tex_accent:  gl.getUniformLocation(program, 'u_spiral_tex_accent'),
   }
+
+  // Upload spiral textures once at init
+  function uploadTex(unit: number, data: Uint8Array, size: number): WebGLTexture | null {
+    const tex = gl.createTexture()
+    gl.activeTexture(gl.TEXTURE0 + unit)
+    gl.bindTexture(gl.TEXTURE_2D, tex)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, data)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    return tex
+  }
+  uploadTex(1, generateSpiralTexture(SPIRAL_PRIMARY, SPIRAL_TEX_SIZE), SPIRAL_TEX_SIZE)
+  uploadTex(2, generateSpiralTexture(SPIRAL_ACCENT,  SPIRAL_TEX_SIZE), SPIRAL_TEX_SIZE)
+  gl.useProgram(program)
+  gl.uniform1i(uniforms.u_spiral_tex_primary, 1)
+  gl.uniform1i(uniforms.u_spiral_tex_accent,  2)
 
   return { gl, program, uniforms }
 }
@@ -901,6 +1139,14 @@ const HOLO_MODE_INT: Record<HoloMode, number> = {
   none: 0,
   full_holo: 1,
   reverse_holo: 2,
+}
+
+const HOLO_DENSITY_INT: Record<HoloType, number> = {
+  none:     0,
+  reverse:  0,
+  standard: 1,
+  full_art: 2,
+  rainbow:  3,
 }
 
 export function useHoloShader(
@@ -922,7 +1168,7 @@ export function useHoloShader(
     let rafId: number
 
     function render() {
-      const { seedOffset, artworkBounds, holoMode, pointer } = optsRef.current
+      const { seedOffset, artworkBounds, holoMode, holoType, pointer } = optsRef.current
       const bounds = artworkBounds ?? { x: 0, y: 0, w: 1, h: 1 }
 
       gl.viewport(0, 0, canvas!.width, canvas!.height)
@@ -935,6 +1181,7 @@ export function useHoloShader(
       gl.uniform1f(uniforms.u_time, elapsed)
       gl.uniform1i(uniforms.u_holo_mode, HOLO_MODE_INT[holoMode])
       gl.uniform4f(uniforms.u_artwork_bounds, bounds.x, bounds.y, bounds.w, bounds.h)
+      gl.uniform1i(uniforms.u_holo_density, HOLO_DENSITY_INT[holoType])
 
       gl.drawArrays(gl.TRIANGLES, 0, 6)
       rafId = requestAnimationFrame(render)
@@ -1080,6 +1327,7 @@ export default function HoloCard({
     seedOffset: seed,
     artworkBounds,
     holoMode,
+    holoType: card.holo_type,
     pointer,
   })
 

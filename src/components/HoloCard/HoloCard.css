@@ -91,44 +91,44 @@
 
 /* --- Holo type activations --- */
 
-/* standard: holo_rare */
+/* standard: holo_rare — base 0 so CSS layer doesn't blow out at rest; WebGL canvas handles static pattern */
 [data-holo-type="standard"] .card__holo,
 [data-holo-type="standard"] .card__glare {
-  opacity: calc(0.4 + var(--pointer-from-center) * 0.4);
+  opacity: calc(var(--pointer-from-center) * 0.5);
 }
 [data-holo-type="standard"] .card__sparkle {
-  opacity: calc(0.1 + var(--pointer-from-center) * 0.2);
+  opacity: calc(var(--pointer-from-center) * 0.25);
 }
 
 /* reverse: reverse holo */
 [data-holo-type="reverse"] .card__holo {
-  opacity: calc(0.2 + var(--pointer-from-center) * 0.3);
+  opacity: calc(var(--pointer-from-center) * 0.35);
 }
 [data-holo-type="reverse"] .card__glare {
-  opacity: calc(0.3 + var(--pointer-from-center) * 0.3);
+  opacity: calc(var(--pointer-from-center) * 0.35);
 }
 
 /* full_art: ultra_rare */
 [data-holo-type="full_art"] .card__holo {
-  opacity: calc(0.5 + var(--pointer-from-center) * 0.4);
+  opacity: calc(var(--pointer-from-center) * 0.55);
 }
 [data-holo-type="full_art"] .card__sparkle {
-  opacity: calc(0.2 + var(--pointer-from-center) * 0.4);
+  opacity: calc(var(--pointer-from-center) * 0.45);
 }
 [data-holo-type="full_art"] .card__glare {
-  opacity: calc(0.5 + var(--pointer-from-center) * 0.4);
+  opacity: calc(var(--pointer-from-center) * 0.55);
 }
 
 /* rainbow: secret_rare */
 [data-holo-type="rainbow"] .card__holo {
-  opacity: calc(0.6 + var(--pointer-from-center) * 0.4);
+  opacity: calc(var(--pointer-from-center) * 0.6);
   animation: rainbow-shift 3s linear infinite;
 }
 [data-holo-type="rainbow"] .card__sparkle {
-  opacity: calc(0.3 + var(--pointer-from-center) * 0.5);
+  opacity: calc(var(--pointer-from-center) * 0.55);
 }
 [data-holo-type="rainbow"] .card__glare {
-  opacity: calc(0.6 + var(--pointer-from-center) * 0.4);
+  opacity: calc(var(--pointer-from-center) * 0.6);
 }
 
 @keyframes rainbow-shift {
@@ -136,7 +136,7 @@
   100% { filter: hue-rotate(360deg); }
 }
 
-/* WebGL cosmo foil canvas — full card coverage, composited via color-dodge */
+/* WebGL cosmo foil canvas — screen blend: invisible on white card border, brightens dark artwork */
 .card__holo-canvas {
   position: absolute;
   inset: 0;
@@ -145,5 +145,5 @@
   border-radius: inherit;
   pointer-events: none;
   z-index: 5;
-  mix-blend-mode: color-dodge;
+  mix-blend-mode: screen;
 }

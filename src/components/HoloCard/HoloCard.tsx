@@ -35,12 +35,14 @@ export default function HoloCard({
   const canvasDims = CANVAS_SIZES[size]
   const seed: HoloSeed = holoSeed ?? { x: 0.5, y: 0.5 }
   const artworkBounds = card.artwork_bounds ?? null
-  const holoMode = deriveHoloMode(card)
+  // No bounds → skip rendering to avoid full-card coverage with unknown clip region
+  const holoMode = artworkBounds ? deriveHoloMode(card) : 'none'
 
   useHoloShader(canvasRef, {
     seedOffset: seed,
     artworkBounds,
     holoMode,
+    holoType: card.holo_type,
     pointer: pointerRef.current,
   })
 
@@ -139,7 +141,7 @@ export default function HoloCard({
       } as React.CSSProperties}
     >
       <div className="card__translucent" />
-      <img className="card__img" src={card.image_url} alt={card.name} loading="lazy" />
+      <img className="card__img" src={card.image_url} alt={card.name} />
       <div className="card__holo" />
       <div className="card__sparkle" />
       <div className="card__glare" />

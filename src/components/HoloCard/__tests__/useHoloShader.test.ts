@@ -27,7 +27,9 @@ const makeGLMock = () => ({
   viewport: vi.fn(),
   clear: vi.fn(),
   uniform2f: vi.fn(),
+  uniform2fv: vi.fn(),
   uniform1f: vi.fn(),
+  uniform1fv: vi.fn(),
   uniform1i: vi.fn(),
   uniform4f: vi.fn(),
   drawArrays: vi.fn(),
@@ -36,6 +38,11 @@ const makeGLMock = () => ({
   deleteShader: vi.fn(),
   deleteBuffer: vi.fn(),
   deleteProgram: vi.fn(),
+  createTexture: vi.fn(() => ({})),
+  activeTexture: vi.fn(),
+  bindTexture: vi.fn(),
+  texImage2D: vi.fn(),
+  texParameteri: vi.fn(),
   COLOR_BUFFER_BIT: 0x4000,
   VERTEX_SHADER: 0x8B31,
   FRAGMENT_SHADER: 0x8B30,
@@ -48,6 +55,16 @@ const makeGLMock = () => ({
   BLEND: 0x0BE2,
   SRC_ALPHA: 0x0302,
   ONE_MINUS_SRC_ALPHA: 0x0303,
+  TEXTURE0: 0x84C0,
+  TEXTURE_2D: 0x0DE1,
+  RGBA: 0x1908,
+  UNSIGNED_BYTE: 0x1401,
+  TEXTURE_MIN_FILTER: 0x2801,
+  TEXTURE_MAG_FILTER: 0x2800,
+  TEXTURE_WRAP_S: 0x2802,
+  TEXTURE_WRAP_T: 0x2803,
+  LINEAR: 0x2601,
+  CLAMP_TO_EDGE: 0x812F,
 })
 
 describe('useHoloShader', () => {
@@ -65,6 +82,7 @@ describe('useHoloShader', () => {
         seedOffset: { x: 0.3, y: 0.7 },
         artworkBounds: { x: 0.07, y: 0.11, w: 0.86, h: 0.36 },
         holoMode: 'full_holo',
+        holoType: 'standard',
         pointer: { x: 0.5, y: 0.5 },
       })
       return canvasRef
@@ -82,6 +100,7 @@ describe('useHoloShader', () => {
           seedOffset: { x: 0, y: 0 },
           artworkBounds: null,
           holoMode: 'none',
+          holoType: 'none',
           pointer: { x: 0.5, y: 0.5 },
         })
       })
@@ -97,6 +116,7 @@ describe('useHoloShader', () => {
           seedOffset: { x: 0, y: 0 },
           artworkBounds: null,
           holoMode: 'full_holo',
+          holoType: 'standard',
           pointer: { x: 0.5, y: 0.5 },
         })
       })

@@ -43,6 +43,7 @@ function PackList() {
 export default function Shop() {
   const { signOut } = useAuth()
   const { claim } = useCurrency()
+  const navigate = useNavigate()
 
   return (
     <div className="shop">
@@ -53,6 +54,7 @@ export default function Shop() {
           <button className="btn btn--secondary shop__daily" onClick={claim}>
             Claim Daily ✦50
           </button>
+          <button className="btn btn--secondary" onClick={() => navigate('/collection')}>Collection</button>
           <button className="btn btn--secondary" onClick={signOut}>Sign Out</button>
         </div>
       </header>
