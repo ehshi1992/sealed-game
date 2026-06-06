@@ -122,6 +122,7 @@ Deno.serve(async (req) => {
     const collectionRows = selectedIds.map(cardId => ({
       user_id: user.id,
       card_id: cardId,
+      holo_seed: { x: Math.random(), y: Math.random() },
     }))
 
     await serviceClient.from('user_collection').insert(collectionRows)
