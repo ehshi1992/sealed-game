@@ -1,0 +1,150 @@
+.pack-rip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 2rem;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* Pack wrapper */
+.pack-rip__pack {
+  position: relative;
+  width: 200px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pack-rip__pack img {
+  width: 100%;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 24px var(--accent-glow));
+}
+
+/* Hover idle shimmer */
+.pack-rip__pack::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.pack-rip__pack:hover::after { opacity: 1; }
+
+/* Shake animation */
+@keyframes pack-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-3deg) translateX(-4px); }
+  40% { transform: rotate(3deg) translateX(4px); }
+  60% { transform: rotate(-2deg) translateX(-2px); }
+  80% { transform: rotate(2deg) translateX(2px); }
+}
+
+.pack-rip__pack--shaking { animation: pack-shake 0.5s ease-in-out; }
+
+/* Tear animation */
+@keyframes pack-tear-top {
+  0% { clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: translateY(0) rotate(0deg); }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: translateY(-120%) rotate(-8deg); }
+}
+
+@keyframes pack-tear-bottom {
+  0% { clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%); transform: translateY(0) rotate(0deg); }
+  100% { clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%); transform: translateY(120%) rotate(8deg); }
+}
+
+.pack-rip__top {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%);
+}
+
+.pack-rip__bottom {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%);
+}
+
+.pack-rip__top--tearing { animation: pack-tear-top 0.4s ease-in forwards; }
+.pack-rip__bottom--tearing { animation: pack-tear-bottom 0.4s ease-in forwards; }
+
+/* Cards fan */
+.pack-rip__cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 900px;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Individual card reveal */
+@keyframes card-reveal {
+  0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pack-rip__card-slot {
+  animation: card-reveal 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Card flip */
+.card-flip {
+  perspective: 600px;
+  cursor: pointer;
+}
+
+.card-flip__inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-flip__inner--flipped { transform: rotateY(180deg); }
+
+.card-flip__front,
+.card-flip__back {
+  backface-visibility: hidden;
+  position: absolute;
+  top: 0; left: 0;
+}
+
+.card-flip__back {
+  transform: rotateY(180deg);
+  position: relative;
+}
+
+.card-back {
+  width: 200px;
+  height: 279px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  border-radius: 4.75% / 3.5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.pack-rip__actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pack-rip__hint {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
