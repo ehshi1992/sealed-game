@@ -56,12 +56,8 @@ export async function claimDailyReward(userId: string): Promise<number | null> {
   })
   if (insertError) return null
 
-  const { data: profile, error: updateError } = await supabase
-    .from('profiles')
-    .update({ currency: supabase.rpc('increment_currency', { uid: userId, delta: 50 }) })
-    .eq('id', userId)
-    .select('currency')
-    .single()
-  if (updateError || !profile) return null
-  return (profile as Profile).currency
+  const { data: newCurrency, error: rpcError } = await supabase
+    .rpc('increment_currency', { uid: userId, delta: 50 })
+  if (rpcError || newCurrency === null) return null
+  return newCurrency as number
 }
