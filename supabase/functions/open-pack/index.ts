@@ -125,7 +125,10 @@ Deno.serve(async (req) => {
       holo_seed: { x: Math.random(), y: Math.random() },
     }))
 
-    await serviceClient.from('user_collection').insert(collectionRows)
+    const { error: insertError } = await serviceClient.from('user_collection').insert(collectionRows)
+    if (insertError) {
+      return new Response(JSON.stringify({ error: 'Failed to add cards to collection' }), { status: 500, headers: corsHeaders })
+    }
 
     // Record transaction
     await serviceClient.from('transactions').insert({
