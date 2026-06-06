@@ -4,9 +4,12 @@
 ALTER TABLE user_collection
   ADD COLUMN IF NOT EXISTS holo_seed JSONB;
 
+CREATE INDEX IF NOT EXISTS user_collection_user_id_idx ON user_collection(user_id);
+
 -- Layout hint + CV-computed bounds on cards
 ALTER TABLE cards
-  ADD COLUMN IF NOT EXISTS card_layout_type TEXT NOT NULL DEFAULT 'standard',
+  ADD COLUMN IF NOT EXISTS card_layout_type TEXT NOT NULL DEFAULT 'standard'
+    CHECK (card_layout_type IN ('standard','energy','trainer','full_art','v_vmax','ex_gx')),
   ADD COLUMN IF NOT EXISTS artwork_bounds    JSONB,
   ADD COLUMN IF NOT EXISTS supertype         TEXT,
   ADD COLUMN IF NOT EXISTS subtypes          TEXT[],
