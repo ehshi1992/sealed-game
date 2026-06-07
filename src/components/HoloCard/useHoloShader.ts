@@ -1,21 +1,23 @@
+// src/components/HoloCard/useHoloShader.ts
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
-import {
-  VERT_SRC, FRAG_SRC,
-} from './shaders'
-import type { ArtworkBounds, HoloMode, HoloSeed, HoloType } from '../../types'
+import { VERT_SRC, FRAG_SRC } from './shaders'
+import type { ArtworkBounds, HoloMode, HoloSeed } from '../../types'
 
 interface HoloShaderOpts {
   enabled:       boolean
   seedOffset:    HoloSeed
   artworkBounds: ArtworkBounds | null
   holoMode:      HoloMode
-  holoType:      HoloType
   pointer:       { x: number; y: number }
 }
 
+// Module-level bitmap preload — one Image shared across all card instances
+const cosmoImg = new Image()
+cosmoImg.src = '/textures/cosmo-bitmap.png'
+
 let activeContextCount = 0
-const MAX_CONTEXTS = 12
+const MAX_CONTEXTS = 16
 let webglBroken = false
 
 type Uniforms = {
@@ -29,84 +31,51 @@ type Uniforms = {
 }
 
 function compileShader(gl: WebGLRenderingContext, type: number, src: string): WebGLShader | null {
-  const shader = gl.createShader(type);
-  if (!shader) return null;
-  gl.shaderSource(shader, src);
-  gl.compileShader(shader);
+  const shader = gl.createShader(type)
+  if (!shader) return null
+  gl.shaderSource(shader, src)
+  gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    gl.deleteShader(shader);
-    return null;
+    console.error('[HoloShader] compile error:', gl.getShaderInfoLog(shader))
+    gl.deleteShader(shader)
+    return null
   }
-  return shader;
+  return shader
 }
-      
 
-function uploadTexture(
-  gl: WebGLRenderingContext, unit: number, data: Uint8Array, size: number
-): void {
+function uploadBitmapTexture(gl: WebGLRenderingContext, unit: number): WebGLTexture | null {
   gl.activeTexture(gl.TEXTURE0 + unit)
   const tex = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, tex)
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, data)
+
+  // 1×1 transparent placeholder while the image loads
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]))
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
-}
 
-/**
- * Placeholder: Generate a minimal cosmo bitmap (512×512 RGBA).
- * R = large orbs, G = fine dots, B = spirals (pre-emphasized).
- * This is a temporary stand-in — should be replaced with CV-extracted bitmap from design asset.
- */
-function generateCosmoBitmap(size: number = 512): Uint8Array {
-  const buf = new Uint8Array(size * size * 4)
-  const cx = size / 2, cy = size / 2
-
-  // Simple procedural: place some circular orbs in R, dots in G, spiral pattern in B
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const dx = x - cx, dy = y - cy
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      const idx = (y * size + x) * 4
-
-      // R: large orbs (few per tile, smooth falloff)
-      const orbTile = Math.floor(x / 64) + Math.floor(y / 64) * 8
-      const orbSeed = Math.sin(orbTile * 12.9898) * 43758.5453
-      const orbHash = orbSeed - Math.floor(orbSeed)
-      if (orbHash < 0.15) {
-        const orbDist = (dist - (orbHash * 80 + 30)) / 20
-        buf[idx + 0] = Math.max(0, Math.round((1 - orbDist) * 255))
-      }
-
-      // G: fine dots (many, sparse)
-      const dotTile = Math.floor(x / 32) + Math.floor(y / 32) * 16
-      const dotSeed = Math.sin(dotTile * 78.233) * 43758.5453
-      const dotHash = dotSeed - Math.floor(dotSeed)
-      if (dotHash < 0.08) {
-        const dotDist = Math.sqrt((dx * 0.5) ** 2 + (dy * 0.5) ** 2)
-        buf[idx + 1] = Math.max(0, Math.round(Math.exp(-dotDist / 8) * 200))
-      }
-
-      // B: spiral pattern (theta-based emphasis)
-      const theta = Math.atan2(dy, dx)
-      const r = dist / (size * 0.35)
-      if (r < 0.9) {
-        const spiralWave = (Math.sin(theta * 3 + r * 8) + 1) * 0.5
-        buf[idx + 2] = Math.round(spiralWave * 180)
-      }
-
-      buf[idx + 3] = 255 // alpha
-    }
+  function upload() {
+    gl.bindTexture(gl.TEXTURE_2D, tex)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cosmoImg)
+    gl.generateMipmap(gl.TEXTURE_2D)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
   }
 
-  return buf
+  if (cosmoImg.complete && cosmoImg.naturalWidth > 0) {
+    upload()
+  } else {
+    const handler = () => { upload(); cosmoImg.removeEventListener('load', handler) }
+    cosmoImg.addEventListener('load', handler)
+  }
+
+  return tex
 }
 
 function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniforms: Uniforms } | null {
   if (webglBroken) return null
   if (activeContextCount >= MAX_CONTEXTS) {
-    console.warn(`WebGL context cap (${MAX_CONTEXTS}) reached, skipping shader`)
+    console.warn(`[HoloShader] context cap (${MAX_CONTEXTS}) reached`)
     return null
   }
   const gl = canvas.getContext('webgl') as WebGLRenderingContext | null
@@ -115,23 +84,18 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
   const vert = compileShader(gl, gl.VERTEX_SHADER, VERT_SRC)
   const frag = compileShader(gl, gl.FRAGMENT_SHADER, FRAG_SRC)
   if (!vert || !frag) {
-    const ext = gl.getExtension('WEBGL_lose_context')
-    ext?.loseContext()
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
     webglBroken = true
     return null
   }
 
   const program = gl.createProgram()
-  if (!program) {
-    const ext = gl.getExtension('WEBGL_lose_context')
-    ext?.loseContext()
-    return null
-  }
+  if (!program) { gl.getExtension('WEBGL_lose_context')?.loseContext(); return null }
   gl.attachShader(program, vert)
   gl.attachShader(program, frag)
   gl.linkProgram(program)
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(program))
+    console.error('[HoloShader] link error:', gl.getProgramInfoLog(program))
     return null
   }
   gl.useProgram(program)
@@ -145,9 +109,7 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-  // Upload cosmo bitmap texture (512×512 RGBA)
-  const cosmoBitmap = generateCosmoBitmap(512)
-  uploadTexture(gl, 0, cosmoBitmap, 512)
+  uploadBitmapTexture(gl, 1)
 
   const uniforms: Uniforms = {
     u_resolution:     gl.getUniformLocation(program, 'u_resolution'),
@@ -159,10 +121,9 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
     u_cosmo_bitmap:   gl.getUniformLocation(program, 'u_cosmo_bitmap'),
   }
 
-  gl.uniform1i(uniforms.u_cosmo_bitmap, 0)
+  gl.uniform1i(uniforms.u_cosmo_bitmap, 1)
 
   activeContextCount++
-
   return { gl, uniforms }
 }
 
@@ -177,22 +138,18 @@ export function useHoloShader(
 
   useEffect(() => {
     if (!opts.enabled) return
-
     const canvas = canvasRef.current
     if (!canvas) return
 
-    // Reset broken flag on each mount so a fresh canvas gets a fair attempt
     webglBroken = false
     canvas.style.removeProperty('display')
     const ctx = initGL(canvas)
     if (!ctx) {
       canvas.style.setProperty('display', 'none', 'important')
-      console.warn('[useHoloShader] initGL failed — canvas hidden')
       return
     }
-    console.log('[useHoloShader] initGL OK, rendering')
-    const { gl, uniforms } = ctx
 
+    const { gl, uniforms } = ctx
     const startTime = performance.now()
     let rafId: number
 
@@ -200,7 +157,6 @@ export function useHoloShader(
       const { seedOffset, artworkBounds, holoMode, pointer } = optsRef.current
       const bounds = artworkBounds ?? { x: 0, y: 0, w: 1, h: 1 }
 
-      // Sync canvas pixel buffer to actual display size (prevents stretch/warp)
       const dpr = window.devicePixelRatio || 1
       const displayW = Math.round(canvas!.clientWidth  * dpr)
       const displayH = Math.round(canvas!.clientHeight * dpr)
