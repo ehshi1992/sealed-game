@@ -79,10 +79,10 @@ describe('useHoloShader', () => {
     renderHook(() => {
       const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
       useHoloShader(canvasRef, {
+        enabled: true,
         seedOffset: { x: 0.3, y: 0.7 },
         artworkBounds: { x: 0.07, y: 0.11, w: 0.86, h: 0.36 },
         holoMode: 'full_holo',
-        holoType: 'standard',
         pointer: { x: 0.5, y: 0.5 },
       })
       return canvasRef
@@ -97,10 +97,10 @@ describe('useHoloShader', () => {
       renderHook(() => {
         const canvasRef = useRef<HTMLCanvasElement>(null as any)
         useHoloShader(canvasRef, {
+          enabled: true,
           seedOffset: { x: 0, y: 0 },
           artworkBounds: null,
           holoMode: 'none',
-          holoType: 'none',
           pointer: { x: 0.5, y: 0.5 },
         })
       })
@@ -113,10 +113,10 @@ describe('useHoloShader', () => {
       renderHook(() => {
         const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'))
         useHoloShader(canvasRef, {
+          enabled: true,
           seedOffset: { x: 0, y: 0 },
           artworkBounds: null,
           holoMode: 'full_holo',
-          holoType: 'standard',
           pointer: { x: 0.5, y: 0.5 },
         })
       })

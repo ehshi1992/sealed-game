@@ -10,11 +10,6 @@ type Props = {
   holoSeed?: HoloSeed
 }
 
-const CANVAS_SIZES = {
-  sm: { width: 120, height: 167 },
-  md: { width: 200, height: 279 },
-  lg: { width: 300, height: 418 },
-}
 
 function deriveHoloMode(card: Card): HoloMode {
   if (card.holo_type === 'reverse') return 'reverse_holo'
@@ -32,17 +27,17 @@ export default function HoloCard({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pointerRef = useRef({ x: 0.5, y: 0.5 })
 
-  const canvasDims = CANVAS_SIZES[size]
   const seed: HoloSeed = holoSeed ?? { x: 0.5, y: 0.5 }
   const artworkBounds = card.artwork_bounds ?? null
   // No bounds → skip rendering to avoid full-card coverage with unknown clip region
   const holoMode = artworkBounds ? deriveHoloMode(card) : 'none'
+  if (size === 'lg') console.log('[HoloCard]', card.name, { holo_type: card.holo_type, artwork_bounds: artworkBounds, holoMode })
 
   useHoloShader(canvasRef, {
+    enabled: size === 'lg',
     seedOffset: seed,
     artworkBounds,
     holoMode,
-    holoType: card.holo_type,
     pointer: pointerRef.current,
   })
 
@@ -145,12 +140,12 @@ export default function HoloCard({
       <div className="card__holo" />
       <div className="card__sparkle" />
       <div className="card__glare" />
-      <canvas
-        ref={canvasRef}
-        className="card__holo-canvas"
-        width={canvasDims.width}
-        height={canvasDims.height}
-      />
+      {size === 'lg' && (
+        <canvas
+          ref={canvasRef}
+          className="card__holo-canvas"
+        />
+      )}
     </div>
   )
 }
