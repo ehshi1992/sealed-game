@@ -71,20 +71,20 @@ export const FRAG_SRC = /* glsl */`
     // Colorize each layer — spirals get higher saturation
     vec3 orbCol    = hsl2rgb(fract(tiltHue + bUV.x * 0.12 + bUV.y * 0.07), 0.90, 0.40 + largeOrb * 0.50);
     vec3 dotCol    = hsl2rgb(fract(tiltHue + uv.x  * 0.40 + uv.y  * 0.25), 1.00, 0.86);
-    vec3 spiralCol = hsl2rgb(fract(tiltHue + bUV.x * 0.30 - bUV.y * 0.15), 1.00, 0.55 + spiral * 0.35);
+    vec3 spiralCol = hsl2rgb(fract(tiltHue + 0.15 + bUV.x * 0.30 - bUV.y * 0.15), 1.00, 0.55 + spiral * 0.35);
 
-    // Composite: dots base, spirals above, large orbs on top
+    // Composite: dots base → orbs → spirals on top (spirals win)
     vec3  col   = dotCol;
     float alpha = fineDot * 0.70;
-
-    if (spiral > 0.05) {
-      col   = mix(col, spiralCol, spiral);
-      alpha = max(alpha, spiral * 0.90);
-    }
 
     if (largeOrb > 0.05) {
       col   = mix(col, orbCol, largeOrb);
       alpha = max(alpha, largeOrb);
+    }
+
+    if (spiral > 0.02) {
+      col   = mix(col, spiralCol, spiral * 0.85);
+      alpha = max(alpha, spiral);
     }
 
     // Apply pointer-driven reveal

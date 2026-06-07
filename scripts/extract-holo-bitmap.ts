@@ -81,15 +81,15 @@ async function processOne(imgPath: string): Promise<{ R: Float32Array; G: Float3
     for (const idx of comp.pixels) {
       const v = luma[idx] / 255
 
-      if (area > 300 && elongation < 2.5) {
+      if (area > 600 && elongation < 2.5) {
         // Large orb → R channel full
         R[idx] = Math.max(R[idx], v)
       } else if (area < 20) {
         // Fine dot → G channel full
         G[idx] = Math.max(G[idx], v)
-      } else if (elongation > 2.0 || fill < 0.45) {
-        // Spiral / curved → B channel, boosted
-        B[idx] = Math.max(B[idx], Math.min(1, v * 1.4))
+      } else if (elongation > 1.5 || fill < 0.55) {
+        // Spiral / curved → B channel, boosted 2.2x
+        B[idx] = Math.max(B[idx], Math.min(1, v * 2.2))
       } else {
         // Medium orb → R channel at reduced intensity
         R[idx] = Math.max(R[idx], v * 0.6)
