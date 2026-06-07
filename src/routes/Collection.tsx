@@ -1,29 +1,34 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCollection } from '../hooks/useCollection'
 import { useApp } from '../context/AppContext'
-import { removeFromCollection } from '../lib/queries'
+import { removeFromCollection, createBinder, updateBinder, deleteBinder, moveCard } from '../lib/queries'
 import HoloCard from '../components/HoloCard/HoloCard'
+import BinderPanel from '../components/BinderPanel/BinderPanel'
 import type { CollectionEntry } from '../types'
 
 export default function Collection() {
   const navigate = useNavigate()
-  const { collection } = useCollection()
   const { state, dispatch } = useApp()
+  const collection = state.collection
+  const binders = state.binders
 
+  // Remove-card state
   const [selected, setSelected] = useState<CollectionEntry | null>(null)
   const [editMode, setEditMode] = useState(false)
   const [removing, setRemoving] = useState<CollectionEntry | null>(null)
   const [removeQty, setRemoveQty] = useState(1)
 
-  function openStepper(entry: CollectionEntry) {
-    setRemoving(entry)
-    setRemoveQty(1)
-  }
+  // Binder panel state
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [draggedEntryId, setDraggedEntryId] = useState<string | null>(null)
+  const [isGridDragOver, setIsGridDragOver] = useState(false)
 
-  function closeStepper() {
-    setRemoving(null)
-  }
+  // Bulk = cards not in any binder
+  const bulk = collection.filter(e => !e.binder_id)
+
+  // ── Remove card handlers ─────────────────────────────────────────────────
+  function openStepper(entry: CollectionEntry) { setRemoving(entry); setRemoveQty(1) }
+  function closeStepper() { setRemoving(null) }
 
   async function confirmRemove() {
     if (!removing || !state.user) return
@@ -38,8 +43,71 @@ export default function Collection() {
     }
   }
 
+  // ── Binder handlers ──────────────────────────────────────────────────────
+  async function handleCreateBinder(name: string, color: string) {
+    if (!state.user) return
+    const snapshot = state.binders
+    try {
+      const binder = await createBinder(state.user.id, name, color)
+      dispatch({ type: 'ADD_BINDER', binder })
+    } catch {
+      dispatch({ type: 'SET_BINDERS', binders: snapshot })
+      alert('Failed to create binder.')
+    }
+  }
+
+  async function handleUpdateBinder(binderId: string, patch: { name?: string; color?: string }) {
+    const snapshot = state.binders
+    const existing = binders.find(b => b.id === binderId)
+    if (!existing) return
+    dispatch({ type: 'UPDATE_BINDER', binder: { ...existing, ...patch } })
+    try {
+      await updateBinder(binderId, patch)
+    } catch {
+      dispatch({ type: 'SET_BINDERS', binders: snapshot })
+      alert('Failed to update binder.')
+    }
+  }
+
+  async function handleDeleteBinder(binderId: string) {
+    const binderSnapshot = state.binders
+    const collectionSnapshot = state.collection
+    dispatch({ type: 'DELETE_BINDER', binderId })
+    try {
+      await deleteBinder(binderId)
+    } catch {
+      dispatch({ type: 'SET_BINDERS', binders: binderSnapshot })
+      dispatch({ type: 'SET_COLLECTION', collection: collectionSnapshot })
+      alert('Failed to delete binder.')
+    }
+  }
+
+  async function handleMoveCard(entryId: string, binderId: string | null) {
+    const snapshot = state.collection
+    dispatch({ type: 'MOVE_CARD', entryId, binderId })
+    try {
+      await moveCard(entryId, binderId)
+    } catch {
+      dispatch({ type: 'SET_COLLECTION', collection: snapshot })
+      alert('Failed to move card.')
+    }
+  }
+
+  // ── Drag handlers (bulk grid drop target) ────────────────────────────────
+  function handleBulkDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsGridDragOver(false)
+    if (draggedEntryId) {
+      const entry = collection.find(en => en.id === draggedEntryId)
+      if (entry && entry.binder_id !== null) {
+        handleMoveCard(draggedEntryId, null)
+      }
+    }
+    setDraggedEntryId(null)
+  }
+
   return (
-    <div className="collection">
+    <div className={`collection${panelOpen ? ' collection--panel-open' : ''}`}>
       <header className="collection__header">
         <button className="btn btn--secondary" onClick={() => navigate('/shop')}>
           ← Shop
@@ -47,42 +115,65 @@ export default function Collection() {
         <h1 className="collection__title">Collection</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="collection__count">{collection.length} cards</span>
-          <button
-            className="btn btn--secondary"
-            onClick={() => setEditMode(m => !m)}
-          >
+          <button className="btn btn--secondary" onClick={() => setEditMode(m => !m)}>
             {editMode ? 'Done' : 'Edit'}
+          </button>
+          <button className="btn btn--secondary" onClick={() => setPanelOpen(o => !o)}>
+            {panelOpen ? 'Close Binders' : 'Binders'}
           </button>
         </div>
       </header>
 
-      {collection.length === 0 ? (
-        <div className="collection__empty">
-          <p>No cards yet. Open some packs!</p>
-          <button className="btn btn--primary" onClick={() => navigate('/shop')}>
-            Go to Shop
-          </button>
-        </div>
-      ) : (
-        <div className="collection__grid">
-          {collection.map((entry) => (
-            <div
-              key={entry.id}
-              className={`collection__slot${editMode ? ' collection__slot--edit' : ''}`}
-              onClick={() => {
-                if (editMode) openStepper(entry)
-                else setSelected(entry)
-              }}
-            >
-              <HoloCard card={entry.card} size="sm" interactive={false} holoSeed={entry.holo_seed ?? undefined} />
-              {entry.count > 1 && (
-                <span className="collection__count-badge">×{entry.count}</span>
-              )}
-              {editMode && (
-                <span className="collection__remove-badge">×</span>
-              )}
-            </div>
-          ))}
+      <div className="collection__main">
+        {bulk.length === 0 ? (
+          <div className="collection__empty">
+            <p>No cards in bulk. Open some packs or check your binders!</p>
+            <button className="btn btn--primary" onClick={() => navigate('/shop')}>
+              Go to Shop
+            </button>
+          </div>
+        ) : (
+          <div
+            className={`collection__grid${isGridDragOver ? ' collection__grid--droptarget' : ''}`}
+            onDragOver={e => { e.preventDefault(); setIsGridDragOver(true) }}
+            onDragLeave={() => setIsGridDragOver(false)}
+            onDrop={handleBulkDrop}
+          >
+            {bulk.map((entry) => (
+              <div
+                key={entry.id}
+                className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}`}
+                draggable={!editMode && panelOpen}
+                onDragStart={() => { setDraggedEntryId(entry.id) }}
+                onDragEnd={() => setDraggedEntryId(null)}
+                onClick={() => {
+                  if (editMode) openStepper(entry)
+                  else setSelected(entry)
+                }}
+              >
+                <HoloCard card={entry.card} size="sm" interactive={false} holoSeed={entry.holo_seed ?? undefined} />
+                {entry.count > 1 && (
+                  <span className="collection__count-badge">×{entry.count}</span>
+                )}
+                {editMode && <span className="collection__remove-badge">×</span>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {panelOpen && (
+        <div className="collection__panel-wrapper">
+          <BinderPanel
+            binders={binders}
+            collection={collection}
+            draggedEntryId={draggedEntryId}
+            onDragStart={setDraggedEntryId}
+            onMoveCard={handleMoveCard}
+            onCreateBinder={handleCreateBinder}
+            onUpdateBinder={handleUpdateBinder}
+            onDeleteBinder={handleDeleteBinder}
+          />
         </div>
       )}
 

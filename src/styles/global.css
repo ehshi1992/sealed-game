@@ -278,3 +278,35 @@ body {
     gap: 0.5rem;
   }
 }
+
+/* Binder panel layout */
+.collection--panel-open {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.collection--panel-open .collection__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.collection__panel-wrapper {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+}
+
+.collection__slot--dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.collection__grid--droptarget {
+  outline: 2px dashed var(--accent);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
