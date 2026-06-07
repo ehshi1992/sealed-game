@@ -2,12 +2,11 @@ import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import {
   VERT_SRC, FRAG_SRC,
-  generateSpiralTexture, computeSpiralLayout,
-  SPIRAL_PRIMARY, SPIRAL_ACCENT, SPIRAL_TEX_SIZE,
 } from './shaders'
 import type { ArtworkBounds, HoloMode, HoloSeed, HoloType } from '../../types'
 
 interface HoloShaderOpts {
+  enabled:       boolean
   seedOffset:    HoloSeed
   artworkBounds: ArtworkBounds | null
   holoMode:      HoloMode
@@ -15,19 +14,18 @@ interface HoloShaderOpts {
   pointer:       { x: number; y: number }
 }
 
+let activeContextCount = 0
+const MAX_CONTEXTS = 12
+let webglBroken = false
+
 type Uniforms = {
-  u_resolution:         WebGLUniformLocation | null
-  u_seed_offset:        WebGLUniformLocation | null
-  u_pointer:            WebGLUniformLocation | null
-  u_time:               WebGLUniformLocation | null
-  u_holo_mode:          WebGLUniformLocation | null
-  u_artwork_bounds:     WebGLUniformLocation | null
-  u_holo_density:       WebGLUniformLocation | null
-  u_spiral_tex_primary: WebGLUniformLocation | null
-  u_spiral_tex_accent:  WebGLUniformLocation | null
-  u_spiral_centres:     WebGLUniformLocation | null
-  u_spiral_scales:      WebGLUniformLocation | null
-  u_spiral_rotations:   WebGLUniformLocation | null
+  u_resolution:     WebGLUniformLocation | null
+  u_seed_offset:    WebGLUniformLocation | null
+  u_pointer:        WebGLUniformLocation | null
+  u_time:           WebGLUniformLocation | null
+  u_holo_mode:      WebGLUniformLocation | null
+  u_artwork_bounds: WebGLUniformLocation | null
+  u_cosmo_bitmap:   WebGLUniformLocation | null
 }
 
 function compileShader(gl: WebGLRenderingContext, type: number, src: string): WebGLShader | null {
@@ -36,7 +34,6 @@ function compileShader(gl: WebGLRenderingContext, type: number, src: string): We
   gl.shaderSource(shader, src);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
@@ -53,20 +50,83 @@ function uploadTexture(
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, data)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+}
+
+/**
+ * Placeholder: Generate a minimal cosmo bitmap (512×512 RGBA).
+ * R = large orbs, G = fine dots, B = spirals (pre-emphasized).
+ * This is a temporary stand-in — should be replaced with CV-extracted bitmap from design asset.
+ */
+function generateCosmoBitmap(size: number = 512): Uint8Array {
+  const buf = new Uint8Array(size * size * 4)
+  const cx = size / 2, cy = size / 2
+
+  // Simple procedural: place some circular orbs in R, dots in G, spiral pattern in B
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const dx = x - cx, dy = y - cy
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const idx = (y * size + x) * 4
+
+      // R: large orbs (few per tile, smooth falloff)
+      const orbTile = Math.floor(x / 64) + Math.floor(y / 64) * 8
+      const orbSeed = Math.sin(orbTile * 12.9898) * 43758.5453
+      const orbHash = orbSeed - Math.floor(orbSeed)
+      if (orbHash < 0.15) {
+        const orbDist = (dist - (orbHash * 80 + 30)) / 20
+        buf[idx + 0] = Math.max(0, Math.round((1 - orbDist) * 255))
+      }
+
+      // G: fine dots (many, sparse)
+      const dotTile = Math.floor(x / 32) + Math.floor(y / 32) * 16
+      const dotSeed = Math.sin(dotTile * 78.233) * 43758.5453
+      const dotHash = dotSeed - Math.floor(dotSeed)
+      if (dotHash < 0.08) {
+        const dotDist = Math.sqrt((dx * 0.5) ** 2 + (dy * 0.5) ** 2)
+        buf[idx + 1] = Math.max(0, Math.round(Math.exp(-dotDist / 8) * 200))
+      }
+
+      // B: spiral pattern (theta-based emphasis)
+      const theta = Math.atan2(dy, dx)
+      const r = dist / (size * 0.35)
+      if (r < 0.9) {
+        const spiralWave = (Math.sin(theta * 3 + r * 8) + 1) * 0.5
+        buf[idx + 2] = Math.round(spiralWave * 180)
+      }
+
+      buf[idx + 3] = 255 // alpha
+    }
+  }
+
+  return buf
 }
 
 function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniforms: Uniforms } | null {
+  if (webglBroken) return null
+  if (activeContextCount >= MAX_CONTEXTS) {
+    console.warn(`WebGL context cap (${MAX_CONTEXTS}) reached, skipping shader`)
+    return null
+  }
   const gl = canvas.getContext('webgl') as WebGLRenderingContext | null
   if (!gl) return null
 
   const vert = compileShader(gl, gl.VERTEX_SHADER, VERT_SRC)
   const frag = compileShader(gl, gl.FRAGMENT_SHADER, FRAG_SRC)
-  if (!vert || !frag) return null
+  if (!vert || !frag) {
+    const ext = gl.getExtension('WEBGL_lose_context')
+    ext?.loseContext()
+    webglBroken = true
+    return null
+  }
 
   const program = gl.createProgram()
-  if (!program) return null
+  if (!program) {
+    const ext = gl.getExtension('WEBGL_lose_context')
+    ext?.loseContext()
+    return null
+  }
   gl.attachShader(program, vert)
   gl.attachShader(program, frag)
   gl.linkProgram(program)
@@ -85,32 +145,28 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-  uploadTexture(gl, 1, generateSpiralTexture(SPIRAL_PRIMARY, SPIRAL_TEX_SIZE), SPIRAL_TEX_SIZE)
-  uploadTexture(gl, 2, generateSpiralTexture(SPIRAL_ACCENT,  SPIRAL_TEX_SIZE), SPIRAL_TEX_SIZE)
+  // Upload cosmo bitmap texture (512×512 RGBA)
+  const cosmoBitmap = generateCosmoBitmap(512)
+  uploadTexture(gl, 0, cosmoBitmap, 512)
 
   const uniforms: Uniforms = {
-    u_resolution:         gl.getUniformLocation(program, 'u_resolution'),
-    u_seed_offset:        gl.getUniformLocation(program, 'u_seed_offset'),
-    u_pointer:            gl.getUniformLocation(program, 'u_pointer'),
-    u_time:               gl.getUniformLocation(program, 'u_time'),
-    u_holo_mode:          gl.getUniformLocation(program, 'u_holo_mode'),
-    u_artwork_bounds:     gl.getUniformLocation(program, 'u_artwork_bounds'),
-    u_holo_density:       gl.getUniformLocation(program, 'u_holo_density'),
-    u_spiral_tex_primary: gl.getUniformLocation(program, 'u_spiral_tex_primary'),
-    u_spiral_tex_accent:  gl.getUniformLocation(program, 'u_spiral_tex_accent'),
-    u_spiral_centres:     gl.getUniformLocation(program, 'u_spiral_centres'),
-    u_spiral_scales:      gl.getUniformLocation(program, 'u_spiral_scales'),
-    u_spiral_rotations:   gl.getUniformLocation(program, 'u_spiral_rotations'),
+    u_resolution:     gl.getUniformLocation(program, 'u_resolution'),
+    u_seed_offset:    gl.getUniformLocation(program, 'u_seed_offset'),
+    u_pointer:        gl.getUniformLocation(program, 'u_pointer'),
+    u_time:           gl.getUniformLocation(program, 'u_time'),
+    u_holo_mode:      gl.getUniformLocation(program, 'u_holo_mode'),
+    u_artwork_bounds: gl.getUniformLocation(program, 'u_artwork_bounds'),
+    u_cosmo_bitmap:   gl.getUniformLocation(program, 'u_cosmo_bitmap'),
   }
 
-  gl.uniform1i(uniforms.u_spiral_tex_primary, 1)
-  gl.uniform1i(uniforms.u_spiral_tex_accent,  2)
+  gl.uniform1i(uniforms.u_cosmo_bitmap, 0)
+
+  activeContextCount++
 
   return { gl, uniforms }
 }
 
-const HOLO_MODE_INT:    Record<HoloMode, number> = { none: 0, full_holo: 1, reverse_holo: 2 }
-const HOLO_DENSITY_INT: Record<HoloType, number> = { none: 0, reverse: 0, standard: 1, full_art: 2, rainbow: 3 }
+const HOLO_MODE_INT: Record<HoloMode, number> = { none: 0, full_holo: 1, reverse_holo: 2 }
 
 export function useHoloShader(
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -120,24 +176,38 @@ export function useHoloShader(
   optsRef.current = opts
 
   useEffect(() => {
+    if (!opts.enabled) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
+    // Reset broken flag on each mount so a fresh canvas gets a fair attempt
+    webglBroken = false
+    canvas.style.removeProperty('display')
     const ctx = initGL(canvas)
-    if (!ctx) return
+    if (!ctx) {
+      canvas.style.setProperty('display', 'none', 'important')
+      console.warn('[useHoloShader] initGL failed — canvas hidden')
+      return
+    }
+    console.log('[useHoloShader] initGL OK, rendering')
     const { gl, uniforms } = ctx
-
-    const layout = computeSpiralLayout(opts.seedOffset)
-    gl.uniform2fv(uniforms.u_spiral_centres,   layout.centres)
-    gl.uniform1fv(uniforms.u_spiral_scales,    layout.scales)
-    gl.uniform1fv(uniforms.u_spiral_rotations, layout.rotations)
 
     const startTime = performance.now()
     let rafId: number
 
     function render() {
-      const { seedOffset, artworkBounds, holoMode, holoType, pointer } = optsRef.current
+      const { seedOffset, artworkBounds, holoMode, pointer } = optsRef.current
       const bounds = artworkBounds ?? { x: 0, y: 0, w: 1, h: 1 }
+
+      // Sync canvas pixel buffer to actual display size (prevents stretch/warp)
+      const dpr = window.devicePixelRatio || 1
+      const displayW = Math.round(canvas!.clientWidth  * dpr)
+      const displayH = Math.round(canvas!.clientHeight * dpr)
+      if (canvas!.width !== displayW || canvas!.height !== displayH) {
+        canvas!.width  = displayW
+        canvas!.height = displayH
+      }
 
       gl.viewport(0, 0, canvas!.width, canvas!.height)
       gl.clear(gl.COLOR_BUFFER_BIT)
@@ -149,7 +219,6 @@ export function useHoloShader(
       gl.uniform1f(uniforms.u_time,           t)
       gl.uniform1i(uniforms.u_holo_mode,      HOLO_MODE_INT[holoMode])
       gl.uniform4f(uniforms.u_artwork_bounds, bounds.x, bounds.y, bounds.w, bounds.h)
-      gl.uniform1i(uniforms.u_holo_density,   HOLO_DENSITY_INT[holoType])
 
       gl.drawArrays(gl.TRIANGLES, 0, 6)
       rafId = requestAnimationFrame(render)
@@ -159,8 +228,7 @@ export function useHoloShader(
 
     return () => {
       cancelAnimationFrame(rafId)
-      const ext = gl.getExtension('WEBGL_lose_context')
-      ext?.loseContext()
+      activeContextCount = Math.max(0, activeContextCount - 1)
     }
-  }, [canvasRef, opts.seedOffset.x, opts.seedOffset.y])
+  }, [canvasRef, opts.seedOffset.x, opts.seedOffset.y, opts.enabled])
 }
