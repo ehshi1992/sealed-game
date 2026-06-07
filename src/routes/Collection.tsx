@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { removeFromCollection, createBinder, updateBinder, deleteBinder, moveCard } from '../lib/queries'
+import { removeFromCollection, createBinder, deleteBinder, moveCard } from '../lib/queries'
 import HoloCard from '../components/HoloCard/HoloCard'
 import BinderPanel from '../components/BinderPanel/BinderPanel'
 import type { CollectionEntry } from '../types'
@@ -24,7 +24,7 @@ export default function Collection() {
   const [isGridDragOver, setIsGridDragOver] = useState(false)
 
   // Bulk = cards not in any binder
-  const bulk = collection.filter(e => !e.binder_id)
+  const bulk = useMemo(() => collection.filter(e => !e.binder_id), [collection])
 
   // ── Remove card handlers ─────────────────────────────────────────────────
   function openStepper(entry: CollectionEntry) { setRemoving(entry); setRemoveQty(1) }
@@ -53,19 +53,6 @@ export default function Collection() {
     } catch {
       dispatch({ type: 'SET_BINDERS', binders: snapshot })
       alert('Failed to create binder.')
-    }
-  }
-
-  async function handleUpdateBinder(binderId: string, patch: { name?: string; color?: string }) {
-    const snapshot = state.binders
-    const existing = binders.find(b => b.id === binderId)
-    if (!existing) return
-    dispatch({ type: 'UPDATE_BINDER', binder: { ...existing, ...patch } })
-    try {
-      await updateBinder(binderId, patch)
-    } catch {
-      dispatch({ type: 'SET_BINDERS', binders: snapshot })
-      alert('Failed to update binder.')
     }
   }
 
@@ -171,7 +158,6 @@ export default function Collection() {
             onDragStart={setDraggedEntryId}
             onMoveCard={handleMoveCard}
             onCreateBinder={handleCreateBinder}
-            onUpdateBinder={handleUpdateBinder}
             onDeleteBinder={handleDeleteBinder}
           />
         </div>

@@ -1,50 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import type { AppAction, AppState, Binder, CollectionEntry } from '../../types'
-
-function reducer(state: AppState, action: AppAction): AppState {
-  switch (action.type) {
-    case 'SET_USER': return { ...state, user: action.user }
-    case 'SET_CURRENCY': return { ...state, currency: action.currency }
-    case 'DEDUCT_CURRENCY': return { ...state, currency: Math.max(0, state.currency - action.amount) }
-    case 'SET_COLLECTION': return { ...state, collection: action.collection }
-    case 'ADD_CARDS': return { ...state, collection: [...action.cards, ...state.collection] }
-    case 'REMOVE_CARD': {
-      const entry = state.collection.find(e => e.card_id === action.cardId)
-      if (!entry) return state
-      if (action.quantity >= entry.count) {
-        return { ...state, collection: state.collection.filter(e => e.card_id !== action.cardId) }
-      }
-      return {
-        ...state,
-        collection: state.collection.map(e =>
-          e.card_id === action.cardId ? { ...e, count: e.count - action.quantity } : e
-        ),
-      }
-    }
-    case 'SET_BINDERS':
-      return { ...state, binders: action.binders }
-    case 'ADD_BINDER':
-      return { ...state, binders: [action.binder, ...state.binders] }
-    case 'UPDATE_BINDER':
-      return { ...state, binders: state.binders.map(b => b.id === action.binder.id ? action.binder : b) }
-    case 'DELETE_BINDER':
-      return {
-        ...state,
-        binders: state.binders.filter(b => b.id !== action.binderId),
-        collection: state.collection.map(e =>
-          e.binder_id === action.binderId ? { ...e, binder_id: null } : e
-        ),
-      }
-    case 'MOVE_CARD':
-      return {
-        ...state,
-        collection: state.collection.map(e =>
-          e.id === action.entryId ? { ...e, binder_id: action.binderId } : e
-        ),
-      }
-    default: return state
-  }
-}
+import { reducer } from '../../context/AppContext'
+import type { AppState, Binder, CollectionEntry } from '../../types'
 
 const baseBinder: Binder = {
   id: 'binder-1', user_id: 'user-1', name: 'Holos', color: '#ff0000', created_at: '',

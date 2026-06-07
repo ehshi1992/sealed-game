@@ -88,7 +88,8 @@ export async function removeFromCollection(
 
   if (error || !data) throw new Error('Failed to fetch collection entry')
 
-  if (quantity >= (data as { count: number }).count) {
+  const current = data as { count: number }
+  if (quantity >= current.count) {
     const { error: delError } = await supabase
       .from('user_collection')
       .delete()
@@ -98,7 +99,7 @@ export async function removeFromCollection(
   } else {
     const { error: updError } = await supabase
       .from('user_collection')
-      .update({ count: (data as { count: number }).count - quantity })
+      .update({ count: current.count - quantity })
       .eq('user_id', userId)
       .eq('card_id', cardId)
     if (updError) throw new Error('Failed to update collection entry')

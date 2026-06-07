@@ -105,10 +105,10 @@
 }
 
 .binder-panel__delete {
-  padding: 0.25rem 0.5rem !important;
-  font-size: 1rem !important;
-  line-height: 1 !important;
-  min-width: unset !important;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+  min-width: unset;
 }
 
 .binder-panel__grid {

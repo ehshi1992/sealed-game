@@ -3,8 +3,6 @@ import type { Binder, CollectionEntry } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import './BinderPanel.css'
 
-type PanelView = { view: 'list' } | { view: 'binder'; binderId: string }
-
 type Props = {
   binders: Binder[]
   collection: CollectionEntry[]
@@ -12,7 +10,6 @@ type Props = {
   onDragStart: (entryId: string) => void
   onMoveCard: (entryId: string, binderId: string | null) => void
   onCreateBinder: (name: string, color: string) => Promise<void>
-  onUpdateBinder: (binderId: string, patch: { name?: string; color?: string }) => Promise<void>
   onDeleteBinder: (binderId: string) => Promise<void>
 }
 
@@ -23,10 +20,9 @@ export default function BinderPanel({
   onDragStart,
   onMoveCard,
   onCreateBinder,
-  onUpdateBinder: _onUpdateBinder,
   onDeleteBinder,
 }: Props) {
-  const [panelView, setPanelView] = useState<PanelView>({ view: 'list' })
+  const [selectedBinderId, setSelectedBinderId] = useState<string | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState('#6366f1')
@@ -42,14 +38,16 @@ export default function BinderPanel({
   }
 
   // ── List view ────────────────────────────────────────────────────────────
-  if (panelView.view === 'list') {
+  if (selectedBinderId === null) {
+    const binderCardCounts = new Map(
+      binders.map(b => [b.id, collection.filter(e => e.binder_id === b.id).length])
+    )
     return (
       <div className="binder-panel">
         <div className="binder-panel__header">
           <h2>Binders</h2>
           <button
-            className="btn btn--primary"
-            style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+            className="btn btn--primary btn--sm"
             onClick={() => setShowCreateForm(s => !s)}
           >
             + New
@@ -68,15 +66,13 @@ export default function BinderPanel({
             />
             <input type="color" value={newColor} onChange={e => setNewColor(e.target.value)} />
             <button
-              className="btn btn--primary"
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+              className="btn btn--primary btn--sm"
               onClick={handleCreateSubmit}
             >
               Save
             </button>
             <button
-              className="btn btn--secondary"
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+              className="btn btn--secondary btn--sm"
               onClick={() => setShowCreateForm(false)}
             >
               Cancel
@@ -88,40 +84,37 @@ export default function BinderPanel({
           {binders.length === 0 && !showCreateForm && (
             <p className="binder-panel__empty">No binders yet.</p>
           )}
-          {binders.map(binder => {
-            const cardCount = collection.filter(e => e.binder_id === binder.id).length
-            return (
-              <div
-                key={binder.id}
-                className="binder-panel__row"
-                onClick={() => { setPanelView({ view: 'binder', binderId: binder.id }); setPage(0) }}
+          {binders.map(binder => (
+            <div
+              key={binder.id}
+              className="binder-panel__row"
+              onClick={() => { setSelectedBinderId(binder.id); setPage(0) }}
+            >
+              <span className="binder-panel__swatch" style={{ background: binder.color }} />
+              <span className="binder-panel__name">{binder.name}</span>
+              <span className="binder-panel__count">{binderCardCounts.get(binder.id) ?? 0}</span>
+              <button
+                className="btn btn--secondary binder-panel__delete"
+                onClick={e => {
+                  e.stopPropagation()
+                  if (window.confirm(`Delete "${binder.name}"? Cards will return to bulk.`)) {
+                    onDeleteBinder(binder.id)
+                  }
+                }}
               >
-                <span className="binder-panel__swatch" style={{ background: binder.color }} />
-                <span className="binder-panel__name">{binder.name}</span>
-                <span className="binder-panel__count">{cardCount}</span>
-                <button
-                  className="btn btn--secondary binder-panel__delete"
-                  onClick={e => {
-                    e.stopPropagation()
-                    if (window.confirm(`Delete "${binder.name}"? Cards will return to bulk.`)) {
-                      onDeleteBinder(binder.id)
-                    }
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            )
-          })}
+                ×
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
   // ── Binder view ──────────────────────────────────────────────────────────
-  const binder = binders.find(b => b.id === panelView.binderId)
+  const binder = binders.find(b => b.id === selectedBinderId)
   if (!binder) {
-    setPanelView({ view: 'list' })
+    setSelectedBinderId(null)
     return null
   }
 
@@ -144,9 +137,8 @@ export default function BinderPanel({
     >
       <div className="binder-panel__header">
         <button
-          className="btn btn--secondary"
-          style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
-          onClick={() => setPanelView({ view: 'list' })}
+          className="btn btn--secondary btn--sm"
+          onClick={() => setSelectedBinderId(null)}
         >
           ←
         </button>
@@ -181,8 +173,7 @@ export default function BinderPanel({
       {totalPages > 1 && (
         <div className="binder-panel__pagination">
           <button
-            className="btn btn--secondary"
-            style={{ padding: '0.25rem 0.6rem' }}
+            className="btn btn--secondary btn--xs"
             onClick={() => setPage(p => Math.max(0, p - 1))}
             disabled={page === 0}
           >
@@ -190,8 +181,7 @@ export default function BinderPanel({
           </button>
           <span>{page + 1} / {totalPages}</span>
           <button
-            className="btn btn--secondary"
-            style={{ padding: '0.25rem 0.6rem' }}
+            className="btn btn--secondary btn--xs"
             onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
             disabled={page === totalPages - 1}
           >

@@ -17,7 +17,7 @@ const initialState: AppState = {
   binders: [],
 }
 
-function reducer(state: AppState, action: AppAction): AppState {
+export function reducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_USER':
       return { ...state, user: action.user }
