@@ -28,10 +28,12 @@ npx supabase db push  # apply migrations
 ## Key Architecture Decisions
 - **No Framer Motion, Zustand, React Query** — minimal deps by design
 - **React 19 primitives**: `useOptimistic`, `useActionState`, `use()` + Suspense, `startTransition`
-- **Holo effect**: pure CSS via `mix-blend-mode: color-dodge/overlay` + `repeating-linear-gradient`, updated on mousemove via `element.style.setProperty()`
+- **Holo effect**: WebGL fragment shader (`useHoloShader`) samples a greyscale bitmap (`public/textures/cosmo-bitmap.png`, 512×715) extracted from real cosmo foil reference photos. Two UV layers activate 180° apart in tilt space, creating a wave shimmer. Canvas bleeds 12px beyond card edge (`overflow: visible` on `.card`, `clip-path` on other layers). CSS holo/sparkle/glare layers are retained for non-cosmo holo types. Bitmap regenerated via `scripts/extract-holo-bitmap.ts`.
 - **Auth**: Google OAuth + magic link via Supabase Auth
 - **Currency**: integer stored in `profiles.currency`, mutated atomically via `increment_currency` RPC (security definer)
 - **Pack opening**: always goes through edge function (anti-cheat server-side RNG)
+- **Collection state**: all mutations (remove, binder move) use optimistic dispatch → await query → revert on catch pattern. `reducer` exported from `AppContext.tsx` and imported directly in tests (no duplication).
+- **Binders**: physical simulation — one card, one location. `binder_id = null` → bulk. `ON DELETE SET NULL` handles DB cascade. Drag-and-drop uses native HTML5 (no dnd-kit).
 
 ## UI Components
 
@@ -49,8 +51,23 @@ npx supabase db push  # apply migrations
 ### Rare card glow
 - `.pack-rip__card-slot--rare` overrides the normal `card-reveal` animation with `card-reveal-rare` — a gold `drop-shadow` pulse. Applied when `card.rarity === 'secret_rare' || 'ultra_rare'`.
 
+### BinderPanel
+- **Location**: `src/components/BinderPanel/BinderPanel.tsx`
+- **Props**: `{ binders, collection, draggedEntryId, onDragStart, onMoveCard, onCreateBinder, onDeleteBinder }`
+- **Views**: list view (binder rows with color swatch, count, delete) ↔ binder view (3×3 card grid, pagination)
+- **State**: `selectedBinderId: string | null` (null = list view), `showCreateForm`, `newName`, `newColor`, `page`, `isDragOver`
+- **Drag-and-drop**: native HTML5. Binder view: full panel is drop zone. Cards in binder are draggable back to bulk.
+- **Card sizing**: `.binder-panel__slot .card { width: 100%; height: 100% }` overrides fixed `card--sm` (120×167px) to fit slot. Slot uses `aspect-ratio: 63/88`.
+- **Opened via**: "Binders" toggle button in Collection header.
+
+### Collection — Remove Cards
+- **Edit mode**: toggled via "Edit" button. In edit mode, clicking a card slot opens stepper modal. Red × badge overlays each card.
+- **Stepper modal**: shows card, count you own, −/+ quantity buttons, "Remove N / all" confirm. Optimistic dispatch → revert on failure.
+
 ### Global CSS
 - `.spinner` class exists in global CSS for loading states.
+- `.btn--sm` / `.btn--xs`: compact button size modifiers (no inline styles needed).
+- `.btn--danger`: red destructive button.
 
 ## Known Issues / Gotchas
 - **Supabase new key format**: `sb_publishable_` / `sb_secret_` keys are auto-injected into edge functions. Use `npm:@supabase/supabase-js@2` import (not esm.sh) in Deno edge functions.
@@ -66,13 +83,15 @@ npx supabase db push  # apply migrations
 - `profiles` — `id` (FK auth.users), `username`, `currency int default 100`
 - `cards` — `id`, `name`, `set`, `number`, `rarity`, `image_url`, `holo_type`; unique on `(set, number)`
 - `packs` — `id`, `name`, `price`, `image_url`, `card_pool uuid[]`
-- `user_collection` — `user_id`, `card_id`, `acquired_at`, `count`
+- `user_collection` — `user_id`, `card_id`, `acquired_at`, `count`, `binder_id` (FK binders, ON DELETE SET NULL)
+- `binders` — `id`, `user_id` (FK profiles), `name`, `color`, `created_at`
 - `transactions` — `user_id`, `type` (pack_purchase|daily_reward), `amount`, `created_at`
 
 ## RLS
 - `profiles`: owner only (all ops)
 - `cards`, `packs`: public read
 - `user_collection`: owner select only
+- `binders`: owner all ops
 - `transactions`: owner select + insert
 
 ## Env vars (.env.local — never commit)
