@@ -35,6 +35,7 @@ export type Card = {
   // New metadata fields (optional — may be null on legacy rows)
   card_layout_type?: string
   artwork_bounds?: ArtworkBounds | null
+  holo_seed?: HoloSeed | null
   supertype?: string | null
   subtypes?: string[] | null
   hp?: number | null
@@ -91,6 +92,7 @@ export type AppAction =
   | { type: 'DEDUCT_CURRENCY'; amount: number }
   | { type: 'SET_COLLECTION'; collection: CollectionEntry[] }
   | { type: 'ADD_CARDS'; cards: CollectionEntry[] }
+  | { type: 'REMOVE_CARD'; cardId: string; quantity: number }
 
 export type PackOpenResult = {
   cards: Card[]
