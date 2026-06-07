@@ -96,6 +96,8 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
   gl.linkProgram(program)
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     console.error('[HoloShader] link error:', gl.getProgramInfoLog(program))
+    gl.deleteShader(vert)
+    gl.deleteShader(frag)
     return null
   }
   gl.useProgram(program)
