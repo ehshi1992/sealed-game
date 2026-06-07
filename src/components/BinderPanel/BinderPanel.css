@@ -132,6 +132,12 @@
   border-radius: 6px;
 }
 
+/* Override fixed HoloCard size to fit slot */
+.binder-panel__slot .card {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .binder-panel__pagination {
   display: flex;
   align-items: center;
