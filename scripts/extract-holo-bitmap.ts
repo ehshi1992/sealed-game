@@ -79,33 +79,42 @@ async function processOne(imgPath: string): Promise<{ R: Float32Array; G: Float3
     const fill = area / bboxArea
 
     if (area > 600 && elongation < 2.5) {
-      // Large orb — fit a full circle from centroid + max radius
-      let cx = 0, cy = 0
-      for (const idx of comp.pixels) { cx += idx % TEX; cy += (idx / TEX) | 0 }
-      cx /= area; cy /= area
+      // Skip circle-fill for border-touching components — centroid is wrong for cropped orbs
+      const touchesBorder = comp.minX === 0 || comp.maxX === TEX - 1 || comp.minY === 0 || comp.maxY === TEX - 1
 
-      let maxR = 0
-      for (const idx of comp.pixels) {
-        const dx = (idx % TEX) - cx, dy = ((idx / TEX) | 0) - cy
-        const d = Math.sqrt(dx * dx + dy * dy)
-        if (d > maxR) maxR = d
-      }
+      if (touchesBorder) {
+        // Just write raw pixels — don't attempt circle fit
+        for (const idx of comp.pixels) {
+          R[idx] = Math.max(R[idx], luma[idx] / 255)
+        }
+      } else {
+        // Fit a full circle from centroid + max radius
+        let cx = 0, cy = 0
+        for (const idx of comp.pixels) { cx += idx % TEX; cy += (idx / TEX) | 0 }
+        cx /= area; cy /= area
 
-      const fillR = maxR * 1.25  // 25% oversize fills edge gaps
-      const x0 = Math.max(0, Math.floor(cx - fillR))
-      const x1 = Math.min(TEX - 1, Math.ceil(cx + fillR))
-      const y0 = Math.max(0, Math.floor(cy - fillR))
-      const y1 = Math.min(TEX - 1, Math.ceil(cy + fillR))
-
-      for (let py = y0; py <= y1; py++) {
-        for (let px2 = x0; px2 <= x1; px2++) {
-          const dx = px2 - cx, dy = py - cy
+        let maxR = 0
+        for (const idx of comp.pixels) {
+          const dx = (idx % TEX) - cx, dy = ((idx / TEX) | 0) - cy
           const d = Math.sqrt(dx * dx + dy * dy)
-          if (d <= fillR) {
-            const ni = py * TEX + px2
-            // Edge falloff: full brightness inside maxR, fades to 0.6 at fillR edge
-            const edge = d <= maxR ? 1.0 : 1.0 - ((d - maxR) / (fillR - maxR + 0.001)) * 0.4
-            R[ni] = Math.max(R[ni], edge)
+          if (d > maxR) maxR = d
+        }
+
+        const fillR = maxR * 1.25
+        const x0 = Math.max(0, Math.floor(cx - fillR))
+        const x1 = Math.min(TEX - 1, Math.ceil(cx + fillR))
+        const y0 = Math.max(0, Math.floor(cy - fillR))
+        const y1 = Math.min(TEX - 1, Math.ceil(cy + fillR))
+
+        for (let py = y0; py <= y1; py++) {
+          for (let px2 = x0; px2 <= x1; px2++) {
+            const dx = px2 - cx, dy = py - cy
+            const d = Math.sqrt(dx * dx + dy * dy)
+            if (d <= fillR) {
+              const ni = py * TEX + px2
+              const edge = d <= maxR ? 1.0 : 1.0 - ((d - maxR) / (fillR - maxR + 0.001)) * 0.4
+              R[ni] = Math.max(R[ni], edge)
+            }
           }
         }
       }
@@ -148,6 +157,33 @@ async function processOne(imgPath: string): Promise<{ R: Float32Array; G: Float3
             B[ni] = Math.max(B[ni], src * falloff)
           }
         }
+      }
+    }
+  }
+
+  // Detect swirl zones: regions of high fine-dot density not already covered by orbs
+  // Convolve G channel with a 28px radius disk kernel, threshold → additional B channel swirls
+  const SWIRL_KERNEL_R = 28
+  const SWIRL_THRESHOLD = 0.18  // fraction of kernel area that must be lit
+  const kernelPixels = Math.PI * SWIRL_KERNEL_R * SWIRL_KERNEL_R
+
+  for (let y = SWIRL_KERNEL_R; y < TEX - SWIRL_KERNEL_R; y++) {
+    for (let x = SWIRL_KERNEL_R; x < TEX - SWIRL_KERNEL_R; x++) {
+      // Skip if already an orb here
+      if (R[y * TEX + x] > 0.3) continue
+
+      let dotSum = 0
+      for (let dy = -SWIRL_KERNEL_R; dy <= SWIRL_KERNEL_R; dy++) {
+        for (let dx = -SWIRL_KERNEL_R; dx <= SWIRL_KERNEL_R; dx++) {
+          if (dx * dx + dy * dy > SWIRL_KERNEL_R * SWIRL_KERNEL_R) continue
+          dotSum += G[(y + dy) * TEX + (x + dx)]
+        }
+      }
+
+      const density = dotSum / kernelPixels
+      if (density > SWIRL_THRESHOLD) {
+        const swirl = Math.min(1, (density - SWIRL_THRESHOLD) / (1 - SWIRL_THRESHOLD))
+        B[y * TEX + x] = Math.max(B[y * TEX + x], swirl * 0.75)
       }
     }
   }
