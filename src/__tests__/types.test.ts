@@ -15,7 +15,7 @@ describe('types compile', () => {
   })
 
   it('AppState has user, currency, collection', () => {
-    const state: AppState = { user: null, currency: 100, collection: [] }
+    const state: AppState = { user: null, currency: 100, collection: [], binders: [] }
     expect(state.currency).toBe(100)
   })
 })

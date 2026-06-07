@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Card, Pack, CollectionEntry, Profile } from '../types'
+import type { Card, Pack, CollectionEntry, Profile, Binder } from '../types'
 
 export async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
@@ -103,4 +103,51 @@ export async function removeFromCollection(
       .eq('card_id', cardId)
     if (updError) throw new Error('Failed to update collection entry')
   }
+}
+
+export async function fetchBinders(userId: string): Promise<Binder[]> {
+  const { data, error } = await supabase
+    .from('binders')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (error || !data) return []
+  return data as Binder[]
+}
+
+export async function createBinder(userId: string, name: string, color: string): Promise<Binder> {
+  const { data, error } = await supabase
+    .from('binders')
+    .insert({ user_id: userId, name, color })
+    .select()
+    .single()
+  if (error || !data) throw new Error('Failed to create binder')
+  return data as Binder
+}
+
+export async function updateBinder(
+  binderId: string,
+  patch: { name?: string; color?: string }
+): Promise<void> {
+  const { error } = await supabase
+    .from('binders')
+    .update(patch)
+    .eq('id', binderId)
+  if (error) throw new Error('Failed to update binder')
+}
+
+export async function deleteBinder(binderId: string): Promise<void> {
+  const { error } = await supabase
+    .from('binders')
+    .delete()
+    .eq('id', binderId)
+  if (error) throw new Error('Failed to delete binder')
+}
+
+export async function moveCard(entryId: string, binderId: string | null): Promise<void> {
+  const { error } = await supabase
+    .from('user_collection')
+    .update({ binder_id: binderId })
+    .eq('id', entryId)
+  if (error) throw new Error('Failed to move card')
 }

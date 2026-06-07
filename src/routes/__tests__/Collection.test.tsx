@@ -35,7 +35,7 @@ const baseEntry: CollectionEntry = {
   card: baseCard, acquired_at: '', count: 3,
 }
 
-const baseState: AppState = { user: null, currency: 0, collection: [baseEntry] }
+const baseState: AppState = { user: null, currency: 0, collection: [baseEntry], binders: [] }
 
 describe('REMOVE_CARD reducer', () => {
   it('decrements count when quantity < count', () => {

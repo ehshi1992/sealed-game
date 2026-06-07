@@ -56,6 +56,14 @@ export type Pack = {
   card_pool: string[]
 }
 
+export type Binder = {
+  id: string
+  user_id: string
+  name: string
+  color: string
+  created_at: string
+}
+
 export type CollectionEntry = {
   id: string
   user_id: string
@@ -64,6 +72,7 @@ export type CollectionEntry = {
   acquired_at: string
   count: number
   holo_seed?: HoloSeed | null  // unique per card instance
+  binder_id?: string | null
 }
 
 export type Transaction = {
@@ -84,6 +93,7 @@ export type AppState = {
   user: User | null
   currency: number
   collection: CollectionEntry[]
+  binders: Binder[]
 }
 
 export type AppAction =
@@ -93,6 +103,11 @@ export type AppAction =
   | { type: 'SET_COLLECTION'; collection: CollectionEntry[] }
   | { type: 'ADD_CARDS'; cards: CollectionEntry[] }
   | { type: 'REMOVE_CARD'; cardId: string; quantity: number }
+  | { type: 'SET_BINDERS'; binders: Binder[] }
+  | { type: 'ADD_BINDER'; binder: Binder }
+  | { type: 'UPDATE_BINDER'; binder: Binder }
+  | { type: 'DELETE_BINDER'; binderId: string }
+  | { type: 'MOVE_CARD'; entryId: string; binderId: string | null }
 
 export type PackOpenResult = {
   cards: Card[]
