@@ -188,6 +188,36 @@ body {
 
 .collection__slot:hover { transform: translateY(-4px); }
 
+.collection__slot--edit {
+  cursor: pointer;
+}
+
+.collection__remove-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e53e3e;
+  color: white;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  pointer-events: none;
+  font-weight: bold;
+}
+
+.btn--danger {
+  background: #e53e3e;
+  color: white;
+  border: none;
+}
+
+.btn--danger:hover {
+  background: #c53030;
+}
+
 .collection__count-badge {
   position: absolute;
   bottom: 4px;
