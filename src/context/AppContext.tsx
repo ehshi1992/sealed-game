@@ -8,12 +8,13 @@ import {
 import type { User } from '@supabase/supabase-js'
 import type { AppState, AppAction } from '../types'
 import { supabase } from '../lib/supabase'
-import { fetchProfile, fetchCollection } from '../lib/queries'
+import { fetchProfile, fetchCollection, fetchBinders } from '../lib/queries'
 
 const initialState: AppState = {
   user: null,
   currency: 0,
   collection: [],
+  binders: [],
 }
 
 function reducer(state: AppState, action: AppAction): AppState {
@@ -41,6 +42,27 @@ function reducer(state: AppState, action: AppAction): AppState {
         ),
       }
     }
+    case 'SET_BINDERS':
+      return { ...state, binders: action.binders }
+    case 'ADD_BINDER':
+      return { ...state, binders: [action.binder, ...state.binders] }
+    case 'UPDATE_BINDER':
+      return { ...state, binders: state.binders.map(b => b.id === action.binder.id ? action.binder : b) }
+    case 'DELETE_BINDER':
+      return {
+        ...state,
+        binders: state.binders.filter(b => b.id !== action.binderId),
+        collection: state.collection.map(e =>
+          e.binder_id === action.binderId ? { ...e, binder_id: null } : e
+        ),
+      }
+    case 'MOVE_CARD':
+      return {
+        ...state,
+        collection: state.collection.map(e =>
+          e.id === action.entryId ? { ...e, binder_id: action.binderId } : e
+        ),
+      }
     default:
       return state
   }
@@ -76,12 +98,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function loadUserData(user: User) {
-    const [profile, collection] = await Promise.all([
+    const [profile, collection, binders] = await Promise.all([
       fetchProfile(user.id),
       fetchCollection(user.id),
+      fetchBinders(user.id),
     ])
     if (profile) dispatch({ type: 'SET_CURRENCY', currency: profile.currency })
     dispatch({ type: 'SET_COLLECTION', collection })
+    dispatch({ type: 'SET_BINDERS', binders })
   }
 
   return (
