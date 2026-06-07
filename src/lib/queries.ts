@@ -73,3 +73,34 @@ export async function claimDailyReward(userId: string): Promise<number | null> {
   }
   return newCurrency as number
 }
+
+export async function removeFromCollection(
+  userId: string,
+  cardId: string,
+  quantity: number
+): Promise<void> {
+  const { data, error } = await supabase
+    .from('user_collection')
+    .select('count')
+    .eq('user_id', userId)
+    .eq('card_id', cardId)
+    .single()
+
+  if (error || !data) throw new Error('Failed to fetch collection entry')
+
+  if (quantity >= (data as { count: number }).count) {
+    const { error: delError } = await supabase
+      .from('user_collection')
+      .delete()
+      .eq('user_id', userId)
+      .eq('card_id', cardId)
+    if (delError) throw new Error('Failed to delete collection entry')
+  } else {
+    const { error: updError } = await supabase
+      .from('user_collection')
+      .update({ count: (data as { count: number }).count - quantity })
+      .eq('user_id', userId)
+      .eq('card_id', cardId)
+    if (updError) throw new Error('Failed to update collection entry')
+  }
+}

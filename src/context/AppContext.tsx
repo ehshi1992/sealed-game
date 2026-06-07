@@ -28,6 +28,19 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, collection: action.collection }
     case 'ADD_CARDS':
       return { ...state, collection: [...action.cards, ...state.collection] }
+    case 'REMOVE_CARD': {
+      const entry = state.collection.find(e => e.card_id === action.cardId)
+      if (!entry) return state
+      if (action.quantity >= entry.count) {
+        return { ...state, collection: state.collection.filter(e => e.card_id !== action.cardId) }
+      }
+      return {
+        ...state,
+        collection: state.collection.map(e =>
+          e.card_id === action.cardId ? { ...e, count: e.count - action.quantity } : e
+        ),
+      }
+    }
     default:
       return state
   }
