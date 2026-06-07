@@ -62,16 +62,16 @@ export const FRAG_SRC = /* glsl */`
     float tilt  = sqrt(tiltX * tiltX + tiltY * tiltY);  // 0..~0.707
 
     // Reveal factor: near-opaque at full tilt, nearly invisible at rest
-    float reveal = 0.04 + tilt * 2.0;
+    float reveal = 0.04 + tilt * 3.5;
     reveal = clamp(reveal, 0.04, 1.0);
 
     // Iridescent hue: blue-ish at rest, sweeps full spectrum on tilt
     float tiltHue = fract(0.58 + tiltX * 0.9 + tiltY * 0.5);
 
     // Colorize each layer — spirals get higher saturation
-    vec3 orbCol    = hsl2rgb(fract(tiltHue + bUV.x * 0.12 + bUV.y * 0.07), 0.90, 0.40 + largeOrb * 0.50);
-    vec3 dotCol    = hsl2rgb(fract(tiltHue + uv.x  * 0.40 + uv.y  * 0.25), 1.00, 0.86);
-    vec3 spiralCol = hsl2rgb(fract(tiltHue + 0.15 + bUV.x * 0.30 - bUV.y * 0.15), 1.00, 0.55 + spiral * 0.35);
+    vec3 orbCol    = hsl2rgb(fract(tiltHue + bUV.x * 0.12 + bUV.y * 0.07),  1.00, 0.35 + largeOrb * 0.60);
+    vec3 dotCol    = hsl2rgb(fract(tiltHue + uv.x  * 0.40 + uv.y  * 0.25),  1.00, 0.92);
+    vec3 spiralCol = hsl2rgb(fract(tiltHue + 0.15 + bUV.x * 0.30 - bUV.y * 0.15), 1.00, 0.50 + spiral * 0.45);
 
     // Composite: dots base → orbs → spirals on top (spirals win)
     vec3  col   = dotCol;
