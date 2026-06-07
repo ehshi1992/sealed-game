@@ -282,8 +282,13 @@ body {
 /* Binder panel layout */
 .collection--panel-open {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 1rem;
+}
+
+.collection--panel-open .collection__header {
+  flex-basis: 100%;
 }
 
 .collection--panel-open .collection__main {
@@ -297,7 +302,7 @@ body {
   position: sticky;
   top: 1rem;
   max-height: calc(100vh - 100px);
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .collection__slot--dragging {

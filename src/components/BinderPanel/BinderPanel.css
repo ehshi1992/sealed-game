@@ -1,12 +1,10 @@
 .binder-panel {
-  height: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  min-height: 500px;
+  overflow-y: auto;
 }
 
 .binder-panel--drag-over {
@@ -118,7 +116,6 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   padding: 1rem;
-  flex: 1;
 }
 
 .binder-panel__slot {
