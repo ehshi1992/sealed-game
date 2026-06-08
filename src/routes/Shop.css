@@ -110,6 +110,7 @@
 }
 
 .pack-card__img-wrap {
+  position: relative;
   overflow: hidden;
   border-radius: 6px;
 }
