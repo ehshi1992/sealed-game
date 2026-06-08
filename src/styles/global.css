@@ -236,30 +236,22 @@ body {
   }
 }
 
-/* Binder panel layout */
-.collection--panel-open {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.collection--panel-open .collection__toolbar {
-  flex-basis: 100%;
-}
-
+/* Binder panel — fixed bottom sheet whenever open */
 .collection--panel-open .collection__main {
-  flex: 1;
-  min-width: 0;
+  padding-bottom: 52vh;
 }
 
 .collection__panel-wrapper {
-  width: 320px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 100px);
+  position: fixed;
+  bottom: 0;
+  left: 220px;
+  right: 0;
+  height: 50vh;
   overflow-y: auto;
+  background: var(--bg);
+  border-top: 2px solid var(--border);
+  z-index: 50;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .collection__slot--dragging {
@@ -273,29 +265,8 @@ body {
   border-radius: 8px;
 }
 
-/* Binder view — fixed bottom sheet, collection scrolls behind */
-.collection--binder-view .collection__main {
-  display: block;
-  flex-basis: 100%;
-  padding-bottom: 52vh;
-}
-
-.collection--binder-view .collection__panel-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 220px;
-  right: 0;
-  height: 50vh;
-  max-height: 50vh;
-  overflow-y: auto;
-  background: var(--bg);
-  border-top: 2px solid var(--border);
-  z-index: 50;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
-}
-
 @media (max-width: 768px) {
-  .collection--binder-view .collection__panel-wrapper {
+  .collection__panel-wrapper {
     left: 0;
   }
 }
