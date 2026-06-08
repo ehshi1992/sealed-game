@@ -7,7 +7,7 @@ type Props = {
   binders: Binder[]
   collection: CollectionEntry[]
   draggedEntryId: string | null
-  onDragStart: (entryId: string) => void
+  onStartDrag: (entryId: string, imageUrl: string, el: HTMLElement) => void
   onMoveCard: (entryId: string, binderId: string | null) => void
   onCreateBinder: (name: string, color: string) => Promise<void>
   onDeleteBinder: (binderId: string) => Promise<void>
@@ -16,9 +16,9 @@ type Props = {
 export default function BinderPanel({
   binders,
   collection,
-  draggedEntryId,
-  onDragStart,
-  onMoveCard,
+  draggedEntryId: _draggedEntryId,
+  onStartDrag,
+  onMoveCard: _onMoveCard,
   onCreateBinder,
   onDeleteBinder,
 }: Props) {
@@ -27,7 +27,6 @@ export default function BinderPanel({
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState('#6366f1')
   const [page, setPage] = useState(0)
-  const [isDragOver, setIsDragOver] = useState(false)
 
   async function handleCreateSubmit() {
     if (!newName.trim()) return
@@ -122,18 +121,10 @@ export default function BinderPanel({
   const totalPages = Math.max(1, Math.ceil(binderCards.length / 9))
   const pageCards = binderCards.slice(page * 9, page * 9 + 9)
 
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setIsDragOver(false)
-    if (draggedEntryId) onMoveCard(draggedEntryId, binder!.id)
-  }
-
   return (
     <div
-      className={`binder-panel${isDragOver ? ' binder-panel--drag-over' : ''}`}
-      onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
-      onDragLeave={() => setIsDragOver(false)}
-      onDrop={handleDrop}
+      className="binder-panel"
+      data-drop-zone={`binder-${binder.id}`}
     >
       <div className="binder-panel__header">
         <button
@@ -154,8 +145,9 @@ export default function BinderPanel({
             <div
               key={entry.id}
               className="binder-panel__slot"
-              draggable
-              onDragStart={() => onDragStart(entry.id)}
+              onPointerDown={e =>
+                onStartDrag(entry.id, entry.card.image_url, e.currentTarget)
+              }
             >
               <HoloCard
                 card={entry.card}

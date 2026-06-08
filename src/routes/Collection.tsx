@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext'
 import { removeFromCollection, createBinder, deleteBinder, moveCard } from '../lib/queries'
 import HoloCard from '../components/HoloCard/HoloCard'
 import BinderPanel from '../components/BinderPanel/BinderPanel'
+import { useDrag } from '../hooks/useDrag'
 import type { CollectionEntry } from '../types'
 
 export default function Collection() {
@@ -20,8 +21,6 @@ export default function Collection() {
 
   // Binder panel state
   const [panelOpen, setPanelOpen] = useState(false)
-  const [draggedEntryId, setDraggedEntryId] = useState<string | null>(null)
-  const [isGridDragOver, setIsGridDragOver] = useState(false)
 
   // Bulk = cards not in any binder
   const bulk = useMemo(() => collection.filter(e => !e.binder_id), [collection])
@@ -80,18 +79,17 @@ export default function Collection() {
     }
   }
 
-  // ── Drag handlers (bulk grid drop target) ────────────────────────────────
-  function handleBulkDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setIsGridDragOver(false)
-    if (draggedEntryId) {
-      const entry = collection.find(en => en.id === draggedEntryId)
-      if (entry && entry.binder_id !== null) {
-        handleMoveCard(draggedEntryId, null)
-      }
+  function handleDrop(entryId: string, zoneId: string) {
+    if (zoneId === 'bulk') {
+      const entry = collection.find(e => e.id === entryId)
+      if (entry && entry.binder_id !== null) handleMoveCard(entryId, null)
+    } else if (zoneId.startsWith('binder-')) {
+      const binderId = zoneId.slice(7)
+      handleMoveCard(entryId, binderId)
     }
-    setDraggedEntryId(null)
   }
+
+  const { draggedEntryId, startDrag } = useDrag(handleDrop)
 
   return (
     <div className={`collection${panelOpen ? ' collection--panel-open' : ''}`}>
@@ -121,18 +119,17 @@ export default function Collection() {
           </div>
         ) : (
           <div
-            className={`collection__grid${isGridDragOver ? ' collection__grid--droptarget' : ''}`}
-            onDragOver={e => { e.preventDefault(); setIsGridDragOver(true) }}
-            onDragLeave={() => setIsGridDragOver(false)}
-            onDrop={handleBulkDrop}
+            className="collection__grid"
+            data-drop-zone="bulk"
           >
             {bulk.map((entry) => (
               <div
                 key={entry.id}
                 className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}`}
-                draggable={!editMode && panelOpen}
-                onDragStart={() => { setDraggedEntryId(entry.id) }}
-                onDragEnd={() => setDraggedEntryId(null)}
+                onPointerDown={e => {
+                  if (!editMode && panelOpen)
+                    startDrag(entry.id, entry.card.image_url, e.currentTarget)
+                }}
                 onClick={() => {
                   if (editMode) openStepper(entry)
                   else setSelected(entry)
@@ -155,7 +152,7 @@ export default function Collection() {
             binders={binders}
             collection={collection}
             draggedEntryId={draggedEntryId}
-            onDragStart={setDraggedEntryId}
+            onStartDrag={startDrag}
             onMoveCard={handleMoveCard}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
