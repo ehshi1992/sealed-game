@@ -201,3 +201,60 @@
   from { transform: rotateY(-90deg); opacity: 0.4; }
   to   { transform: rotateY(0deg);   opacity: 1; }
 }
+
+/* ─── Full-width two-page spread ───────────────────────────── */
+.binder-panel--spread {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.binder-panel__spread-wrap {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+.binder-panel__page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.binder-panel__spread-divider {
+  width: 2px;
+  background: var(--border);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Cards in spread slots should fill the slot */
+.binder-panel--spread .binder-panel__slot .card {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Subtle page shadow for depth */
+.binder-panel__page:first-child {
+  box-shadow: inset -4px 0 12px rgba(0, 0, 0, 0.08);
+}
+
+.binder-panel__page:last-child {
+  box-shadow: inset 4px 0 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ─── Mobile: stack pages vertically ───────────────────────── */
+@media (max-width: 640px) {
+  .binder-panel__spread-wrap {
+    flex-direction: column;
+  }
+  .binder-panel__spread-divider {
+    width: 100%;
+    height: 2px;
+  }
+}
