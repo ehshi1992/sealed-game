@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Card } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
@@ -27,6 +27,12 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const grabXRef     = useRef(0)
   const grabTimeRef  = useRef(0)
   const cardDealRef  = useRef<HTMLDivElement>(null)
+  const mountedRef   = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   // ── Drag handlers ──────────────────────────────────────
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -68,10 +74,14 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   function doTear() {
     setPhase('tearing')
     setTimeout(() => {
+      if (!mountedRef.current) return
       setPhase('discarded')
       setDealIndex(0)
       setFlipped(false)
-      setTimeout(() => setPhase('dealing'), 100)
+      setTimeout(() => {
+        if (!mountedRef.current) return
+        setPhase('dealing')
+      }, 100)
     }, 450)
   }
 
