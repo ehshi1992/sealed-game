@@ -20,6 +20,7 @@
   user-select: none;
   flex-shrink: 0;
   touch-action: none;
+  overflow: hidden;
 }
 
 .pack-rip__pack--idle {
@@ -42,12 +43,17 @@
   border-radius: 8px;
   filter: drop-shadow(0 0 24px var(--accent-glow));
   will-change: transform;
+  z-index: 1;
 }
 
 .pack-rip__left  { clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }
 .pack-rip__right { clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%); }
 
 /* Drag: halves move apart via CSS custom property */
+.pack-rip__pack--grabbed {
+  cursor: grabbing;
+}
+
 .pack-rip__pack--grabbed .pack-rip__left  { transform: translateX(calc(-1 * var(--tear-dx, 0px))); }
 .pack-rip__pack--grabbed .pack-rip__right { transform: translateX(var(--tear-dx, 0px)); }
 
@@ -57,15 +63,16 @@
   position: absolute;
   inset: 0;
   border-radius: 8px;
-  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
-  background-size: 200% 200%;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.22) 50%, transparent 65%);
+  transform: translateX(-150%);
   animation: shimmer-sweep 4s linear infinite;
   pointer-events: none;
+  z-index: 2;
 }
 
 @keyframes shimmer-sweep {
-  0%   { background-position: -100% -100%; }
-  100% { background-position: 200% 200%; }
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(200%); }
 }
 
 /* ─── Tear animation ────────────────────────────────────── */
