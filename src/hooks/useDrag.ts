@@ -16,10 +16,11 @@ export function useDrag(onDrop: DropHandler) {
     onDrop:   DropHandler
     moveHandler: ((e: PointerEvent) => void) | null
     upHandler:   ((e: PointerEvent) => void) | null
+    cancelHandler: ((e: PointerEvent) => void) | null
   }>({
     clone: null, originEl: null, entryId: null,
     offsetX: 0, offsetY: 0, onDrop,
-    moveHandler: null, upHandler: null,
+    moveHandler: null, upHandler: null, cancelHandler: null,
   })
 
   // Keep onDrop current without re-creating handlers
@@ -27,6 +28,7 @@ export function useDrag(onDrop: DropHandler) {
 
   function startDrag(entryId: string, imageUrl: string, el: HTMLElement) {
     const d = dragRef.current
+    if (d.clone) return  // drag already active
     d.entryId  = entryId
     d.originEl = el
     el.style.opacity = '0.3'
@@ -72,8 +74,10 @@ export function useDrag(onDrop: DropHandler) {
       cleanup()
     }
 
+    d.cancelHandler = () => cleanup()
     document.addEventListener('pointermove', d.moveHandler)
     document.addEventListener('pointerup',   d.upHandler)
+    document.addEventListener('pointercancel', d.cancelHandler)
   }
 
   function cleanup() {
@@ -85,8 +89,10 @@ export function useDrag(onDrop: DropHandler) {
     d.entryId  = null
     if (d.moveHandler) document.removeEventListener('pointermove', d.moveHandler)
     if (d.upHandler)   document.removeEventListener('pointerup',   d.upHandler)
+    if (d.cancelHandler) document.removeEventListener('pointercancel', d.cancelHandler)
     d.moveHandler = null
     d.upHandler   = null
+    d.cancelHandler = null
     setDraggedEntryId(null)
   }
 
