@@ -22,14 +22,14 @@ import cv2
 import numpy as np
 import requests
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+from PIL import Image, ImageDraw
 from rembg import remove
 from supabase import create_client
 
 load_dotenv(dotenv_path=Path(__file__).parent.parent / '.env.local')
 
 SKIP_LAYOUT_TYPES = {'trainer', 'energy'}
-CARD_W, CARD_H = 300, 418   # display dimensions (not processing — just for coverage calc)
 
 
 # ---------------------------------------------------------------------------
@@ -93,7 +93,6 @@ def load_image_pil(card: dict, local_dir: str | None) -> Image.Image:
         return Image.open(candidates[0]).convert('RGB')
     resp = requests.get(card['image_url'], timeout=15)
     resp.raise_for_status()
-    from io import BytesIO
     return Image.open(BytesIO(resp.content)).convert('RGB')
 
 
@@ -106,8 +105,8 @@ def crop_to_bounds(img: Image.Image, bounds: dict[str, float]) -> Image.Image:
     return img.crop((left, top, right, bottom))
 
 
-def segment_subject(crop: Image.Image) -> tuple[np.ndarray, float, int]:
-    """Run rembg on crop. Returns (alpha_mask uint8, mean_alpha, contour_count)."""
+def segment_subject(crop: Image.Image) -> tuple[np.ndarray, float, int, list]:
+    """Run rembg on crop. Returns (alpha_mask uint8, mean_alpha, contour_count, contours)."""
     result_rgba = remove(crop)   # returns PIL RGBA
     alpha = np.array(result_rgba)[:, :, 3]   # H×W uint8
     mean_alpha = float(np.mean(alpha[alpha > 128])) if np.any(alpha > 128) else 0.0
@@ -115,22 +114,21 @@ def segment_subject(crop: Image.Image) -> tuple[np.ndarray, float, int]:
     binary = (alpha > 128).astype(np.uint8) * 255
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contour_count = len(contours)
-    return alpha, mean_alpha, contour_count
+    return alpha, mean_alpha, contour_count, contours
 
 
 def extract_polygon(
-    alpha: np.ndarray,
+    contours: list,
+    alpha_shape: tuple[int, int],
     epsilon_frac: float,
 ) -> list[list[float]] | None:
-    """Largest contour → simplified polygon in crop-space (0-1)."""
-    binary = (alpha > 128).astype(np.uint8) * 255
-    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    """Largest contour → simplified polygon in crop-space (0-1). Accepts pre-computed contours."""
     if not contours:
         return None
     largest = max(contours, key=cv2.contourArea)
     arc_len = cv2.arcLength(largest, True)
     approx = cv2.approxPolyDP(largest, epsilon_frac * arc_len, True)
-    h, w = alpha.shape
+    h, w = alpha_shape
     return [[float(pt[0][0]) / w, float(pt[0][1]) / h] for pt in approx]
 
 
@@ -235,9 +233,9 @@ def process_card(
         return False
 
     crop = crop_to_bounds(img, bounds)
-    alpha, mean_alpha, contour_count = segment_subject(crop)
+    alpha, mean_alpha, contour_count, contours = segment_subject(crop)
 
-    crop_poly = extract_polygon(alpha, epsilon)
+    crop_poly = extract_polygon(contours, alpha.shape, epsilon)
     if crop_poly is None:
         print(f"    ERROR: no contour found")
         return False
