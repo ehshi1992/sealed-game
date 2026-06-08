@@ -7,7 +7,10 @@
   min-height: 100vh;
   gap: 2rem;
   padding: 2rem 1rem;
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse at 50% 36%, rgba(124, 58, 237, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 36%, rgba(229, 62, 62, 0.06) 0%, transparent 40%),
+    var(--bg);
   overflow: hidden;
 }
 
@@ -20,10 +23,29 @@
   user-select: none;
   flex-shrink: 0;
   touch-action: none;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Red stress-glow that intensifies as you pull */
+.pack-rip__pack::before {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 15%, rgba(229, 62, 62, 0.55) 0%, transparent 65%);
+  opacity: var(--tear-pct, 0);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .pack-rip__pack--idle {
   animation: pack-breathe 3s ease-in-out infinite;
+}
+
+.pack-rip__pack--grabbed {
+  cursor: grabbing;
+  transform: scale(1.025);
+  animation: none;
 }
 
 @keyframes pack-breathe {
@@ -52,15 +74,24 @@
   display: block;
 }
 
+/* Dramatic flap lift — much more obvious at 80px drag */
 .pack-rip__flap {
-  transform: translateY(calc(var(--tear-pct, 0) * -10px))
-             rotate(calc(var(--tear-pct, 0) * -3deg));
+  transform: translateY(calc(var(--tear-pct, 0) * -30px))
+             rotate(calc(var(--tear-pct, 0) * -8deg))
+             scaleX(calc(1 + var(--tear-pct, 0) * 0.04));
   transform-origin: center bottom;
   will-change: transform;
 }
 
+/* Spring snap-back when released below threshold */
 .pack-rip__pack--idle .pack-rip__flap {
-  transition: transform 0.3s ease-out;
+  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Body compresses slightly as flap is pulled away */
+.pack-rip__body {
+  transform: scaleY(calc(1 - var(--tear-pct, 0) * 0.025));
+  transform-origin: center top;
 }
 
 /* ─── Perforations overlay ──────────────────────────────── */
@@ -72,12 +103,18 @@
   height: 8px;
   pointer-events: none;
   z-index: 3;
-  opacity: calc(0.3 + var(--tear-pct, 0) * 0.7);
+  opacity: calc(0.35 + var(--tear-pct, 0) * 0.65);
 }
 
-/* ─── Drag: cursor ──────────────────────────────────────── */
-.pack-rip__pack--grabbed {
-  cursor: grabbing;
+/* Perf warms to orange-red as tear-pct increases */
+.pack-rip__pack--grabbed .pack-rip__perf line {
+  stroke: rgba(255, 130, 60, 0.95);
+  filter: drop-shadow(0 0 5px rgba(255, 100, 30, 0.9));
+}
+
+.pack-rip__pack--grabbed .pack-rip__perf polygon {
+  fill: rgba(255, 130, 60, 0.95);
+  filter: drop-shadow(0 0 5px rgba(255, 100, 30, 0.9));
 }
 
 /* ─── Shimmer sweep ─────────────────────────────────────── */
@@ -100,12 +137,13 @@
 
 /* ─── Flap fly-off ──────────────────────────────────────── */
 @keyframes flap-fly-off {
-  0%   { transform: translateY(-10px) rotate(-3deg); opacity: 1; }
-  100% { transform: translateY(-120vh) rotate(-15deg); opacity: 0; }
+  0%   { transform: translateY(-30px) rotate(-8deg) scaleX(1.04); opacity: 1; }
+  18%  { transform: translateY(-10px) rotate(-3deg) scaleX(0.97); }
+  100% { transform: translateY(-130vh) rotate(-22deg) scaleX(1); opacity: 0; }
 }
 
 .pack-rip__flap--tearing {
-  animation: flap-fly-off 0.4s ease-in forwards;
+  animation: flap-fly-off 0.5s cubic-bezier(0.55, 0, 1, 0.45) forwards;
 }
 
 /* ─── Card deck ─────────────────────────────────────────── */
@@ -146,6 +184,11 @@
 
 .deck-card--top:active {
   cursor: grabbing;
+}
+
+/* Spring snap-back when released without flying */
+.deck-card--top:not(.deck-card--dragging):not(.deck-card--flying) {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .deck-card--flying {

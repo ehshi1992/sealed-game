@@ -219,6 +219,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
               className={[
                 'deck-card',
                 'deck-card--top',
+                dragState    ? 'deck-card--dragging'   : '',
                 flying       ? 'deck-card--flying'     : '',
                 isCommitting ? 'deck-card--committing' : '',
               ].join(' ').trim()}
