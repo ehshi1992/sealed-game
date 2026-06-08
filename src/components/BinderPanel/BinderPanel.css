@@ -148,3 +148,14 @@
   font-size: 0.85rem;
   flex-shrink: 0;
 }
+
+/* ─── Drop zone highlight ───────────────────────────────── */
+.binder-panel[data-drop-zone] {
+  transition: box-shadow 0.15s;
+}
+
+/* Empty slot ambient glow */
+.binder-panel__slot--empty {
+  box-shadow: inset 0 0 8px rgba(124, 58, 237, 0.15);
+  transition: box-shadow 0.2s;
+}
