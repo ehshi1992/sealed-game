@@ -64,10 +64,28 @@ npx supabase db push  # apply migrations
 - **Edit mode**: toggled via "Edit" button. In edit mode, clicking a card slot opens stepper modal. Red × badge overlays each card.
 - **Stepper modal**: shows card, count you own, −/+ quantity buttons, "Remove N / all" confirm. Optimistic dispatch → revert on failure.
 
+### PolygonTest (dev route)
+- **Location**: `src/routes/PolygonTest.tsx` — accessible at `/polygon-test`
+- **Purpose**: Visual validation of subject polygon extraction for holo shader masking
+- **Data**: Fetches `/polygon-test-data/{card_id}.json` (static files in `public/polygon-test-data/`, 6 Neo Genesis cards pre-computed)
+- **Controls**: toggle polygon overlay, toggle holo-preview (hue tracks pointer)
+- **Pattern**: mirrors HoloTest — dark bg, monospace, 300×418 cards, SVG `<polygon>` overlay
+
 ### Global CSS
 - `.spinner` class exists in global CSS for loading states.
 - `.btn--sm` / `.btn--xs`: compact button size modifiers (no inline styles needed).
 - `.btn--danger`: red destructive button.
+
+## Scripts (Python)
+
+### extract_subject_polygons.py
+- **Purpose**: one-off — segments Pokémon subject from card art, outputs normalized polygon JSON
+- **Deps**: `scripts/requirements-polygon.txt` (`pip install -r scripts/requirements-polygon.txt`)
+- **Usage**: `python scripts/extract_subject_polygons.py <card_id> [--all] [--debug] [--epsilon 0.02] [--output-dir output]`
+- **Skip**: trainer + energy cards (via `card_layout_type`)
+- **Output**: `output/polygons/{card_id}.json` — `{card_id, polygon: [[x,y],...], metrics}`
+- **Debug**: `--debug` writes `output/debug-sheet.png` (3-panel grid: original | alpha mask | polygon overlay)
+- **Future**: persist to `cards.subject_polygon jsonb`, constrain holo shader pattern to subject
 
 ## Known Issues / Gotchas
 - **Supabase new key format**: `sb_publishable_` / `sb_secret_` keys are auto-injected into edge functions. Use `npm:@supabase/supabase-js@2` import (not esm.sh) in Deno edge functions.
