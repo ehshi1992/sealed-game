@@ -126,6 +126,7 @@ export default function BinderPanel({
   const binder = binders.find(b => b.id === selectedBinderId)
   if (!binder) {
     setSelectedBinderId(null)
+    onBinderViewChange?.(false)
     return null
   }
 
