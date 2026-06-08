@@ -1,0 +1,392 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>My Collection - TCG Archive</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;family=Bricolage+Grotesque:wght@700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#956d67",
+                        "on-secondary-container": "#706000",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-variant": "#e2e2e2",
+                        "inverse-primary": "#ffb4a8",
+                        "surface-container": "#eeeeee",
+                        "outline-variant": "#ebbbb4",
+                        "tertiary": "#3c4dcb",
+                        "on-tertiary-container": "#fffbff",
+                        "primary": "#bc0100",
+                        "on-tertiary-fixed-variant": "#2335b5",
+                        "background": "#f9f9f9",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-fixed": "#211b00",
+                        "tertiary-fixed-dim": "#bcc2ff",
+                        "primary-container": "#eb0000",
+                        "secondary-fixed-dim": "#e3c600",
+                        "surface-container-high": "#e8e8e8",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fddc00",
+                        "surface-bright": "#f9f9f9",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffe24a",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#c00100",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-surface-variant": "#603e39",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#dfe0ff",
+                        "surface-dim": "#dadada",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-secondary-fixed-variant": "#524600",
+                        "surface": "#f9f9f9",
+                        "on-primary-fixed": "#410000",
+                        "on-tertiary-fixed": "#000b62",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#ffdad4",
+                        "inverse-on-surface": "#f1f1f1",
+                        "tertiary-container": "#5768e6",
+                        "secondary": "#6d5e00",
+                        "on-primary-fixed-variant": "#930100",
+                        "on-background": "#1a1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Bricolage Grotesque"],
+                        "display-lg": ["Bricolage Grotesque"],
+                        "headline-lg": ["Bricolage Grotesque"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .wood-texture {
+            background-color: #2c1b12;
+            background-image: 
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        .card-glint::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 50%, transparent 55%);
+            transition: all 0.5s;
+            pointer-events: none;
+        }
+        .card-glint:hover::after {
+            top: -50%;
+            left: -50%;
+        }
+        .holo-shimmer {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,255,255,0.2) 100%);
+            mix-blend-mode: overlay;
+        }
+        .magnetic-case {
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 20px 40px rgba(0,0,0,0.4);
+            border: 8px solid rgba(255,255,255,0.05);
+        }
+        .plastic-button {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 3px 0 #800100;
+        }
+        .plastic-button:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 0 #800100;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container dark:bg-surface-dim flex flex-col h-full py-lg px-md shadow-md z-50 shadow-[inset_-4px_0_12px_rgba(0,0,0,0.1)]">
+<div class="mb-xl px-sm">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary dark:text-primary-container tracking-tight">TCG Archive</h1>
+<div class="flex items-center mt-sm">
+<img alt="Collector Profile" class="w-10 h-10 rounded-full border-2 border-primary" data-alt="Close-up portrait of a professional trading card collector wearing a tech-wear jacket, styled in a vibrant and high-energy anime aesthetic. The lighting is dramatic with neon red and white highlights, reflecting a premium gaming atmosphere. The background is a soft-focus archive of rare cards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxznrVtZhsIQ0oV4HEIWfsUrlClLgFsbq7qf_Qsbw2i0Zl_tIVMU46tP82MR72zq9xwx049gPaAfjAR0Ajm2GhtdSZCFVr_SAia7f_RcRRjyzbsj7ApN6dI2XNnizkncIdAjSDZfgya1sTUP-HJffksDlCeL0UeAbRCfBkXOVCjqiKN7APIPqZpglAoOh4cQo6g4c-dNrnjajvIqo32bG3_EXBwKimBiVfbJXp6ffCkQmuQoIY8NWnOiZt7V-_cSpPEEWSXwCUj0g">
+<div class="ml-sm">
+<p class="font-label-md text-label-md text-primary font-bold">Collector Profile</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-black">Master Rank</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-sm">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+                Booster Store
+            </a>
+<!-- Active State: My Collection -->
+<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-bright translate-x-1 transition-transform duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="style" style="font-variation-settings: 'FILL' 1;">style</span>
+                My Collection
+            </a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+                Master Binder
+            </a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+                Trade Table
+            </a>
+<div class="pt-xl mt-xl border-t border-outline-variant">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</div>
+</nav>
+<button class="mt-xl bg-primary text-on-primary font-label-md text-label-md py-md rounded-lg flex items-center justify-center gap-sm plastic-button">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+            Open Pack
+        </button>
+</aside>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-20 px-margin-desktop w-[calc(100%-16rem)] ml-64 bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-40 shadow-sm">
+<div class="flex items-center gap-xl">
+<span class="font-headline-lg text-headline-lg text-primary font-black">TCG Archival Pro</span>
+<nav class="hidden md:flex gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Marketplace</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Events</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Forum</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-md flex items-center text-outline">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</span>
+<input class="bg-surface-container border-none rounded-full pl-xl pr-md py-sm font-label-md text-label-md focus:ring-2 focus:ring-tertiary w-64 transition-all" placeholder="Search Collection..." type="text">
+</div>
+<button class="p-sm rounded-full hover:bg-surface-container transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="flex items-center gap-sm bg-secondary-container text-on-secondary-container px-md py-sm rounded-full font-label-md text-label-md active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+                4,250 PC
+            </button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 w-[calc(100%-16rem)] min-h-[calc(100vh-5rem)] wood-texture p-lg">
+<div class="max-w-[1600px] mx-auto grid grid-cols-12 gap-lg">
+<!-- Featured Card Section -->
+<section class="col-span-12 xl:col-span-8 space-y-lg">
+<div class="bg-black/40 rounded-xl p-xl backdrop-blur-md border border-white/10 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-md">
+<span class="bg-primary text-white text-[10px] font-black px-md py-1 rounded-full uppercase tracking-tighter shadow-lg">Vault Highlight</span>
+</div>
+<div class="flex flex-col lg:flex-row gap-xl items-center">
+<!-- The Magnetic Case Card -->
+<div class="relative group">
+<div class="magnetic-case rounded-xl overflow-hidden w-64 aspect-[2.5/3.5] bg-[#1a1c1c] relative cursor-pointer transform hover:-rotate-1 hover:scale-105 transition-all duration-500">
+<img alt="Featured Card" class="w-full h-full object-cover" data-alt="A rare holographic trading card featuring a majestic fire dragon, encased in a premium thick magnetic acrylic protector. The card surface has a complex rainbow foil pattern that glints under studio lighting. The setting is a dark, luxury card table, creating an atmosphere of extreme value and prestige." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0vlPHxhivPA9ThVMD8pzKm0vd1kXs-2qxfvjmXjW3akA6zcvrdLhiZh-lkGHeUjnPUEnH4UznRSkhLb5Vl0_cLgbD5mTL9y75aaNyaUbwZCzmJQFGzq6W-OHzcx5Wotht6jy3_PstmCAQKsYLI3hKJ_RDuD15e7F2wmXlba22Hh8pxFDhdy2BQVvfcEQGetHSFstl2fT55tdyjqSUkPdiT5RQhybpT4cDjPTSLZlHp1Kt4whfHVZJ3pWWCrAnU5LKnw0h0hAjuRM">
+<div class="holo-shimmer absolute inset-0"></div>
+</div>
+<div class="absolute -bottom-4 -right-4 bg-tertiary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl border-4 border-[#2c1b12] font-black">
+                                10
+                            </div>
+</div>
+<div class="flex-1 space-y-md">
+<div class="space-y-sm">
+<h2 class="font-display-lg text-display-lg text-white leading-tight">Hyperion Dragoon <br><span class="text-secondary-fixed">Celestial Rare</span></h2>
+<p class="text-surface-variant font-body-md max-w-md">The crown jewel of your collection. Graded Pristine 10 by TCG Global. One of only 50 known copies in existence.</p>
+</div>
+<div class="flex flex-wrap gap-sm">
+<div class="bg-primary/20 border border-primary/50 px-md py-sm rounded-lg flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="local_fire_department">local_fire_department</span>
+<span class="font-label-md text-label-md text-white">Fire Attribute</span>
+</div>
+<div class="bg-tertiary/20 border border-tertiary/50 px-md py-sm rounded-lg flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="stars">stars</span>
+<span class="font-label-md text-label-md text-white">Level 12</span>
+</div>
+<div class="bg-secondary/20 border border-secondary/50 px-md py-sm rounded-lg flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary-fixed text-sm" data-icon="show_chart">show_chart</span>
+<span class="font-label-md text-label-md text-white">Value: $1,240.00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Collection Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-md">
+<!-- Repeated Card Items -->
+<script>
+                        const cardData = [
+                            { name: "Ancient Golem", rarity: "Super Rare", color: "bg-surface-variant" },
+                            { name: "Mystic Nymph", rarity: "Rare", color: "bg-tertiary-fixed" },
+                            { name: "Shadow Stalker", rarity: "Common", color: "bg-outline-variant" },
+                            { name: "Flame Weaver", rarity: "Ultra Rare", color: "bg-primary-fixed" },
+                            { name: "Sea King", rarity: "Super Rare", color: "bg-tertiary-fixed-dim" },
+                            { name: "Leaf Sprite", rarity: "Common", color: "bg-secondary-fixed-dim" },
+                            { name: "Iron Titan", rarity: "Rare", color: "bg-surface-dim" },
+                            { name: "Wind Runner", rarity: "Ultra Rare", color: "bg-outline-variant" },
+                            { name: "Sun Priest", rarity: "Super Rare", color: "bg-secondary-fixed" },
+                            { name: "Dark Sage", rarity: "Celestial Rare", color: "bg-inverse-surface" }
+                        ];
+
+                        document.write(cardData.map((card, i) => `
+                            <div class="group relative bg-[#1a1c1c] rounded-lg p-1 shadow-2xl transition-all hover:-translate-y-2 hover:scale-105 duration-300 card-glint overflow-hidden">
+                                <div class="aspect-[2.5/3.5] rounded-md overflow-hidden relative">
+                                    <img src="https://images.unsplash.com/photo-1606663889134-b1dedb5ed8b7?auto=format&fit=crop&q=80&w=400&sig=${i}" class="w-full h-full object-cover" data-alt="A detailed fantasy trading card artwork showing ${card.name}. The illustration is vibrant and nostalgic, reminiscent of 90s anime card games. The card has a textured frame and elemental symbols in the corners. Lighting is bright and high-contrast.">
+                                    <div class="absolute inset-x-0 bottom-0 p-sm bg-gradient-to-t from-black/80 to-transparent">
+                                        <p class="text-white font-label-md text-[12px] truncate">${card.name}</p>
+                                        <p class="text-primary-fixed-dim text-[10px] uppercase font-bold">${card.rarity}</p>
+                                    </div>
+                                </div>
+                                <div class="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button class="bg-white/90 p-1 rounded-full text-black shadow-lg"><span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span></button>
+                                    <button class="bg-white/90 p-1 rounded-full text-black shadow-lg"><span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span></button>
+                                </div>
+                            </div>
+                        `).join(''));
+                    </script>
+</div>
+</section>
+<!-- Sidebar Stats Section -->
+<aside class="col-span-12 xl:col-span-4 space-y-lg">
+<!-- Collection Stats Card -->
+<div class="bg-surface-container-highest rounded-xl p-lg border-2 border-outline-variant shadow-xl relative">
+<div class="absolute -top-4 -right-4 bg-secondary-container p-2 rounded-lg rotate-12 shadow-lg border-2 border-on-secondary-container">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg-mobile text-primary mb-md">Collection Analytics</h3>
+<div class="space-y-md">
+<div class="bg-surface p-md rounded-lg border border-outline-variant shadow-inner">
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-widest">Total Portfolio Value</p>
+<div class="flex items-baseline gap-sm mt-xs">
+<span class="text-display-lg font-display-lg text-primary leading-none">$12,842</span>
+<span class="text-tertiary font-bold text-label-md">+12.4%</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="bg-surface p-md rounded-lg border border-outline-variant">
+<p class="text-on-surface-variant font-label-md text-[10px] uppercase">Card Count</p>
+<p class="text-headline-lg font-headline-lg">1,402</p>
+</div>
+<div class="bg-surface p-md rounded-lg border border-outline-variant">
+<p class="text-on-surface-variant font-label-md text-[10px] uppercase">Mastery</p>
+<p class="text-headline-lg font-headline-lg text-tertiary">84%</p>
+</div>
+</div>
+<div class="space-y-sm">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Rarity Breakdown</p>
+<div class="space-y-xs">
+<div class="flex items-center gap-sm">
+<div class="w-full bg-surface rounded-full h-4 border border-outline-variant overflow-hidden">
+<div class="bg-primary h-full" style="width: 15%"></div>
+</div>
+<span class="font-label-md text-label-md w-24 text-right">Ultra (15%)</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-full bg-surface rounded-full h-4 border border-outline-variant overflow-hidden">
+<div class="bg-tertiary h-full" style="width: 35%"></div>
+</div>
+<span class="font-label-md text-label-md w-24 text-right">Super (35%)</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-full bg-surface rounded-full h-4 border border-outline-variant overflow-hidden">
+<div class="bg-outline h-full" style="width: 50%"></div>
+</div>
+<span class="font-label-md text-label-md w-24 text-right">Common (50%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity / Binder Slots -->
+<div class="bg-white rounded-xl p-lg border-2 border-surface-variant shadow-xl">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-md">Binder Activity</h3>
+<div class="space-y-sm">
+<div class="flex items-center gap-md p-sm bg-surface-container-low rounded-lg border-b-2 border-outline-variant/30">
+<div class="w-12 h-16 bg-surface-variant rounded shadow-md overflow-hidden">
+<img class="w-full h-full object-cover grayscale" data-alt="Small thumbnail of a trading card in a binder slot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgs55iEWIYEXnVdRXjuPsjIwrypnzbZOAinYKpDaFr90iJdlVemk99mJN3_Xd7Y4-gHoJjgmTCvZurHgNsE3QEEJcyCuAZtKKPBix_vpmeHS5P7IGoMKzJC2mBfZo1NrQJ13G9EXt76zqsJKX6kFm-iRxXcdvr-CWZEs5cJ54K-6S25RRI6uxYRZFAU9QqqHAxf--HaLB9Djg-V07nQpcVxJd56BQ4at0nBBwJuYolaUKZ6X_Gs_8UG2P5Z2OfUJVtTh2KXTeVVJ8">
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md">Added: Void Dragon</p>
+<p class="text-[10px] text-on-surface-variant">2 hours ago • Rare</p>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="add_circle">add_circle</span>
+</div>
+<div class="flex items-center gap-md p-sm bg-surface-container-low rounded-lg border-b-2 border-outline-variant/30">
+<div class="w-12 h-16 bg-surface-variant rounded shadow-md overflow-hidden">
+<img class="w-full h-full object-cover grayscale" data-alt="Small thumbnail of a trading card in a binder slot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEUC8mZfycF29AI11APyTuM-AlyD91i9gxSq9rghIM-l3QGDZ0vIBf1QqIaAjX-iZ3V8zP7h18RYkj2flZTQOOLCS8OmogYD7AmU-Gys5dUgvIBoweX-B7fB6m9-9leiBr9Rx9myu_sQ3zZIp8UFO5R3zjvNaRl2cSZkZecb6gJbMZlcBWPiHKABj_Eyb3-s3uzaSu1LDrQEEmuROK5TftUccd1TjtpMqXrMQHGDXdgcjXmYBhyzBJLr9WT57f9ThpjFRy3QuJ-V8">
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md">Traded: Frost Giant</p>
+<p class="text-[10px] text-on-surface-variant">Yesterday • Common</p>
+</div>
+<span class="material-symbols-outlined text-tertiary" data-icon="swap_horiz">swap_horiz</span>
+</div>
+</div>
+<button class="w-full mt-md py-sm border-2 border-dashed border-outline-variant rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors">
+                        View Full History
+                    </button>
+</div>
+</aside>
+</div>
+</main>
+<script>
+        // Micro-interactions for cards
+        document.querySelectorAll('.card-glint').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+            });
+        });
+    </script>
+</body></html>

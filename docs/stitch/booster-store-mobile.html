@@ -1,0 +1,318 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;600&amp;family=Space+Grotesk:wght@600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#f1f1f1",
+                      "primary-fixed": "#ffdad4",
+                      "error-container": "#ffdad6",
+                      "on-background": "#1a1c1c",
+                      "secondary": "#6d5e00",
+                      "on-primary-fixed-variant": "#930100",
+                      "tertiary-container": "#5768e6",
+                      "surface-dim": "#dadada",
+                      "primary-fixed-dim": "#ffb4a8",
+                      "on-secondary-fixed-variant": "#524600",
+                      "tertiary-fixed": "#dfe0ff",
+                      "surface-tint": "#c00100",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-surface-variant": "#603e39",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#000b62",
+                      "on-primary-fixed": "#410000",
+                      "surface": "#f9f9f9",
+                      "on-surface": "#1a1c1c",
+                      "surface-bright": "#f9f9f9",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed": "#ffe24a",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#fddc00",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#2f3131",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary-fixed-dim": "#e3c600",
+                      "tertiary-fixed-dim": "#bcc2ff",
+                      "primary-container": "#eb0000",
+                      "surface-container-lowest": "#ffffff",
+                      "primary": "#bc0100",
+                      "on-tertiary-fixed-variant": "#2335b5",
+                      "on-tertiary-container": "#fffbff",
+                      "on-secondary-fixed": "#211b00",
+                      "on-primary-container": "#fffbff",
+                      "on-error": "#ffffff",
+                      "background": "#f9f9f9",
+                      "surface-container": "#eeeeee",
+                      "surface-variant": "#e2e2e2",
+                      "inverse-primary": "#ffb4a8",
+                      "surface-container-low": "#f3f3f3",
+                      "outline": "#956d67",
+                      "on-secondary-container": "#706000",
+                      "tertiary": "#3c4dcb",
+                      "outline-variant": "#ebbbb4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "40px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "lg": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-md": ["Space Grotesk"],
+                      "display-lg": ["Bricolage Grotesque"],
+                      "headline-lg-mobile": ["Bricolage Grotesque"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Bricolage Grotesque"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .holo-effect {
+            background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 200%;
+            animation: shine 3s infinite linear;
+        }
+        @keyframes shine {
+            0% { background-position: -200% -200%; }
+            100% { background-position: 200% 200%; }
+        }
+        .btn-3d {
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.4), 0 3px 0 0 rgba(0,0,0,0.2);
+        }
+        .btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.4), 0 1px 0 0 rgba(0,0,0,0.2);
+        }
+        .recessed-pocket {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body-md text-on-background pb-24">
+<!-- Top App Bar -->
+<header class="bg-primary dark:bg-primary-container fixed top-0 w-full z-50 shadow-[0_2px_0_0_rgba(0,0,0,0.2)] border-b-2 border-primary-fixed-variant flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary dark:text-on-primary-container" style="font-variation-settings: 'FILL' 1;">charging_station</span>
+<h1 class="font-display-lg text-headline-lg-mobile text-on-primary dark:text-on-primary-container tracking-tight">TCG Collector</h1>
+</div>
+<button class="p-2 rounded-full hover:bg-primary-fixed-variant/20 active:translate-y-[1px] transition-all">
+<span class="material-symbols-outlined text-on-primary dark:text-on-primary-container">notifications</span>
+</button>
+</header>
+<main class="mt-20 px-margin-mobile space-y-lg">
+<!-- Featured Set Banner -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-highest shadow-lg border border-outline-variant h-52 flex items-center">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="A colossal, glowing red dragon with crystalline wings soaring over a volcanic landscape. The lighting is dramatic and high-contrast, with molten lava illuminating the scene from below. The overall aesthetic is high-energy and epic, matching a professional trading card game booster pack theme with vibrant reds, oranges, and deep shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPWeWDLd7IIhVFQRl2wnt3u-_FWwwQjStt9TFFT9IxUA0bc91sC4tv6aq1o5vYxmMZiAj-upKww-rEAPx2jLQb9J3FgQCLvWUzxdgwE7VYhUX-_QN3RqkmKebeFUMmEFPlO3340KRaRJjFVH1V0s_qiRy6_rK1UmvDPjMSs6SKjERvWIhIDYxYeFyvfuLmf_R2Zp73ke5FniehY8EQ6GcaqnnFeSapRO7oTnuBTy6eoGY-CNk2KwfqjJCnlffvPdJJaQx84S-FXHs">
+<div class="relative z-10 p-lg w-2/3 bg-gradient-to-r from-surface-container-highest via-surface-container-highest/80 to-transparent h-full flex flex-col justify-center">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider mb-xs">Featured Set</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface leading-tight mb-sm">Dragonic Fury: Ember Skies</h2>
+<button class="btn-3d bg-primary text-on-primary px-md py-sm rounded-lg font-label-md text-label-md w-fit flex items-center gap-xs">
+                    View Set <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="absolute inset-0 holo-effect pointer-events-none opacity-30"></div>
+</section>
+<!-- New Arrivals Carousel -->
+<section class="space-y-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">New Arrivals</h3>
+<a class="font-label-md text-label-md text-primary" href="#">See All</a>
+</div>
+<div class="flex overflow-x-auto pb-md gap-md snap-x -mx-margin-mobile px-margin-mobile no-scrollbar">
+<!-- Pack 1 -->
+<div class="min-w-[160px] snap-start group">
+<div class="relative aspect-[2/3] rounded-lg overflow-hidden border-2 border-outline-variant shadow-md mb-sm transition-transform group-active:scale-95">
+<img class="w-full h-full object-cover" data-alt="A stylized trading card pack design featuring a high-fidelity electric yellow wolf creature jumping amidst bolts of blue lightning. The pack background is a deep metallic navy with geometric patterns. The illustration is sharp and vibrant, resembling the artwork of popular monster-collecting card games." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzdjCf_NulZXXZGzJ_rMdEy1-jC591_XMWt4LiCzgvSapChXKIoq_ZQeD_OrFL4d-tfDdc3aA0z3EDscADtolZ8c-AQNDwO5H3nwuCYR_MAgt9OyBA7SRGdpCDX2mDBAMt5Z7Diu6AOF2jIifKUAyFh5m6JNS4B5yuyCPNGT8AYx5tWAs0L5IfB8i0yceb2nPVtruABA9dvtqTdZjnLJG0GXthi7LYYZKgpPr4mZc-F0uyDwTl4-3-uLk7ypF8PZUO6lFuWfRTz5M">
+<div class="absolute inset-0 holo-effect opacity-20 group-hover:opacity-50 transition-opacity"></div>
+</div>
+<p class="font-label-md text-label-md text-on-surface truncate">Volt Shock Pack</p>
+<p class="font-label-md text-label-md text-primary">$4.99</p>
+</div>
+<!-- Pack 2 -->
+<div class="min-w-[160px] snap-start group">
+<div class="relative aspect-[2/3] rounded-lg overflow-hidden border-2 border-outline-variant shadow-md mb-sm transition-transform group-active:scale-95">
+<img class="w-full h-full object-cover" data-alt="A professional TCG booster pack artwork displaying a mystical green forest spirit peeking through dense foliage. Shimmering sunlight filters through leaves, creating a soft, magical glow. The art style is crisp and saturated with emerald greens and earthy browns, designed for a modern tabletop game." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRrdMPSrJz4-AzFuZfZKmtme7o4Py-CDDXSmuKf5b1V8AI-aCz7zJ6c0741klc55lSopNU5usz8tn2AfSTdz-X9Fq_yXqTmzRJy-pg_bXm-SHmEI4Y9XOQeuRzWdxf8ccOFmHQnnG_vCeUM08uOL_FvJyxGlC3ysLQ2stAdGaLVRyxAeaVLTk0wgIL1xAfPg9wIKrAZL9lIWQJ3RfZlHn6tAWYIMKhTJF_0sPK7ytRAu2wzcdZzvwgn4Ve0zoZtJQi6bxW1ZTbSbE">
+<div class="absolute inset-0 holo-effect opacity-20 group-hover:opacity-50 transition-opacity"></div>
+</div>
+<p class="font-label-md text-label-md text-on-surface truncate">Verdant Guardian</p>
+<p class="font-label-md text-label-md text-primary">$5.50</p>
+</div>
+<!-- Pack 3 -->
+<div class="min-w-[160px] snap-start group">
+<div class="relative aspect-[2/3] rounded-lg overflow-hidden border-2 border-outline-variant shadow-md mb-sm transition-transform group-active:scale-95">
+<img class="w-full h-full object-cover" data-alt="A dynamic booster pack illustration of an ice-sharded phoenix rising from a glacier. The color palette is dominated by frosty teals and brilliant whites, with crystalline textures that suggest a cold, magical power. The overall vibe is high-fantasy and high-octane." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQtCN1rPHBGeQgqxMYDwZT0lFf6gOleWntVOuQdTCcVujV8fz3Vcue826tgZkvyMt3KiscN1Xyt2hZVBvi3kpJlCVnH_9YZo9ypoBOp0q5F3vnLniNIwFQ9Y_CRPCrp38pfeEUhQiTelJOUxBWmvU-2jTVBTknEVJvPFN24bcISn95odGPUaf3NoUVZBGVeMChfBunE_3DsT5tIpKZhEWmbmnEEuST1JR0l-X7hTiTxtkDXLsOGko5VtSDVRcGrZrPyBotp9JRAX8">
+<div class="absolute inset-0 holo-effect opacity-20 group-hover:opacity-50 transition-opacity"></div>
+</div>
+<p class="font-label-md text-label-md text-on-surface truncate">Glacier Reborn</p>
+<p class="font-label-md text-label-md text-primary">$4.99</p>
+</div>
+</div>
+</section>
+<!-- Main Product Grid -->
+<section class="space-y-sm">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Available Packs</h3>
+<div class="grid grid-cols-2 gap-md">
+<!-- Item 1 -->
+<div class="bg-surface rounded-xl p-sm border border-outline-variant shadow-sm hover:shadow-md transition-all">
+<div class="recessed-pocket rounded-lg overflow-hidden bg-surface-container mb-sm relative">
+<img class="w-full aspect-[4/5] object-cover" data-alt="An energetic trading card illustration featuring a dark-elemental panther with glowing purple eyes and shadow-tendrils. The background is a swirling void of deep purples and blacks. The image is crisp, with high-fidelity digital art details suitable for a professional game store interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC37nEqqbrsdyAJ_tqoNSzffoMu5FfwX81V0mjDBoPOZQije-KmPuopkYUF0Xj5NJ_HU8RaBrt4qsJYcieWDE9dps_dPLG1tZMipOhV601Le2Ipb112fn0C2H4UJhlKeavTEvAncNv9LcR6T56y1qwLCR4agTBmkPCZ0X3-1BPaEQaMJ-VUgdiuNX5_5sqPkawpp7vwCYw4IXyIazFDdQuPrhghlUoPdKmknKqD1f5Jmt-LVExCtUdN0GvJfovJHNI_wpQMEoWvfpY">
+<div class="absolute top-2 right-2 bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full font-label-md text-[10px] uppercase">Rare</div>
+</div>
+<div class="space-y-xs px-xs">
+<h4 class="font-label-md text-label-md text-on-surface leading-tight">Shadow Realm Pack</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-md text-[12px] text-on-surface-variant">Expansion Pack</span>
+</div>
+<div class="flex items-center justify-between pt-sm">
+<p class="font-headline-lg-mobile text-label-md text-primary">$6.99</p>
+<button class="btn-3d bg-primary text-on-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface rounded-xl p-sm border border-outline-variant shadow-sm hover:shadow-md transition-all">
+<div class="recessed-pocket rounded-lg overflow-hidden bg-surface-container mb-sm relative">
+<img class="w-full aspect-[4/5] object-cover" data-alt="A bright and friendly booster pack design featuring a group of water-based elemental turtles in a tropical coral reef setting. The lighting is sunny and clear, with vibrant turquoises and oranges. The aesthetic is playful and inviting, typical of entry-level monster collector games." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIidbZF6RbLt9uhDmPygOqnXN-tUJrYw9bRQUOnL356HOjPstMKkUx6jlVlD-Mc81T5R-h5AzP0opuOyMg5rTbbwQjFJBvT3flYmiHEd2oMkyLt5z12tV3zfzuKpBp7X9fjewpuX6Yx4jqrm5hF0A6CRoiVfzTYdNHnZCc8gXRYra4w5c1V1nRy089TFdbAvALGypu4TgmExtYTYNVS0CR47k9qrT3JtC54qd2_9OOZ16iZLSloOuoPJgCQGxsVEmSi9mc9hk0vdU">
+</div>
+<div class="space-y-xs px-xs">
+<h4 class="font-label-md text-label-md text-on-surface leading-tight">Coral Tide Starter</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">waves</span>
+<span class="font-label-md text-[12px] text-on-surface-variant">Base Set</span>
+</div>
+<div class="flex items-center justify-between pt-sm">
+<p class="font-headline-lg-mobile text-label-md text-primary">$12.99</p>
+<button class="btn-3d bg-primary text-on-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="bg-surface rounded-xl p-sm border border-outline-variant shadow-sm hover:shadow-md transition-all">
+<div class="recessed-pocket rounded-lg overflow-hidden bg-surface-container mb-sm relative">
+<img class="w-full aspect-[4/5] object-cover" data-alt="A high-tech sci-fi trading card pack featuring a sleek metallic mecha-warrior in a neon-lit futuristic city. The art style is hyper-detailed with lens flares and glowing data streams. The color palette uses vibrant cyans and magentas against a dark gray background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLXxUSe0GfcW0I_aJ6D6cmGLphRquN160aPR50OTYKHDd0pu8EY3ivpSH0AATkxzZfQslesEfaLrKWfW0crbQ4MZEvqwqzjzSOFq0MchHxj9G06orxTzqQM9koxiR9BXg9HQmS4G3f2I6zy--g9BImdfVY0T_AN5zVGIHVUTTMnkHGDOe5wWPSLY_womR6Yl8U0WFLOCYBLxNN5B2L6bbTWXcsUUYSRfJ4984P33pN1DZgkkk9PhgzGDiXBatKXXKMbUyT9IksCdU">
+<div class="absolute top-2 right-2 bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-label-md text-[10px] uppercase">New</div>
+</div>
+<div class="space-y-xs px-xs">
+<h4 class="font-label-md text-label-md text-on-surface leading-tight">Cyber Core Alpha</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">memory</span>
+<span class="font-label-md text-[12px] text-on-surface-variant">Tech Set</span>
+</div>
+<div class="flex items-center justify-between pt-sm">
+<p class="font-headline-lg-mobile text-label-md text-primary">$5.99</p>
+<button class="btn-3d bg-primary text-on-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="bg-surface rounded-xl p-sm border border-outline-variant shadow-sm hover:shadow-md transition-all">
+<div class="recessed-pocket rounded-lg overflow-hidden bg-surface-container mb-sm relative">
+<img class="w-full aspect-[4/5] object-cover" data-alt="A dramatic booster pack illustration of a stone titan emerging from a mountain range. The art is textured like rock and earth, with cracks filled with golden light. The mood is ancient and powerful, utilizing heavy browns, ochres, and warm golden highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOewbH4uDPg-cIXX4QGoBTv4q4ie2A_SQ5bDdqT0SwbPx-kHETFpsVt718O0XwEa3mduvjAc6Bkp0Dk3YhwZI-K361JYZ6s1WEiO1thpE2dex3-RGzAvHh5EeG8FDPQ61RZFup2wvpDBXplz6uTTD0tlY99ZCrvy8xDquujx0pAwyHR5NwjntSl7d8Qr2WT-X5znJH70oS85MvSWHfMNNrqbDZfU6MwJG_4TS0G4aCNqUZuu_nCL_w0dv_cgtd2Tg2zwfwxe8P4aE">
+</div>
+<div class="space-y-xs px-xs">
+<h4 class="font-label-md text-label-md text-on-surface leading-tight">Terra Titan Deck</h4>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary" style="font-variation-settings: 'FILL' 1;">terrain</span>
+<span class="font-label-md text-[12px] text-on-surface-variant">Structure Deck</span>
+</div>
+<div class="flex items-center justify-between pt-sm">
+<p class="font-headline-lg-mobile text-label-md text-primary">$14.50</p>
+<button class="btn-3d bg-primary text-on-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-2 pb-safe bg-surface dark:bg-surface-container-highest border-t border-outline-variant rounded-t-xl z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 animate-pulse transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="font-label-md text-label-md">Store</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-low transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">style</span>
+<span class="font-label-md text-label-md">Collection</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-low transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-md text-label-md">Binders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-low transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="font-label-md text-label-md">Trades</span>
+</a>
+</nav>
+<!-- Floating Action Button Contextual Check: Home screen gets Store FAB if needed, but per instructions and design flow, BottomNav suffices. Adding a 'Scan' FAB for collection utility as a bonus TCG feature. -->
+<button class="fixed bottom-24 right-6 bg-primary text-on-primary p-4 rounded-full shadow-xl btn-3d z-40">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+</button>
+<script>
+        // Micro-interaction for horizontal scroll shadow hints
+        const carousel = document.querySelector('.overflow-x-auto');
+        carousel.addEventListener('scroll', () => {
+            const scrollPos = carousel.scrollLeft;
+            // Additional logic for showing/hiding indicators could go here
+        });
+
+        // Simple feedback for add to cart
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if(this.querySelector('.material-symbols-outlined')?.textContent === 'shopping_cart') {
+                    const originalIcon = this.innerHTML;
+                    this.innerHTML = '<span class="material-symbols-outlined text-sm">done</span>';
+                    this.classList.replace('bg-primary', 'bg-tertiary');
+                    setTimeout(() => {
+                        this.innerHTML = originalIcon;
+                        this.classList.replace('bg-tertiary', 'bg-primary');
+                    }, 1500);
+                }
+            });
+        });
+    </script>
+</body></html>

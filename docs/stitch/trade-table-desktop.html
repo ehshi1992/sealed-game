@@ -1,0 +1,390 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TCG Archive - Trade Table</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Bricolage+Grotesque:wght@700;800&amp;family=Space+Grotesk:wght@600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@100..900&amp;family=Plus+Jakarta+Sans:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#956d67",
+                        "on-secondary-container": "#706000",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-variant": "#e2e2e2",
+                        "inverse-primary": "#ffb4a8",
+                        "surface-container": "#eeeeee",
+                        "outline-variant": "#ebbbb4",
+                        "tertiary": "#3c4dcb",
+                        "on-tertiary-container": "#fffbff",
+                        "primary": "#bc0100",
+                        "on-tertiary-fixed-variant": "#2335b5",
+                        "background": "#f9f9f9",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-fixed": "#211b00",
+                        "tertiary-fixed-dim": "#bcc2ff",
+                        "primary-container": "#eb0000",
+                        "secondary-fixed-dim": "#e3c600",
+                        "surface-container-high": "#e8e8e8",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fddc00",
+                        "surface-bright": "#f9f9f9",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffe24a",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#c00100",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-surface-variant": "#603e39",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#dfe0ff",
+                        "surface-dim": "#dadada",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-secondary-fixed-variant": "#524600",
+                        "surface": "#f9f9f9",
+                        "on-primary-fixed": "#410000",
+                        "on-tertiary-fixed": "#000b62",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#ffdad4",
+                        "inverse-on-surface": "#f1f1f1",
+                        "tertiary-container": "#5768e6",
+                        "secondary": "#6d5e00",
+                        "on-primary-fixed-variant": "#930100",
+                        "on-background": "#1a1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Bricolage Grotesque"],
+                        "display-lg": ["Bricolage Grotesque"],
+                        "headline-lg": ["Bricolage Grotesque"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .playmat-texture {
+            background-image: 
+                radial-gradient(circle at 2px 2px, rgba(0,0,0,0.05) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        .card-glint {
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+        }
+        .hp-bar-container {
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+        }
+        .btn-extrusion {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 3px 0 #8a0100;
+        }
+        .btn-extrusion:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 0 #8a0100;
+        }
+        .card-recess {
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+<style>
+            @keyframes float {
+                0%, 100% { transform: translate(0, 0); }
+                50% { transform: translate(-4.169615671090632px, -24.514686276444436px); }
+            }
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #ebbbb4;
+                border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #956d67;
+            }
+        </style></head>
+<body class="bg-background font-body-md text-on-surface overflow-hidden">
+<!-- Sidebar Navigation Shell -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-surface-container dark:bg-surface-dim flex flex-col py-lg px-md shadow-md z-50">
+<div class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary dark:text-primary-container tracking-tight">TCG Archive</h1>
+<div class="flex items-center mt-sm gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary">Master Rank</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Collector Profile</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-xs flex-grow">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-label-md text-label-md">Booster Store</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="font-label-md text-label-md">My Collection</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-md text-label-md">Master Binder</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-secondary-fixed font-bold border-r-4 border-primary dark:border-secondary-fixed bg-surface-bright dark:bg-inverse-surface translate-x-1 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="font-label-md text-label-md">Trade Table</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-colors hover:bg-surface-container-highest dark:hover:bg-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<button class="mt-auto bg-primary text-on-primary py-md px-lg rounded-xl font-label-md text-label-md btn-extrusion flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+            Open Pack
+        </button>
+</nav>
+<!-- Header Navigation Shell -->
+<header class="flex justify-between items-center h-20 px-margin-desktop w-[calc(100%-16rem)] ml-64 bg-surface-container-lowest dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline shadow-sm sticky top-0 z-40">
+<div class="flex items-center gap-xl">
+<span class="font-headline-lg text-headline-lg text-primary dark:text-primary-container">TCG Archival Pro</span>
+<nav class="hidden md:flex gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-all" href="#">Marketplace</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-all" href="#">Events</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed transition-all" href="#">Forum</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden lg:block">
+<input class="bg-surface-variant border-none rounded-full px-lg py-sm text-sm w-64 focus:ring-2 focus:ring-tertiary transition-all" placeholder="Search collection..." type="text">
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-xs transition-all active:scale-95" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-xs transition-all active:scale-95" data-icon="account_balance_wallet">account_balance_wallet</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary overflow-hidden ml-sm">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a competitive card game player wearing sleek electronic goggles and a futuristic tech-wear hoodie. The aesthetic is clean, modern, and high-fidelity with vibrant accent lighting in deep red and cool whites. The background is a soft-focus digital tournament arena." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4UHVsM6BN49aPEoGHMX6VXqwBCd1hz4a4KF683p48GgsxMwRS4pqqBFbNxguL4yHAjqe3LON8gaK1mZJ2yW4dfKJVDJdI-cD9NXxYFzYcqTqpdneO4dveReoERCoynA3PjqO1TbdUw9ppVabIIk2WogPACu99mP1EHFVKLIgMjAM7FwKzjqK9XElsqAwbM4JsnHOQCcTu0BcPA7HjzqWd7pQC2zCKxH5nH61oZAq-E_0V1FxtAZy4W6GKXswweZSe6PnklquxufY">
+</div>
+</div>
+</header>
+<!-- Main Trade Table Content -->
+<main class="ml-64 w-[calc(100%-16rem)] h-[calc(100vh-5rem)] p-lg playmat-texture flex flex-col relative">
+<!-- Trade Balance HUD -->
+<div class="absolute top-8 left-1/2 -translate-x-1/2 z-20 w-full max-w-2xl px-md">
+<div class="bg-surface-container-highest rounded-xl border-4 border-outline p-md shadow-lg flex flex-col items-center gap-xs">
+<div class="flex justify-between w-full px-lg mb-xs">
+<span class="font-label-md text-label-md uppercase text-primary">Your Value</span>
+<span class="font-label-md text-label-md uppercase text-tertiary">Their Value</span>
+</div>
+<div class="w-full h-8 bg-inverse-surface hp-bar-container relative border-2 border-outline-variant overflow-hidden">
+<!-- HP Bar Visuals -->
+<div class="absolute inset-0 flex">
+<div class="h-full bg-primary transition-all duration-500 shadow-[0_0_15px_rgba(188,1,0,0.5)]" style="width: 45%;"></div>
+<div class="h-full bg-tertiary transition-all duration-500 shadow-[0_0_15px_rgba(60,77,203,0.5)]" style="width: 55%;"></div>
+</div>
+<!-- Indicator Line -->
+<div class="absolute top-0 bottom-0 left-[45%] w-1 bg-white z-10 shadow-[0_0_8px_white]"></div>
+</div>
+<div class="flex justify-between w-full px-lg mt-xs">
+<span class="font-headline-lg text-primary">$452.50</span>
+<div class="px-md py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-md text-[12px] flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                        Slightly Uneven
+                    </div>
+<span class="font-headline-lg text-tertiary">$512.20</span>
+</div>
+</div>
+</div>
+<!-- Split Screen Layout -->
+<div class="flex h-full gap-lg relative">
+<!-- Left Side: Your Cards -->
+<div class="flex-1 bg-surface-container rounded-3xl p-lg border-2 border-outline-variant/30 flex flex-col card-recess">
+<div class="flex justify-between items-center mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-weight="fill">person</span>
+<h2 class="font-headline-lg text-xl uppercase tracking-tighter">Your Offer</h2>
+</div>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md btn-extrusion flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add</span> Add Card
+                    </button>
+</div>
+<!-- Card Grid Container -->
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-md overflow-y-auto pr-sm custom-scrollbar">
+<!-- Card Item -->
+<div class="aspect-[2.5/3.5] bg-white rounded-xl border border-outline-variant p-2 relative group cursor-grab active:cursor-grabbing hover:-translate-y-2 transition-transform shadow-md">
+<div class="w-full h-full rounded-lg overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="A rare holographic fire-element dragon card with intricate gold-leaf detailing and a vibrant prismatic finish. The illustration shows a fierce red dragon breathing blue flames in a dark, volcanic cave. The aesthetic is high-fantasy, polished, and premium with a distinct high-gloss shine." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRLSGvImcQzpRTznVDQ5z18PMhEwHkflieahSctCxqOA-8mBiRV8BEsAs1wK0zwEZLWW-Im8WZCLAd2fEvC9LaqlmnJaXWybQIZ0jMcrXoRb9qUvimTGTxmzgTTuqIgQWok46Tn1royP6vXzRPm_5ssdkvyu0eW4KEWI7inEikxKpq9QE-fX9TLaiYdbIs3WsoU2vkDpSMdYZm08gh6VVzUAFtbuBr-aiJreoWHECnQ5aWIMAFPqfHVKmk9hN-3suLBp9GaoNYbGk">
+<div class="absolute inset-0 card-glint opacity-50"></div>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center font-label-md shadow-lg border-2 border-white">
+                            $245
+                        </div>
+<button class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-error text-on-error rounded-full p-xs transition-opacity">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Card Item -->
+<div class="aspect-[2.5/3.5] bg-white rounded-xl border border-outline-variant p-2 relative group cursor-grab active:cursor-grabbing hover:-translate-y-2 transition-transform shadow-md">
+<div class="w-full h-full rounded-lg overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="A mystical crystal orb card with an ethereal blue and violet glow. The artwork features a swirling galaxy contained within a glass sphere, emitting soft particles of light. The frame of the card is textured white cardstock with professional silver metallic lettering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGdT9PkNOenwHuqcgwNBy9-mRGBD_eD7jafdPSn4aR_yfq850EoLHT-LvAzLfV3KLlDUE8vZovHyGorWZOR0cQcKHW6ylhy9Zxsf0QUdHPpeb98qEkquEURqVviOj7HVd4hueQsjc2BouLtFRUKZTDMY633CYgptSEMk0ORZf7BV9kkz5492SGIRkxuW6DQ5JtesJYIqDrK8X9wjbwmAk_umFzi2GfeU-WKGiLcppP3I9Z7OJ8_lVaQxvjV9uuV7dn7waoxVx6Lms">
+<div class="absolute inset-0 card-glint opacity-30"></div>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center font-label-md shadow-lg border-2 border-white">
+                            $110
+                        </div>
+</div>
+<!-- Placeholder/Empty Slot -->
+<div class="aspect-[2.5/3.5] border-2 border-dashed border-outline-variant/50 rounded-xl flex flex-col items-center justify-center text-outline-variant hover:border-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-4xl group-hover:scale-110 transition-transform">add_circle</span>
+<p class="font-label-md text-xs mt-sm">Place Card</p>
+</div>
+</div>
+</div>
+<!-- VS Divider -->
+<div class="w-0 relative flex items-center justify-center z-10">
+<div class="w-16 h-16 bg-surface-container-highest border-4 border-outline rounded-full flex items-center justify-center font-black text-2xl text-primary shadow-xl rotate-12">
+                    VS
+                </div>
+</div>
+<!-- Right Side: Their Cards -->
+<div class="flex-1 bg-surface-container rounded-3xl p-lg border-2 border-outline-variant/30 flex flex-col card-recess">
+<div class="flex justify-between items-center mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-weight="fill">shield</span>
+<h2 class="font-headline-lg text-xl uppercase tracking-tighter">Their Offer</h2>
+</div>
+<div class="flex items-center gap-sm bg-surface-variant px-md py-xs rounded-full border border-outline-variant">
+<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+<span class="font-label-md text-[12px] uppercase">Reviewing...</span>
+</div>
+</div>
+<!-- Card Grid Container -->
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-md overflow-y-auto pr-sm custom-scrollbar">
+<!-- Card Item -->
+<div class="aspect-[2.5/3.5] bg-white rounded-xl border border-outline-variant p-2 relative group hover:-translate-y-2 transition-transform shadow-md">
+<div class="w-full h-full rounded-lg overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="A powerful water-element king card featuring a massive trident and crown made of coral. The illustration is vibrant cyan and deep sea blue with shimmering pearlescent effects on the card surface. The lighting is bioluminescent and cinematic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz2RfC97zJIgp4MFulBX2Wze4U2krCWA22l-F6jkOuASNR46y_MsF_vkX_igDg2gE6lTKIVIvmNpcwSPt0zBajdFiDtxXNJ-NGEgabM7I_PgclVUqCCha678THi08GrJ-v6_RaYjMwattHJf8WcxbEjNTJYj8aawRMNxXb7JKRgG5T-5S7IM2OA2qYjUruunSNLbLfb2VWE1VT_7rXb5j9Ug8MWXdNrRJNHo7ybDQywAPlC5pZjIlXBrT5ENmIdhleGCuJaNFj1P0">
+<div class="absolute inset-0 card-glint opacity-40"></div>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-tertiary text-on-tertiary w-10 h-10 rounded-full flex items-center justify-center font-label-md shadow-lg border-2 border-white">
+                            $380
+                        </div>
+</div>
+<!-- Card Item -->
+<div class="aspect-[2.5/3.5] bg-white rounded-xl border border-outline-variant p-2 relative group hover:-translate-y-2 transition-transform shadow-md">
+<div class="w-full h-full rounded-lg overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="An action card depicting a massive tidal wave crashing against a jagged cliff. The artwork is rendered in a crisp, comic-book ink style with vibrant saturated blues and whites. The card edge has a clean plastic-coated finish with modern typography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBig7jNlntACgMuaDAM4WVdMzqkYMOyoA3OtvjmZIpLsPIwiqYFJ45nLu8txRAn_XCOGwnw3geE2jPMAnERwXE6drUrGkvN9FmFUyE9-alBq8gfGToipEj_7KxgWybPtotA56phYlSdoP9dF-gdpVDSwXXpdVeVWKmXauYb3UzMb5ZmL1Tut6q6oGsyeDuzauJXV83kQfvv9cfbbb6N2vKXcKN9TnFWqKJSTGtSHklK2SGVYkZUCTaaDOtLOGrZiF7vtcNpHaBaCUk">
+<div class="absolute inset-0 card-glint opacity-20"></div>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-tertiary text-on-tertiary w-10 h-10 rounded-full flex items-center justify-center font-label-md shadow-lg border-2 border-white">
+                            $132
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="mt-lg flex justify-center items-center gap-xl pb-md">
+<button class="px-xl py-lg bg-surface-container-highest border-2 border-outline-variant rounded-xl font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center gap-sm shadow-md">
+<span class="material-symbols-outlined">cancel</span>
+                Cancel Trade
+            </button>
+<button class="px-32 py-lg bg-primary text-on-primary rounded-2xl font-display-lg text-2xl uppercase tracking-widest btn-extrusion flex items-center gap-md group">
+<span class="material-symbols-outlined text-4xl group-hover:scale-125 transition-transform">verified</span>
+                Finalize Trade
+            </button>
+<button class="px-xl py-lg bg-surface-container-highest border-2 border-outline-variant rounded-xl font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center gap-sm shadow-md">
+<span class="material-symbols-outlined">chat</span>
+                Negotiate
+            </button>
+</div>
+</main>
+<!-- Interactive Overlay Elements -->
+<div class="fixed inset-0 pointer-events-none z-0" id="particle-container"></div>
+<script>
+        // Lightweight atmospheric effects
+        const container = document.getElementById('particle-container');
+        for(let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'absolute bg-primary/5 rounded-full blur-xl';
+            const size = Math.random() * 200 + 100;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animation = `float ${Math.random() * 10 + 10}s infinite ease-in-out`;
+            container.appendChild(particle);
+        }
+
+        // Add float animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translate(0, 0); }
+                50% { transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px); }
+            }
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #ebbbb4;
+                border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #956d67;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Simple interaction for Finalize button
+        const finalizeBtn = document.querySelector('.btn-extrusion');
+        finalizeBtn.addEventListener('click', () => {
+            finalizeBtn.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                finalizeBtn.style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+</body></html>

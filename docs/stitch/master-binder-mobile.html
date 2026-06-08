@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Bricolage+Grotesque:wght@200..800&amp;family=Plus+Jakarta+Sans:wght@200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .leather-texture {
+            background-color: #f9f9f9;
+            background-image: radial-gradient(#dadada 0.5px, transparent 0.5px), radial-gradient(#dadada 0.5px, #f9f9f9 0.5px);
+            background-size: 4px 4px;
+            background-position: 0 0, 2px 2px;
+        }
+        .plastic-pocket {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .plastic-pocket::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }
+        .plastic-pocket:active::after {
+            left: 150%;
+        }
+        .card-inner-stroke {
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1), 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .holo-shimmer {
+            background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .binder-spine {
+            box-shadow: inset -10px 0 15px -5px rgba(0,0,0,0.2);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f1f1f1",
+                        "primary-fixed": "#ffdad4",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1c",
+                        "secondary": "#6d5e00",
+                        "on-primary-fixed-variant": "#930100",
+                        "tertiary-container": "#5768e6",
+                        "surface-dim": "#dadada",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-secondary-fixed-variant": "#524600",
+                        "tertiary-fixed": "#dfe0ff",
+                        "surface-tint": "#c00100",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-surface-variant": "#603e39",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#000b62",
+                        "on-primary-fixed": "#410000",
+                        "surface": "#f9f9f9",
+                        "on-surface": "#1a1c1c",
+                        "surface-bright": "#f9f9f9",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#ffe24a",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#fddc00",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-high": "#e8e8e8",
+                        "secondary-fixed-dim": "#e3c600",
+                        "tertiary-fixed-dim": "#bcc2ff",
+                        "primary-container": "#eb0000",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#bc0100",
+                        "on-tertiary-fixed-variant": "#2335b5",
+                        "on-tertiary-container": "#fffbff",
+                        "on-secondary-fixed": "#211b00",
+                        "on-primary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "background": "#f9f9f9",
+                        "surface-container": "#eeeeee",
+                        "surface-variant": "#e2e2e2",
+                        "inverse-primary": "#ffb4a8",
+                        "surface-container-low": "#f3f3f3",
+                        "outline": "#956d67",
+                        "on-secondary-container": "#706000",
+                        "tertiary": "#3c4dcb",
+                        "outline-variant": "#ebbbb4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Space Grotesk"],
+                        "display-lg": ["Bricolage Grotesque"],
+                        "headline-lg-mobile": ["Bricolage Grotesque"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bricolage Grotesque"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md leather-texture min-h-screen pb-24">
+<!-- Top Navigation Bar -->
+<header class="bg-primary fixed top-0 w-full z-50 shadow-md border-b-2 border-primary-fixed-variant flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-primary text-2xl">charging_station</span>
+<h1 class="font-display-lg text-headline-lg-mobile text-on-primary tracking-tight">TCG Collector</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-primary-fixed-variant/20 p-2 rounded-full transition-all active:translate-y-[1px]">
+<span class="material-symbols-outlined text-on-primary">filter_list</span>
+</button>
+<button class="hover:bg-primary-fixed-variant/20 p-2 rounded-full transition-all active:translate-y-[1px]">
+<span class="material-symbols-outlined text-on-primary">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Container (The Binder) -->
+<main class="pt-20 px-4 max-w-lg mx-auto">
+<!-- Binder Navigation & Title -->
+<div class="flex justify-between items-end mb-6">
+<div>
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Vault Page 04</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Kanto Favorites</h2>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-high p-2 rounded-lg border-b-4 border-surface-dim active:border-b-0 active:translate-y-[2px] transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="bg-surface-container-high p-2 rounded-lg border-b-4 border-surface-dim active:border-b-0 active:translate-y-[2px] transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 3x3 Pocket Grid -->
+<div class="bg-surface-container-low rounded-xl p-4 shadow-xl relative binder-spine border border-outline-variant">
+<div class="grid grid-cols-3 gap-3">
+<!-- Card Pocket 1 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer" onclick="openDetails('Charizard')">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden relative">
+<img alt="Charizard Card" class="w-full h-full object-cover" data-alt="A macro photograph of a vintage fire-breathing dragon collectible card, featuring vibrant orange and red tones with a brilliant holographic pattern on the background. The card is encased in a clear plastic protective sleeve that has subtle light reflections, mimicking a physical collector's binder pocket. The lighting is bright and clean, emphasizing the high-fidelity textures and nostalgic gaming aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3z3vsTwtL87rN7Nq42N9-mXMHxqH46ewzTccw-kJMdy6X6WY_TrZZNYg9MNPWfJz4rQo7YH7aHQP8wQtIpw612lUYdYS3RJX8dom04V1nky_aPqAIKTqCLBiZHUa4w-C8VOH-msOWh1ImsMNQF8xoL9qVLbv0-k4dust8RjJqYEHofwhGmlBNzHBrNQmWWHC9lbmcH3yhCs4dBTLk85jSvksZ5xKFxqBxH4Yzt6FlsiKZeCpPhWYjY8odIPYDSIj1h9e_KJ9hZk4">
+<div class="absolute inset-0 holo-shimmer opacity-40"></div>
+</div>
+</div>
+<!-- Card Pocket 2 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer" onclick="openDetails('Blastoise')">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden relative">
+<img alt="Blastoise Card" class="w-full h-full object-cover" data-alt="A detailed shot of a blue-themed turtle monster trading card with water cannons, displayed within a professional plastic binder slot. The card has a high-gloss finish and the plastic pocket creates a slight distortion and reflection of overhead studio lights. The color palette is dominated by deep blues and cool aquas, maintaining a crisp and modern look within a tactile gaming interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN3ULo7AKTHZy31K18OT3PC0xa5rDsvEhedU_IgsDHNLsMY5A5bLoH5UAC5PiuOgUTlFG7Dhq3SHuNUXcutkJnLeo-aIWoRDewuoyd_EpSSc9mV47sRhg2bQlLDKJr8OhiUS6_0emV33APS0ukmh6ATGWhT2GQ1RTdOVuuqibI4Iapg2VKY4xJJ8k6ldCN-VdMHBRVyCnC1A-vD5TyKczRaa7162V4U51fspIyi2OEyqnZ--7Gi4A40a966FwWHSVbY1MAQ_vR-is">
+</div>
+</div>
+<!-- Card Pocket 3 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden relative">
+<img alt="Pikachu Card" class="w-full h-full object-cover" data-alt="A bright yellow electric mouse character on a trading card, positioned perfectly inside a transparent plastic card binder sheet. The scene features high-energy lighting and vibrant yellow and electric blue accents. The textures are physical and tactile, showing the microscopic edges of the cardstock and the smooth surface of the protective plastic film." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_A7Z7eNPXXgmw4nBnrBuUn32lvhV5bimJENvfGY9UDcSrBsXLpZQPRro01MCqx_1fWbXkk85UNXKvmBKnrtaVQ8G9dulEdcr7WaJtjrpz3jZWZskyTUwGHloiBuaTvwI6M-M3pCx56UyWNWMkgs65wD_m1kmD1lmGehkd5RELbVLCUPmWWuQS_2X6PJheLp7mjJS4c45G01nzXBiN5Le2Z0zyWmVh-jMV_9t6RdJmnnxbPWtOGzyrtJ2JCjIOcEludz029I2j6xY">
+<div class="absolute inset-0 holo-shimmer opacity-20"></div>
+</div>
+</div>
+<!-- Card Pocket 4 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden">
+<img alt="Venusaur Card" class="w-full h-full object-cover" data-alt="A green-themed plant monster card with a large flower on its back, showcased in a 3D-rendered plastic pocket of a collector's binder. The lighting is soft and natural, emphasizing the organic green and pink colors of the card art. The interface looks like a high-grade tournament kit with clean geometry and a tactile, physical feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBveVXryW9iyT9OM_O7Ka3BdyRlJn34-i_R6j5vCiLoecVvul5fH8QHFJx-JIflGk5A7HGQndMpSwoxbeb9QOzJgi_nuXrP0SnqvVOW-xUa4tGNatgzUumcGQN5RROGnC0LRTowsyDSlt3hjx1TebybogDBoa-4PBBKMS9S69M4Jlrj4vFFiqluz7ocEvwn8o7AUaE5PVcfxby_xQsN-AhuwUye-ekdR-f1RkTEhHL9a9QILN3-lSRA0Ryhgd7ZzQyO7rMgbS-jzA">
+</div>
+</div>
+<!-- Card Pocket 5 (Empty/Placeholder) -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 flex items-center justify-center">
+<div class="w-full h-full border-2 border-dashed border-outline-variant rounded flex flex-col items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-outline text-3xl">add_circle</span>
+<span class="text-[10px] font-label-md text-outline uppercase mt-1">Slot 05</span>
+</div>
+</div>
+<!-- Card Pocket 6 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden relative">
+<img alt="Gengar Card" class="w-full h-full object-cover" data-alt="A purple ghost-type monster card with glowing red eyes, resting inside a protective binder pocket. The overall mood is mysterious yet vibrant, using deep purples and neon red highlights. The plastic texture of the sleeve is visible with subtle scratches and dust particles to enhance the realism of a physical trading card collection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtIE-tMJLaFFqaEejOnqagHufDMsi5M0MW_8jkWgKcqs5o7zfnY7D91o2oNsRYUAxIxiGjRUUNmnVOiLR-TpluK638_2KIxK3YG4YNgmmgt5BUniYHDe3hJ2U4NNv-yT37HjMt_drkfY1dtI21OjOo92PcSZQF4vsYXOCoBiFdPkL2nJs1HiHKIoGplf1MImFGcpuZu6GdJJ1hkGaXIx0sBKGIbgRvGc8D3SGRAmpmA0RV0NRSlfkPkcD_u-nQnrBoy7yTSLA8wKc">
+<div class="absolute inset-0 holo-shimmer opacity-60"></div>
+</div>
+</div>
+<!-- Card Pocket 7 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden">
+<img alt="Mewtwo Card" class="w-full h-full object-cover" data-alt="A futuristic psychic monster collectible card with a purple and white color scheme, presented in a crisp digital binder UI. The lighting is high-key and modern, reflecting off the card's surface and the surrounding plastic pocket edges. The aesthetic is clean, sophisticated, and reminiscent of high-end professional gaming equipment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH_dnUc-xhv93DqXjQFqxD-gSIjKSEw9BEhwr3YN02w5F34_t9HokTLPQKMMRgl4-qa9XgCz9Hw3IbmBc1JSvWxJzwKJxNUoCNT4fLjXJ7bZejjTzjYoM0hlX_MHEB2LhmovgKTcJ9or5epgOQTV9046J1EyOYiDMwSgLZ7YfzUg5LG_A0ema5JCAbWCZpbawrN2Nd6WroHm-ZLxvmdHV1WaVdsNN00dw7Ash1PFd0j4oyv8ai8Kfyi1caTa_tuyeRxup5-qmgNRA">
+</div>
+</div>
+<!-- Card Pocket 8 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 group cursor-pointer">
+<div class="w-full h-full bg-surface-container-highest rounded card-inner-stroke overflow-hidden relative">
+<img alt="Arcanine Card" class="w-full h-full object-cover" data-alt="A fiery orange tiger-like monster card, glowing with warmth in a collector's binder page. The scene is shot from a slight angle to highlight the depth of the plastic pockets and the tactile grain of the underlying binder material. Vibrant reds and oranges dominate the palette, creating a nostalgic and energetic feeling for card collectors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDft5PeDKzS9rHqP-8V-CUndxFvLNDWeAhKj9YNkgz9VMmrT_lUco-rOvXOdGEshZ5roW60n_A2RQh9WmmTsTFJZntahojWlWM_objMVjEKjDPswlqAed8PV-jfAaHZKErM7Fr7c8absL1Uj1w1ZGgV51D8mRz1AKRfRTnUftNookAePqAapLWmGgcXDkAUnqMkjfOWtj58YZXPEbbWcmStwzNQHmgzfBhpmBcPsps2fpUPFh_zbyyT3gWcI4C1fxCMRHdu7Gu7x6c">
+</div>
+</div>
+<!-- Card Pocket 9 -->
+<div class="aspect-[2.5/3.5] plastic-pocket rounded-md p-1 flex items-center justify-center">
+<div class="w-full h-full border-2 border-dashed border-outline-variant rounded flex flex-col items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-outline text-3xl">lock</span>
+<span class="text-[10px] font-label-md text-outline uppercase mt-1">Unlock Slot</span>
+</div>
+</div>
+</div>
+<!-- Pocket Rings (Visual Decor) -->
+<div class="absolute -left-6 top-1/2 -translate-y-1/2 flex flex-col gap-12">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-4 border-surface shadow-inner"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-4 border-surface shadow-inner"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-4 border-surface shadow-inner"></div>
+</div>
+</div>
+<!-- Pagination Dots -->
+<div class="flex justify-center gap-2 mt-8">
+<div class="w-2 h-2 rounded-full bg-surface-dim"></div>
+<div class="w-2 h-2 rounded-full bg-surface-dim"></div>
+<div class="w-2 h-2 rounded-full bg-surface-dim"></div>
+<div class="w-6 h-2 rounded-full bg-primary transition-all"></div>
+<div class="w-2 h-2 rounded-full bg-surface-dim"></div>
+</div>
+</main>
+<!-- Detailed View Drawer (Hidden by Default) -->
+<div class="fixed inset-x-0 bottom-0 z-[60] bg-surface rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 ease-in-out p-6 max-h-[707px] overflow-y-auto" id="details-drawer">
+<div class="w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto mb-6" onclick="closeDetails()"></div>
+<div class="flex flex-col items-center">
+<div class="w-48 aspect-[2.5/3.5] bg-surface-container rounded-xl shadow-2xl mb-6 relative overflow-hidden p-2">
+<div class="w-full h-full rounded overflow-hidden" id="detail-card-img">
+<img alt="Card Detail" class="w-full h-full object-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgcng9IjgiIGZpbGw9IiNlOGVhZWQiLz48cGF0aCBkPSJNMTcwIDEzMCBsMzAgNDAgbDIwLTE1IGw0MCA1NSBIMTQweiIgZmlsbD0iI2JkYzFjNiIvPjxjaXJjbGUgY3g9IjI1MCIgY3k9IjEyMCIgcj0iMTgiIGZpbGw9IiNiZGMxYzYiLz48L3N2Zz4=">
+</div>
+<div class="absolute inset-0 holo-shimmer opacity-30"></div>
+</div>
+<h3 class="font-display-lg text-headline-lg text-on-background mb-1" id="detail-name">Card Name</h3>
+<p class="text-primary font-label-md mb-6 uppercase tracking-widest">Ultra Rare • Holofoil</p>
+<div class="grid grid-cols-2 gap-4 w-full mb-8">
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+<p class="text-[10px] uppercase font-label-md text-on-surface-variant mb-1">Market Price</p>
+<p class="font-display-lg text-headline-lg-mobile text-secondary">$245.00</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+<p class="text-[10px] uppercase font-label-md text-on-surface-variant mb-1">Condition</p>
+<p class="font-display-lg text-headline-lg-mobile text-tertiary">Mint 9.5</p>
+</div>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-display-lg text-label-md uppercase tracking-widest rounded-xl shadow-lg border-b-4 border-on-primary-fixed-variant active:border-b-0 active:translate-y-1 transition-all">
+                Move to Binder
+            </button>
+</div>
+</div>
+<!-- Drawer Overlay -->
+<div class="fixed inset-0 bg-black/50 z-[55] hidden opacity-0 transition-opacity duration-300" id="drawer-overlay" onclick="closeDetails()"></div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-2 pb-safe bg-surface border-t border-outline-variant rounded-t-xl z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high transition-transform active:scale-95 duration-150">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="font-label-md text-label-md">Store</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high transition-transform active:scale-95 duration-150">
+<span class="material-symbols-outlined">style</span>
+<span class="font-label-md text-label-md">Collection</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 animate-pulse active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-label-md text-label-md">Binders</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high transition-transform active:scale-95 duration-150">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="font-label-md text-label-md">Trades</span>
+</div>
+</nav>
+<script>
+        function openDetails(name) {
+            const drawer = document.getElementById('details-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            const detailName = document.getElementById('detail-name');
+            const detailImg = document.querySelector('#detail-card-img img');
+            
+            detailName.innerText = name;
+            
+            // Simplified logic for demo image swap
+            const cardImages = {
+                'Charizard': 'https://images.unsplash.com/photo-1613771404721-1f92d799e49f?q=80&w=500',
+                'Blastoise': 'https://images.unsplash.com/photo-1627371343354-206e8b2b62d3?q=80&w=500'
+            };
+            
+            if (cardImages[name]) {
+                detailImg.src = cardImages[name];
+            }
+
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                drawer.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeDetails() {
+            const drawer = document.getElementById('details-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            
+            drawer.classList.add('translate-y-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body></html>

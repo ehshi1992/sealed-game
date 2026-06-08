@@ -1,0 +1,278 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TCG Trade Table</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Bricolage+Grotesque:wght@700;800&amp;family=Space+Grotesk:wght@600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f1f1f1",
+                    "primary-fixed": "#ffdad4",
+                    "error-container": "#ffdad6",
+                    "on-background": "#1a1c1c",
+                    "secondary": "#6d5e00",
+                    "on-primary-fixed-variant": "#930100",
+                    "tertiary-container": "#5768e6",
+                    "surface-dim": "#dadada",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "on-secondary-fixed-variant": "#524600",
+                    "tertiary-fixed": "#dfe0ff",
+                    "surface-tint": "#c00100",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-surface-variant": "#603e39",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#000b62",
+                    "on-primary-fixed": "#410000",
+                    "surface": "#f9f9f9",
+                    "on-surface": "#1a1c1c",
+                    "surface-bright": "#f9f9f9",
+                    "error": "#ba1a1a",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#ffe24a",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#fddc00",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#2f3131",
+                    "surface-container-high": "#e8e8e8",
+                    "secondary-fixed-dim": "#e3c600",
+                    "tertiary-fixed-dim": "#bcc2ff",
+                    "primary-container": "#eb0000",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#bc0100",
+                    "on-tertiary-fixed-variant": "#2335b5",
+                    "on-tertiary-container": "#fffbff",
+                    "on-secondary-fixed": "#211b00",
+                    "on-primary-container": "#fffbff",
+                    "on-error": "#ffffff",
+                    "background": "#f9f9f9",
+                    "surface-container": "#eeeeee",
+                    "surface-variant": "#e2e2e2",
+                    "inverse-primary": "#ffb4a8",
+                    "surface-container-low": "#f3f3f3",
+                    "outline": "#956d67",
+                    "on-secondary-container": "#706000",
+                    "tertiary": "#3c4dcb",
+                    "outline-variant": "#ebbbb4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "40px",
+                    "md": "16px",
+                    "gutter": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "64px",
+                    "lg": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-md": ["Space Grotesk"],
+                    "display-lg": ["Bricolage Grotesque"],
+                    "headline-lg-mobile": ["Bricolage Grotesque"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Bricolage Grotesque"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .holo-shimmer {
+            background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 200%;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% -200%; }
+            100% { background-position: 200% 200%; }
+        }
+        .plastic-button {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 3px 0 rgba(0,0,0,0.2);
+        }
+        .plastic-button:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 0 rgba(0,0,0,0.1);
+        }
+        .balance-needle {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .recessed-pocket {
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container shadow-[0_2px_0_0_rgba(0,0,0,0.2)] border-b-2 border-primary-fixed-variant flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">charging_station</span>
+<h1 class="font-display-lg text-headline-lg-mobile tracking-tight">TCG Collector</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined">notifications</span>
+</div>
+</header>
+<!-- Main Trade Canvas -->
+<main class="pt-20 px-4 space-y-6">
+<!-- Balance Meter Section (RPG Style) -->
+<section class="bg-surface-container border-2 border-outline-variant rounded-xl p-4 relative overflow-hidden">
+<div class="flex justify-between items-end mb-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Your Value</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile">$142.50</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-md text-label-md text-tertiary uppercase tracking-wider">Their Value</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile">$138.00</span>
+</div>
+</div>
+<!-- Dynamic Balance Bar -->
+<div class="h-8 bg-surface-container-highest rounded-full border-2 border-outline relative flex items-center px-1 overflow-hidden">
+<div class="absolute left-1/2 top-0 bottom-0 w-1 bg-outline-variant z-10"></div>
+<!-- Heat Map Background -->
+<div class="absolute inset-0 bg-gradient-to-r from-error via-secondary to-tertiary opacity-20"></div>
+<!-- Needle/Indicator -->
+<div class="balance-needle absolute left-1/2 -ml-3 z-20 h-6 w-6 bg-primary border-2 border-white rounded-full shadow-lg flex items-center justify-center" id="tradeNeedle" style="transform: translateX(-15px);">
+<div class="w-1 h-1 bg-white rounded-full"></div>
+</div>
+</div>
+<p class="text-center font-label-md text-label-md mt-3 text-secondary">Trade is Fair (97% Match)</p>
+</section>
+<!-- Split Screen View -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Your Offer -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Your Offer</h2>
+<span class="font-label-md text-label-md text-primary">3 Cards</span>
+</div>
+<div class="recessed-pocket bg-surface-container-low rounded-xl p-2 min-h-[400px] border-2 border-dashed border-outline-variant">
+<!-- Card Item 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-2 shadow-md mb-3 border-b-2 border-r-2 border-outline relative overflow-hidden">
+<div class="holo-shimmer absolute inset-0 pointer-events-none opacity-30"></div>
+<img class="w-full h-32 object-cover rounded-md mb-2" data-alt="A macro photograph of a rare holo-foil collectible card showing a majestic fire dragon. The card has a high-gloss finish that reflects vibrant prismatic light. It sits in a high-quality protective plastic sleeve against a dark leather binder background, emphasizing its premium and tactile collector quality. The lighting is focused and dramatic, highlighting the card's edge texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDXeUxVcggeD8IPBB8LXHKEVRgljFELso1Kf6zNiGPimLQLCqjvSZ50Asnq_2ZJcLWFQ6mL9MbtC0lrh7UmMSsVJviyW7su-ciXLir6YgeYrKFwF_7oDqh3ChCs-cIMynRk08MJrHOYzU_RLlPJCp9hOwKGoD6Dbab7UmJf6bBtMkllaG2nnbReJdTESolcw3KffiXv4PruqZF8SCO6v1eL7DLXb3c3MK6pqFVWHXCsdaphXZTq6vzgW3-6Ii-uvF0TjnsAGpnFx4">
+<div class="space-y-1">
+<p class="font-label-md text-label-md truncate">Charizard VMAX</p>
+<div class="flex justify-between items-center">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">RARE</span>
+<span class="font-label-md text-label-md">$85.00</span>
+</div>
+</div>
+</div>
+<!-- Card Item 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-2 shadow-md border-b-2 border-r-2 border-outline relative">
+<img class="w-full h-32 object-cover rounded-md mb-2" data-alt="Close up of a classic collectible card featuring a water-type monster in a dynamic pose. The card shows authentic wear and sharp edges, presented in a clean, light-mode interface layout. The aesthetic is nostalgic yet modern, using bright professional lighting to showcase the cardstock grain and saturated colors of the illustration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0vGrM8b3NmSC2BGtGTyZwtaWFdFCMcADaFTJ1id551Y0oi6jkZrbZ6y2pInotFnvGqCrwGOEIsug_bVQQatN_0zYPEL4FGfpxX-LL87F9vAx481lo876guFkzEAxZ6hYDPA4Oq0GFjjmLI4c-wL30zLOEOtLzuiebt2XCQbfYe28QBIfaFR6GLVO3fpbcvwwjuw1B69XqRHaXXt6TS5Cq9YBGtrjcDErLqbdEEySReb-fl6hzHXvXPFHjsPhgfBs36lnppxZe6nA">
+<div class="space-y-1">
+<p class="font-label-md text-label-md truncate">Blastoise Base</p>
+<div class="flex justify-between items-center">
+<span class="bg-secondary/10 text-secondary px-2 py-0.5 rounded text-[10px] font-bold">VINTAGE</span>
+<span class="font-label-md text-label-md">$57.50</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-3 border-2 border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center text-outline-variant hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-label-md text-label-md mt-1">Add Card</span>
+</button>
+</div>
+</div>
+<!-- Their Offer -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Their Offer</h2>
+<span class="font-label-md text-label-md text-tertiary">1 Card</span>
+</div>
+<div class="recessed-pocket bg-surface-container-low rounded-xl p-2 min-h-[400px] border-2 border-dashed border-outline-variant">
+<!-- Card Item 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-2 shadow-md mb-3 border-b-2 border-r-2 border-outline relative overflow-hidden">
+<div class="holo-shimmer absolute inset-0 pointer-events-none opacity-40"></div>
+<img class="w-full h-56 object-cover rounded-md mb-2" data-alt="A highly coveted, gold-etched collectible card displayed in a crystal-clear acrylic grading case. The card features intricate cosmic artwork with metallic foil accents. It is captured in a high-tech studio setting with soft cyan and magenta backlighting, giving it a premium, legendary status appearance suitable for a high-stakes trade." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh8lVLOwJQA8ByqrRLPtZxzJH8QJ7Xxx8QqaPX2tCprnJ6G-Dn6inMXxb4vrvwSbIUK_ztv-zdbyJSsl7nTH7Gc9k0sdk2hX8YWDMCMQDfsI4ihfw2fKhoI7ggCnhyPzL04g7R1uPstv7D92T122eCDcgCZY1tJcoimtmCMSSQad4yJ71bG2cTgq1Qoq87EbCIOfBdYlEA3B6RJcr6CvT0ztDNKbEqMchnXM1fwlQKbmxqHyDCmyD6SWqSFu3TzplPLsPWcT9bsrY">
+<div class="space-y-1">
+<p class="font-label-md text-label-md truncate">Rayquaza Star</p>
+<div class="flex justify-between items-center">
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-bold">LEGENDARY</span>
+<span class="font-label-md text-label-md">$138.00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="grid grid-cols-2 gap-4 mt-8">
+<button class="plastic-button bg-surface-container-highest text-on-surface-variant font-label-md text-label-md py-4 rounded-xl flex items-center justify-center gap-2 border-b-4 border-outline active:border-b-0 transition-all">
+<span class="material-symbols-outlined">chat_bubble</span>
+                Negotiate
+            </button>
+<button class="plastic-button bg-primary text-on-primary font-label-md text-label-md py-4 rounded-xl flex items-center justify-center gap-2 border-b-4 border-on-primary-fixed-variant active:border-b-0 transition-all relative overflow-hidden group">
+<div class="absolute inset-0 bg-white/10 translate-y-full group-active:translate-y-0 transition-transform"></div>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">handshake</span>
+                Finalize Trade
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-2 pb-safe bg-surface dark:bg-surface-container-highest border-t border-outline-variant z-50 rounded-t-xl shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-label-md text-label-md">Store</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="font-label-md text-label-md">Collection</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-1 hover:bg-surface-container-high active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-md text-label-md">Binders</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 animate-pulse active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="swap_horiz" style="font-variation-settings: 'FILL' 1;">swap_horiz</span>
+<span class="font-label-md text-label-md">Trades</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction for the balance needle
+        document.addEventListener('DOMContentLoaded', () => {
+            const needle = document.getElementById('tradeNeedle');
+            
+            // Function to simulate subtle "balancing" motion
+            function drift() {
+                const randomDrift = (Math.random() - 0.5) * 10;
+                // Currently set to -15px for the "Your Offer" slight advantage
+                const basePos = -15; 
+                needle.style.transform = `translateX(${basePos + randomDrift}px)`;
+                
+                setTimeout(drift, 2000 + Math.random() * 3000);
+            }
+            
+            drift();
+        });
+    </script>
+</body></html>

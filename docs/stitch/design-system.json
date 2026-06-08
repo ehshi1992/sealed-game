@@ -1,0 +1,246 @@
+{
+  "designSystems": [
+    {
+      "name": "assets/3de5ec04edee4c0193125ba4bb486e60",
+      "designSystem": {
+        "displayName": "Physical TCG Archive",
+        "styleGuidelines": "## Brand & Style\n\nThe design system is centered on **Tactile Skeuomorphism**, aiming to recreate the sensory experience of handling a premium, physical trading card collection. The brand personality is archival, prestigious, and deliberate. It rejects the frictionless efficiency of modern SaaS in favor of \"digital weight\" and the ritual of collection management.\n\nThe target audience consists of enthusiasts who find joy in the organization and preservation of physical objects. Every interaction should evoke the feeling of leather, heavy cardstock, and the satisfying slide of a card into a plastic sleeve. The UI is not a tool, but a digital heirloom\u00e2\u20ac\u201da \"leather-bound binder\" that rewards manual exploration over automated filtering.\n\n## Layout & Spacing\n\nThe layout is a **Fixed Grid** modeled after a physical 9-pocket binder page. \n- **The Binder:** Content is centered within a fixed-width container that represents the binder's physical dimensions. \n- **The Page:** Cards are arranged in a 3x3 grid (Desktop) or a 1x2 grid (Mobile).\n- **Manual Navigation:** There is no infinite scroll. Users must \"flip\" the page using edge-based click/drag interactions, moving the entire 3x3 grid out of view.\n- **Physical Constraints:** Spacing is dictated by \"pocket\" margins. Cards have a consistent gutter of 16px to simulate the plastic dividers of a binder sheet. \n\nOn mobile, the binder \"unfolds\" to show a single column of cards, maintaining the heavy side-margins that suggest the binder's leather edges.\n\n## Elevation & Depth\n\nVisual hierarchy is achieved through extreme layering and material physics:\n- **Level 0 (The Table):** A dark, out-of-focus background with a subtle wooden texture.\n- **Level 1 (The Binder):** Deep, soft shadows (24px blur, 40% opacity) create distance from the table. Uses a subtle pebble-grain leather texture.\n- **Level 2 (The Page):** A semi-transparent \"acetate\" layer with a linear gradient (white to transparent at 45 degrees) to simulate plastic gloss.\n- **Level 3 (The Card):** Cards use sharp contact shadows (4px blur, 60% opacity) when \"slotted\" into the page.\n- **Level 4 (The Interaction):** When a user picks up a card, the shadow expands and softens, and the card scales by 5% to simulate it being lifted closer to the eye.\n\nShadows should never be pure black; they are tinted with the `primary_color` (Mahogany) to maintain warmth.\n\n## Components\n\n### Card Sleeves\nEvery card image is wrapped in a container with a `linear-gradient` overlay. This overlay simulates the \"oil-slick\" sheen of plastic. Rarity is indicated by a \"Holographic Foil\" treatment\u00e2\u20ac\u201da CSS `mix-blend-mode` layer that shifts its gradient position based on the user's cursor movement.\n\n### The Page Turner\nInstead of a scrollbar, pagination is handled by \"Corner Peeks.\" The bottom-right and bottom-left corners of the binder display a slight \"curl\" shadow. Clicking these triggers a 3D transform animation that flips the page.\n\n### Buttons & Inputs\nButtons are styled as \"Embossed Leather.\" They appear pressed into the binder surface using inner shadows rather than drop shadows. There is no search bar; navigation is handled by \"Index Tabs\" along the side of the binder, representing different card types or sets.\n\n### Lists & Collections\nLists are presented as \"Checklists\" printed on aged paper textures, tucked into the front pocket of the binder. They use the `geist` font to look like hand-typed or stamped inventory sheets.\n\n### Stacks\nWhen multiple copies of a card exist, they are displayed as a physical stack with a 4px offset for each card, creating a \"deck\" visual rather than a numerical badge.",
+        "theme": {
+          "colorMode": "DARK",
+          "font": "EB_GARAMOND",
+          "roundness": "ROUND_EIGHT",
+          "customColor": "#2d1b14",
+          "headlineFont": "EB_GARAMOND",
+          "bodyFont": "GEIST",
+          "labelFont": "GEIST",
+          "namedColors": {
+            "background": "#14140e",
+            "error": "#ffb4ab",
+            "error_container": "#93000a",
+            "inverse_on_surface": "#31312a",
+            "inverse_primary": "#725950",
+            "inverse_surface": "#e5e2d9",
+            "on_background": "#e5e2d9",
+            "on_error": "#690005",
+            "on_error_container": "#ffdad6",
+            "on_primary": "#402c24",
+            "on_primary_container": "#9d8177",
+            "on_primary_fixed": "#291710",
+            "on_primary_fixed_variant": "#584239",
+            "on_secondary": "#3c2e16",
+            "on_secondary_container": "#cbb593",
+            "on_secondary_fixed": "#251a04",
+            "on_secondary_fixed_variant": "#54442a",
+            "on_surface": "#e5e2d9",
+            "on_surface_variant": "#d3c3be",
+            "on_tertiary": "#00382f",
+            "on_tertiary_container": "#009983",
+            "on_tertiary_fixed": "#00201a",
+            "on_tertiary_fixed_variant": "#005144",
+            "outline": "#9c8e89",
+            "outline_variant": "#4f4441",
+            "primary": "#e0c0b4",
+            "primary_container": "#2d1b14",
+            "primary_fixed": "#fddbd0",
+            "primary_fixed_dim": "#e0c0b4",
+            "secondary": "#dac3a1",
+            "secondary_container": "#56472c",
+            "secondary_fixed": "#f7dfbb",
+            "secondary_fixed_dim": "#dac3a1",
+            "surface": "#14140e",
+            "surface_bright": "#3a3933",
+            "surface_container": "#20201a",
+            "surface_container_high": "#2a2a24",
+            "surface_container_highest": "#35352e",
+            "surface_container_low": "#1c1c16",
+            "surface_container_lowest": "#0e0f09",
+            "surface_dim": "#14140e",
+            "surface_tint": "#e0c0b4",
+            "surface_variant": "#35352e",
+            "tertiary": "#00dfc1",
+            "tertiary_container": "#00251e",
+            "tertiary_fixed": "#26fedc",
+            "tertiary_fixed_dim": "#00dfc1"
+          },
+          "designMd": "---\nname: Physical TCG Archive\ncolors:\n  surface: '#14140e'\n  surface-dim: '#14140e'\n  surface-bright: '#3a3933'\n  surface-container-lowest: '#0e0f09'\n  surface-container-low: '#1c1c16'\n  surface-container: '#20201a'\n  surface-container-high: '#2a2a24'\n  surface-container-highest: '#35352e'\n  on-surface: '#e5e2d9'\n  on-surface-variant: '#d3c3be'\n  inverse-surface: '#e5e2d9'\n  inverse-on-surface: '#31312a'\n  outline: '#9c8e89'\n  outline-variant: '#4f4441'\n  surface-tint: '#e0c0b4'\n  primary: '#e0c0b4'\n  on-primary: '#402c24'\n  primary-container: '#2d1b14'\n  on-primary-container: '#9d8177'\n  inverse-primary: '#725950'\n  secondary: '#dac3a1'\n  on-secondary: '#3c2e16'\n  secondary-container: '#56472c'\n  on-secondary-container: '#cbb593'\n  tertiary: '#00dfc1'\n  on-tertiary: '#00382f'\n  tertiary-container: '#00251e'\n  on-tertiary-container: '#009983'\n  error: '#ffb4ab'\n  on-error: '#690005'\n  error-container: '#93000a'\n  on-error-container: '#ffdad6'\n  primary-fixed: '#fddbd0'\n  primary-fixed-dim: '#e0c0b4'\n  on-primary-fixed: '#291710'\n  on-primary-fixed-variant: '#584239'\n  secondary-fixed: '#f7dfbb'\n  secondary-fixed-dim: '#dac3a1'\n  on-secondary-fixed: '#251a04'\n  on-secondary-fixed-variant: '#54442a'\n  tertiary-fixed: '#26fedc'\n  tertiary-fixed-dim: '#00dfc1'\n  on-tertiary-fixed: '#00201a'\n  on-tertiary-fixed-variant: '#005144'\n  background: '#14140e'\n  on-background: '#e5e2d9'\n  surface-variant: '#35352e'\ntypography:\n  display-binder:\n    fontFamily: ebGaramond\n    fontSize: 48px\n    fontWeight: '600'\n    lineHeight: 56px\n    letterSpacing: -0.02em\n  card-title:\n    fontFamily: ebGaramond\n    fontSize: 24px\n    fontWeight: '600'\n    lineHeight: 28px\n  card-body:\n    fontFamily: ebGaramond\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: 22px\n  ui-label-lg:\n    fontFamily: Geist\n    fontSize: 14px\n    fontWeight: '600'\n    lineHeight: 20px\n    letterSpacing: 0.05em\n  ui-label-sm:\n    fontFamily: Geist\n    fontSize: 12px\n    fontWeight: '400'\n    lineHeight: 16px\n  display-binder-mobile:\n    fontFamily: ebGaramond\n    fontSize: 32px\n    fontWeight: '600'\n    lineHeight: 38px\nrounded:\n  sm: 0.25rem\n  DEFAULT: 0.5rem\n  md: 0.75rem\n  lg: 1rem\n  xl: 1.5rem\n  full: 9999px\nspacing:\n  margin-page: 2rem\n  gutter-sleeve: 1rem\n  stack-offset: 4px\n  binder-padding: 3rem\n---\n\n## Brand & Style\n\nThe design system is centered on **Tactile Skeuomorphism**, aiming to recreate the sensory experience of handling a premium, physical trading card collection. The brand personality is archival, prestigious, and deliberate. It rejects the frictionless efficiency of modern SaaS in favor of \"digital weight\" and the ritual of collection management.\n\nThe target audience consists of enthusiasts who find joy in the organization and preservation of physical objects. Every interaction should evoke the feeling of leather, heavy cardstock, and the satisfying slide of a card into a plastic sleeve. The UI is not a tool, but a digital heirloom\u00e2\u20ac\u201da \"leather-bound binder\" that rewards manual exploration over automated filtering.\n\n## Colors\n\nThe palette is rooted in natural, organic tones to simulate physical materials. \n- **Primary (Deep Leather):** A rich, dark mahogany brown used for the binder exterior and structural depth.\n- **Secondary (Aged Parchment):** A warm, desaturated gold used for borders and ornamental accents that feel like embossed foil.\n- **Tertiary (Holographic Foil):** A vibrant, shifting iridescent spectrum (primarily teal and violet) used sparingly for \"rare\" states and holographic card effects.\n- **Neutral (Heavy Paper):** Off-white, slightly textured tones for card surfaces and background layers to prevent eye strain while maintaining a paper-like feel.\n\nThe color mode is strictly dark-themed to emphasize the depth of the leather textures and the vibrance of the card artwork.\n\n## Typography\n\nThis design system employs a dual-typography approach to distinguish between the **Object** (the card) and the **Interface** (the binder controls).\n\n- **The Object (ebGaramond):** Used for headlines, card names, and descriptive text. This serif font provides the classical, literary elegance expected of a premium TCG. It feels etched or printed.\n- **The Interface (Geist):** Used for technical metadata, counts, and navigation labels. This monospaced-leaning sans-serif provides a precise, modern contrast, simulating small-print manufacturer data or \"grading\" labels.\n\nLetter spacing is tightened for display headings to mimic traditional bookbinding and widened for UI labels to ensure legibility against complex textures.\n\n## Layout & Spacing\n\nThe layout is a **Fixed Grid** modeled after a physical 9-pocket binder page. \n- **The Binder:** Content is centered within a fixed-width container that represents the binder's physical dimensions. \n- **The Page:** Cards are arranged in a 3x3 grid (Desktop) or a 1x2 grid (Mobile).\n- **Manual Navigation:** There is no infinite scroll. Users must \"flip\" the page using edge-based click/drag interactions, moving the entire 3x3 grid out of view.\n- **Physical Constraints:** Spacing is dictated by \"pocket\" margins. Cards have a consistent gutter of 16px to simulate the plastic dividers of a binder sheet. \n\nOn mobile, the binder \"unfolds\" to show a single column of cards, maintaining the heavy side-margins that suggest the binder's leather edges.\n\n## Elevation & Depth\n\nVisual hierarchy is achieved through extreme layering and material physics:\n- **Level 0 (The Table):** A dark, out-of-focus background with a subtle wooden texture.\n- **Level 1 (The Binder):** Deep, soft shadows (24px blur, 40% opacity) create distance from the table. Uses a subtle pebble-grain leather texture.\n- **Level 2 (The Page):** A semi-transparent \"acetate\" layer with a linear gradient (white to transparent at 45 degrees) to simulate plastic gloss.\n- **Level 3 (The Card):** Cards use sharp contact shadows (4px blur, 60% opacity) when \"slotted\" into the page.\n- **Level 4 (The Interaction):** When a user picks up a card, the shadow expands and softens, and the card scales by 5% to simulate it being lifted closer to the eye.\n\nShadows should never be pure black; they are tinted with the `primary_color` (Mahogany) to maintain warmth.\n\n## Shapes\n\nThe shape language follows standard TCG dimensions. \n- **Cards:** Use `rounded-lg` (1rem) for the outer corners to match standard die-cut cardstock. \n- **Sleeves:** The acetate pockets have slightly tighter corners (`rounded-md`) to show a sliver of the card corner \"peeking\" through.\n- **Binder:** The outer binder uses a heavy `rounded-xl` (1.5rem) to simulate rounded leather corners.\n- **UI Elements:** Buttons and tabs use a \"tabbed divider\" shape\u00e2\u20ac\u201dsharp on one side, rounded on the other\u00e2\u20ac\u201dmimicking the index tabs found in physical archives.\n\n## Components\n\n### Card Sleeves\nEvery card image is wrapped in a container with a `linear-gradient` overlay. This overlay simulates the \"oil-slick\" sheen of plastic. Rarity is indicated by a \"Holographic Foil\" treatment\u00e2\u20ac\u201da CSS `mix-blend-mode` layer that shifts its gradient position based on the user's cursor movement.\n\n### The Page Turner\nInstead of a scrollbar, pagination is handled by \"Corner Peeks.\" The bottom-right and bottom-left corners of the binder display a slight \"curl\" shadow. Clicking these triggers a 3D transform animation that flips the page.\n\n### Buttons & Inputs\nButtons are styled as \"Embossed Leather.\" They appear pressed into the binder surface using inner shadows rather than drop shadows. There is no search bar; navigation is handled by \"Index Tabs\" along the side of the binder, representing different card types or sets.\n\n### Lists & Collections\nLists are presented as \"Checklists\" printed on aged paper textures, tucked into the front pocket of the binder. They use the `geist` font to look like hand-typed or stamped inventory sheets.\n\n### Stacks\nWhen multiple copies of a card exist, they are displayed as a physical stack with a 4px offset for each card, creating a \"deck\" visual rather than a numerical badge.",
+          "colorVariant": "FIDELITY",
+          "overridePrimaryColor": "#2d1b14",
+          "overrideSecondaryColor": "#e0c9a6",
+          "overrideTertiaryColor": "#00f5d4",
+          "overrideNeutralColor": "#f5f2e8",
+          "spacingScale": 2,
+          "typography": {
+            "card-body": {
+              "fontFamily": "ebGaramond",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "lineHeight": "22px"
+            },
+            "card-title": {
+              "fontFamily": "ebGaramond",
+              "fontSize": "24px",
+              "fontWeight": "600",
+              "lineHeight": "28px"
+            },
+            "display-binder": {
+              "fontFamily": "ebGaramond",
+              "fontSize": "48px",
+              "fontWeight": "600",
+              "lineHeight": "56px",
+              "letterSpacing": "-0.02em"
+            },
+            "display-binder-mobile": {
+              "fontFamily": "ebGaramond",
+              "fontSize": "32px",
+              "fontWeight": "600",
+              "lineHeight": "38px"
+            },
+            "ui-label-lg": {
+              "fontFamily": "Geist",
+              "fontSize": "14px",
+              "fontWeight": "600",
+              "lineHeight": "20px",
+              "letterSpacing": "0.05em"
+            },
+            "ui-label-sm": {
+              "fontFamily": "Geist",
+              "fontSize": "12px",
+              "fontWeight": "400",
+              "lineHeight": "16px"
+            }
+          },
+          "spacing": {
+            "binder-padding": "3rem",
+            "gutter-sleeve": "1rem",
+            "margin-page": "2rem",
+            "stack-offset": "4px"
+          },
+          "headlineFontFamily": "Eb Garamond",
+          "bodyFontFamily": "Geist",
+          "labelFontFamily": "Geist"
+        }
+      },
+      "version": "1"
+    },
+    {
+      "name": "assets/de7da4647c6d410dae477a09a7924a12",
+      "designSystem": {
+        "displayName": "Pocket Archive",
+        "styleGuidelines": "## Brand & Style\n\nThis design system captures the adventurous, high-energy spirit of collectible card games. The brand personality is nostalgic, vibrant, and tactile, aiming to evoke the excitement of opening a fresh booster pack. The target audience includes collectors and players who value both the utility of a digital archive and the sensory experience of physical media.\n\nThe design style is **Tactile / Skeuomorphic** with a modern, high-fidelity finish. It utilizes \"physical-first\" textures\u00e2\u20ac\u201dsmooth plastics, high-grade cardstock, and subtle leather grains\u00e2\u20ac\u201dbut cleans up the execution with vibrant colors and crisp geometry. The interface should feel like a high-tech pokedex or a professional tournament organizer's kit: rugged, functional, and undeniably playful.\n\n## Layout & Spacing\n\nThe design system employs a **Fluid Grid** model. On desktop, a 12-column layout allows for expansive card galleries, while mobile transitions to a 2-column \"card-heavy\" view. \n\nSpacing follows a strict 4px baseline power-of-two scale. Elements are grouped in \"kits\" using generous inner padding (24px) to simulate the physical borders of a binder or a playmat. Content should always feel contained within a physical boundary rather than floating in infinite space.\n\n## Elevation & Depth\n\nDepth is achieved through **Tonal Layers** combined with **Ambient Shadows**. \n1. **The Base:** A textured, matte background (e.g., light wood or leather grain).\n2. **The Tray:** Sunken containers created with inner shadows to hold card lists.\n3. **The Cards:** High-elevation elements with sharp, multi-layered shadows (a 2px crisp shadow followed by a 12px soft ambient shadow) to make them appear \"pluckable\" from the screen.\n4. **Interactive Elements:** Buttons utilize a slight 3D \"extrusion\" effect (1px light top border, 3px dark bottom border) to simulate physical plastic buttons.\n\n## Components\n\n**Buttons:** \nPrimary buttons are Red with White text, featuring a subtle \"glint\" (diagonal gradient) to simulate polished plastic. They should depress 2px on click.\n\n**Cards:**\nThe centerpiece of the UI. Cards must have a 1px inner stroke to simulate the \"edge\" of the cardstock. Use a high-gloss overlay effect for \"Holo\" or \"Rare\" items.\n\n**Input Fields:**\nDesigned to look like \"ports\" or \"slots\" in a device. Deeply inset with a neutral-gray background and a bright Blue focus ring.\n\n**Chips/Badges:**\nUsed for elemental types or rarities. Each type should have its own associated color tint, but always maintain a high-contrast label using the Space Grotesk font.\n\n**Lists:**\nPresented as \"Binder Slots.\" Each list item should feel like a recessed pocket, using subtle inner shadows and a textured background to differentiate it from the main surface.",
+        "theme": {
+          "colorMode": "LIGHT",
+          "font": "BRICOLAGE_GROTESQUE",
+          "roundness": "ROUND_EIGHT",
+          "customColor": "#ff0000",
+          "headlineFont": "BRICOLAGE_GROTESQUE",
+          "bodyFont": "PLUS_JAKARTA_SANS",
+          "labelFont": "SPACE_GROTESK",
+          "namedColors": {
+            "background": "#f9f9f9",
+            "error": "#ba1a1a",
+            "error_container": "#ffdad6",
+            "inverse_on_surface": "#f1f1f1",
+            "inverse_primary": "#ffb4a8",
+            "inverse_surface": "#2f3131",
+            "on_background": "#1a1c1c",
+            "on_error": "#ffffff",
+            "on_error_container": "#93000a",
+            "on_primary": "#ffffff",
+            "on_primary_container": "#fffbff",
+            "on_primary_fixed": "#410000",
+            "on_primary_fixed_variant": "#930100",
+            "on_secondary": "#ffffff",
+            "on_secondary_container": "#706000",
+            "on_secondary_fixed": "#211b00",
+            "on_secondary_fixed_variant": "#524600",
+            "on_surface": "#1a1c1c",
+            "on_surface_variant": "#603e39",
+            "on_tertiary": "#ffffff",
+            "on_tertiary_container": "#fffbff",
+            "on_tertiary_fixed": "#000b62",
+            "on_tertiary_fixed_variant": "#2335b5",
+            "outline": "#956d67",
+            "outline_variant": "#ebbbb4",
+            "primary": "#bc0100",
+            "primary_container": "#eb0000",
+            "primary_fixed": "#ffdad4",
+            "primary_fixed_dim": "#ffb4a8",
+            "secondary": "#6d5e00",
+            "secondary_container": "#fddc00",
+            "secondary_fixed": "#ffe24a",
+            "secondary_fixed_dim": "#e3c600",
+            "surface": "#f9f9f9",
+            "surface_bright": "#f9f9f9",
+            "surface_container": "#eeeeee",
+            "surface_container_high": "#e8e8e8",
+            "surface_container_highest": "#e2e2e2",
+            "surface_container_low": "#f3f3f3",
+            "surface_container_lowest": "#ffffff",
+            "surface_dim": "#dadada",
+            "surface_tint": "#c00100",
+            "surface_variant": "#e2e2e2",
+            "tertiary": "#3c4dcb",
+            "tertiary_container": "#5768e6",
+            "tertiary_fixed": "#dfe0ff",
+            "tertiary_fixed_dim": "#bcc2ff"
+          },
+          "designMd": "---\nname: Pocket Archive\ncolors:\n  surface: '#f9f9f9'\n  surface-dim: '#dadada'\n  surface-bright: '#f9f9f9'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#f3f3f3'\n  surface-container: '#eeeeee'\n  surface-container-high: '#e8e8e8'\n  surface-container-highest: '#e2e2e2'\n  on-surface: '#1a1c1c'\n  on-surface-variant: '#603e39'\n  inverse-surface: '#2f3131'\n  inverse-on-surface: '#f1f1f1'\n  outline: '#956d67'\n  outline-variant: '#ebbbb4'\n  surface-tint: '#c00100'\n  primary: '#bc0100'\n  on-primary: '#ffffff'\n  primary-container: '#eb0000'\n  on-primary-container: '#fffbff'\n  inverse-primary: '#ffb4a8'\n  secondary: '#6d5e00'\n  on-secondary: '#ffffff'\n  secondary-container: '#fddc00'\n  on-secondary-container: '#706000'\n  tertiary: '#3c4dcb'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#5768e6'\n  on-tertiary-container: '#fffbff'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#ffdad4'\n  primary-fixed-dim: '#ffb4a8'\n  on-primary-fixed: '#410000'\n  on-primary-fixed-variant: '#930100'\n  secondary-fixed: '#ffe24a'\n  secondary-fixed-dim: '#e3c600'\n  on-secondary-fixed: '#211b00'\n  on-secondary-fixed-variant: '#524600'\n  tertiary-fixed: '#dfe0ff'\n  tertiary-fixed-dim: '#bcc2ff'\n  on-tertiary-fixed: '#000b62'\n  on-tertiary-fixed-variant: '#2335b5'\n  background: '#f9f9f9'\n  on-background: '#1a1c1c'\n  surface-variant: '#e2e2e2'\ntypography:\n  display-lg:\n    fontFamily: Bricolage Grotesque\n    fontSize: 48px\n    fontWeight: '800'\n    lineHeight: '1.1'\n    letterSpacing: -0.02em\n  headline-lg:\n    fontFamily: Bricolage Grotesque\n    fontSize: 32px\n    fontWeight: '700'\n    lineHeight: '1.2'\n  headline-lg-mobile:\n    fontFamily: Bricolage Grotesque\n    fontSize: 24px\n    fontWeight: '700'\n    lineHeight: '1.2'\n  body-md:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: '1.6'\n  label-md:\n    fontFamily: Space Grotesk\n    fontSize: 14px\n    fontWeight: '600'\n    lineHeight: '1'\nrounded:\n  sm: 0.25rem\n  DEFAULT: 0.5rem\n  md: 0.75rem\n  lg: 1rem\n  xl: 1.5rem\n  full: 9999px\nspacing:\n  base: 4px\n  xs: 4px\n  sm: 8px\n  md: 16px\n  lg: 24px\n  xl: 40px\n  gutter: 16px\n  margin-mobile: 16px\n  margin-desktop: 64px\n---\n\n## Brand & Style\n\nThis design system captures the adventurous, high-energy spirit of collectible card games. The brand personality is nostalgic, vibrant, and tactile, aiming to evoke the excitement of opening a fresh booster pack. The target audience includes collectors and players who value both the utility of a digital archive and the sensory experience of physical media.\n\nThe design style is **Tactile / Skeuomorphic** with a modern, high-fidelity finish. It utilizes \"physical-first\" textures\u00e2\u20ac\u201dsmooth plastics, high-grade cardstock, and subtle leather grains\u00e2\u20ac\u201dbut cleans up the execution with vibrant colors and crisp geometry. The interface should feel like a high-tech pokedex or a professional tournament organizer's kit: rugged, functional, and undeniably playful.\n\n## Colors\n\nThe palette is driven by the iconic primary trio. **Primary Red** is used for critical actions, headers, and brand-defining containers. **Secondary Yellow** serves as a high-contrast accent for highlights, rarities, and special notifications. **Tertiary Blue** provides a cooling balance, used for secondary navigation and information-heavy data sets.\n\nThe background uses a warm neutral off-white to reduce eye strain while maintaining the \"bright\" mood requested. Surface colors should utilize subtle gradients of these hex codes to simulate curved plastic or matte card surfaces.\n\n## Typography\n\nThe typography strategy balances character with clarity. **Bricolage Grotesque** is used for headlines; its quirky, expressive terminals echo the energetic logos of the TCG world. For long-form data and card descriptions, **Plus Jakarta Sans** provides a soft, approachable, and highly legible experience. **Space Grotesk** is reserved for technical data points (HP, Stats, Set Numbers), providing a slightly futuristic, systematic feel that aids in quick scanning during intense deck-building.\n\n## Layout & Spacing\n\nThe design system employs a **Fluid Grid** model. On desktop, a 12-column layout allows for expansive card galleries, while mobile transitions to a 2-column \"card-heavy\" view. \n\nSpacing follows a strict 4px baseline power-of-two scale. Elements are grouped in \"kits\" using generous inner padding (24px) to simulate the physical borders of a binder or a playmat. Content should always feel contained within a physical boundary rather than floating in infinite space.\n\n## Elevation & Depth\n\nDepth is achieved through **Tonal Layers** combined with **Ambient Shadows**. \n1. **The Base:** A textured, matte background (e.g., light wood or leather grain).\n2. **The Tray:** Sunken containers created with inner shadows to hold card lists.\n3. **The Cards:** High-elevation elements with sharp, multi-layered shadows (a 2px crisp shadow followed by a 12px soft ambient shadow) to make them appear \"pluckable\" from the screen.\n4. **Interactive Elements:** Buttons utilize a slight 3D \"extrusion\" effect (1px light top border, 3px dark bottom border) to simulate physical plastic buttons.\n\n## Shapes\n\nThe design system uses **Rounded** corners (8px/0.5rem base) to mirror the actual corner radius of physical trading cards. \n- Standard components (Inputs, Buttons) use the base 8px radius.\n- Cards and main containers use **rounded-xl** (24px) to emphasize their \"object\" quality.\n- Interactive chips and tags use a full **pill-shape** to provide visual variety against the rectangular nature of cards.\n\n## Components\n\n**Buttons:** \nPrimary buttons are Red with White text, featuring a subtle \"glint\" (diagonal gradient) to simulate polished plastic. They should depress 2px on click.\n\n**Cards:**\nThe centerpiece of the UI. Cards must have a 1px inner stroke to simulate the \"edge\" of the cardstock. Use a high-gloss overlay effect for \"Holo\" or \"Rare\" items.\n\n**Input Fields:**\nDesigned to look like \"ports\" or \"slots\" in a device. Deeply inset with a neutral-gray background and a bright Blue focus ring.\n\n**Chips/Badges:**\nUsed for elemental types or rarities. Each type should have its own associated color tint, but always maintain a high-contrast label using the Space Grotesk font.\n\n**Lists:**\nPresented as \"Binder Slots.\" Each list item should feel like a recessed pocket, using subtle inner shadows and a textured background to differentiate it from the main surface.",
+          "colorVariant": "FIDELITY",
+          "overridePrimaryColor": "#ff0000",
+          "overrideSecondaryColor": "#ffde00",
+          "overrideTertiaryColor": "#3b4cca",
+          "overrideNeutralColor": "#f2f2f2",
+          "spacingScale": 2,
+          "typography": {
+            "body-md": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "lineHeight": "1.6"
+            },
+            "display-lg": {
+              "fontFamily": "Bricolage Grotesque",
+              "fontSize": "48px",
+              "fontWeight": "800",
+              "lineHeight": "1.1",
+              "letterSpacing": "-0.02em"
+            },
+            "headline-lg": {
+              "fontFamily": "Bricolage Grotesque",
+              "fontSize": "32px",
+              "fontWeight": "700",
+              "lineHeight": "1.2"
+            },
+            "headline-lg-mobile": {
+              "fontFamily": "Bricolage Grotesque",
+              "fontSize": "24px",
+              "fontWeight": "700",
+              "lineHeight": "1.2"
+            },
+            "label-md": {
+              "fontFamily": "Space Grotesk",
+              "fontSize": "14px",
+              "fontWeight": "600",
+              "lineHeight": "1"
+            }
+          },
+          "spacing": {
+            "base": "4px",
+            "gutter": "16px",
+            "lg": "24px",
+            "margin-desktop": "64px",
+            "margin-mobile": "16px",
+            "md": "16px",
+            "sm": "8px",
+            "xl": "40px",
+            "xs": "4px"
+          },
+          "headlineFontFamily": "Bricolage Grotesque",
+          "bodyFontFamily": "Plus Jakarta Sans",
+          "labelFontFamily": "Space Grotesk"
+        }
+      },
+      "version": "1"
+    }
+  ]
+}

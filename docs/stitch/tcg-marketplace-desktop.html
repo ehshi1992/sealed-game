@@ -1,0 +1,460 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Bricolage+Grotesque:wght@200..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#211b00",
+                        "on-primary-fixed-variant": "#930100",
+                        "surface": "#f9f9f9",
+                        "on-secondary-fixed-variant": "#524600",
+                        "surface-container-high": "#e8e8e8",
+                        "primary": "#bc0100",
+                        "tertiary": "#3c4dcb",
+                        "on-primary-fixed": "#410000",
+                        "inverse-surface": "#2f3131",
+                        "surface-dim": "#dadada",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-fixed": "#dfe0ff",
+                        "on-background": "#1a1c1c",
+                        "secondary": "#6d5e00",
+                        "background": "#f9f9f9",
+                        "secondary-container": "#fddc00",
+                        "on-tertiary-fixed-variant": "#2335b5",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffe24a",
+                        "on-tertiary-fixed": "#000b62",
+                        "primary-fixed": "#ffdad4",
+                        "on-error": "#ffffff",
+                        "primary-container": "#eb0000",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "surface-tint": "#c00100",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e2e2e2",
+                        "inverse-primary": "#ffb4a8",
+                        "tertiary-fixed-dim": "#bcc2ff",
+                        "surface-container": "#eeeeee",
+                        "tertiary-container": "#5768e6",
+                        "on-surface": "#1a1c1c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#603e39",
+                        "on-primary-container": "#fffbff",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#ebbbb4",
+                        "secondary-fixed-dim": "#e3c600",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f1f1f1",
+                        "outline": "#956d67",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#706000"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "md": "16px",
+                        "base": "4px",
+                        "xl": "40px",
+                        "gutter": "16px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Space Grotesk"],
+                        "display-lg": ["Bricolage Grotesque"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Bricolage Grotesque"],
+                        "headline-lg": ["Bricolage Grotesque"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .holo-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .holo-effect::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(25deg);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+        .holo-effect:hover::after {
+            top: 0%;
+            left: 0%;
+        }
+        .card-inner-shadow {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-press {
+            transition: transform 0.1s;
+        }
+        .btn-press:active {
+            transform: translateY(2px);
+        }
+        .tray-surface {
+            background-image: radial-gradient(circle at 2px 2px, #e2e2e2 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-container">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 flex items-center justify-between px-margin-desktop w-full h-20 bg-surface dark:bg-surface-dim border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-xl">
+<span class="font-display-lg text-display-lg font-black text-primary dark:text-primary-fixed tracking-tight">TCG Marketplace</span>
+<div class="hidden md:flex items-center gap-lg">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-md text-label-md" href="#">Browse</a>
+<a class="text-on-surface-variant font-medium hover:text-primary hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">Sets</a>
+<a class="text-on-surface-variant font-medium hover:text-primary hover:bg-surface-container-high transition-colors duration-200 font-label-md text-label-md" href="#">Deals</a>
+</div>
+</div>
+<div class="flex-1 max-w-xl mx-xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-3 pl-12 pr-4 focus:ring-2 focus:ring-tertiary font-body-md text-body-md shadow-inner transition-all" placeholder="Search for cards, sets, or characters..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-lg py-3 rounded-full btn-press shadow-md hover:brightness-110 flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                Sell Your Cards
+            </button>
+<div class="flex items-center gap-sm">
+<button class="p-3 rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="p-3 rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<div class="flex">
+<!-- SideNavBar (Filters) -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-80px)] flex flex-col p-md bg-surface-container-low dark:bg-surface-container-high w-64 border-r border-outline-variant overflow-y-auto shadow-md">
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Filters</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Refine your search</p>
+</div>
+<div class="space-y-md flex-1">
+<!-- Rarity Filter Section -->
+<div class="p-sm">
+<div class="flex items-center gap-2 mb-2 text-primary font-bold bg-primary-fixed-dim/20 rounded-lg p-2">
+<span class="material-symbols-outlined" data-icon="stars">stars</span>
+<span class="font-label-md text-label-md">Rarity</span>
+</div>
+<div class="pl-8 space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-outline text-primary focus:ring-primary" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Secret Rare</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-outline text-primary focus:ring-primary" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Holo Rare</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-outline text-primary focus:ring-primary" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Common</span>
+</label>
+</div>
+</div>
+<!-- Sets Filter Section -->
+<div class="p-sm">
+<div class="flex items-center gap-2 mb-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-all duration-200 p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="collections_bookmark">collections_bookmark</span>
+<span class="font-label-md text-label-md">Sets</span>
+</div>
+<div class="pl-8 space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded-full border-outline text-primary focus:ring-primary" name="set" type="radio">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Neo Genesis</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded-full border-outline text-primary focus:ring-primary" name="set" type="radio">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Jungle</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded-full border-outline text-primary focus:ring-primary" name="set" type="radio">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Base Set</span>
+</label>
+</div>
+</div>
+<!-- Element Type Section -->
+<div class="p-sm">
+<div class="flex items-center gap-2 mb-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-all duration-200 p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="font-label-md text-label-md">Element Type</span>
+</div>
+</div>
+<!-- Price Range Section -->
+<div class="p-sm">
+<div class="flex items-center gap-2 mb-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-all duration-200 p-2 rounded-lg">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Price Range</span>
+</div>
+<div class="px-2 pt-2">
+<input class="w-full accent-primary" type="range">
+<div class="flex justify-between mt-2 font-label-md text-label-md text-on-surface-variant">
+<span>$0</span>
+<span>$10,000+</span>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-xl w-full py-3 border-2 border-primary text-primary font-bold rounded-lg btn-press hover:bg-primary-fixed-dim/10 transition-colors font-label-md text-label-md">
+                Reset All Filters
+            </button>
+<footer class="mt-xl pt-lg border-t border-outline-variant space-y-sm">
+<a class="flex items-center gap-2 p-2 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-2 p-2 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="font-label-md text-label-md">Market Rules</span>
+</a>
+</footer>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 p-lg tray-surface min-h-[calc(100vh-80px)]">
+<div class="max-w-[1400px] mx-auto">
+<header class="flex justify-between items-end mb-xl">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Search Results</h1>
+<p class="text-on-surface-variant font-body-md text-body-md">Showing 248 Rare Holos from vintage sets</p>
+</div>
+<div class="flex gap-md">
+<select class="bg-surface border-outline-variant rounded-lg font-label-md text-label-md py-2 px-4 focus:ring-primary cursor-pointer">
+<option>Newest Listings</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+<option>Rarity</option>
+</select>
+</div>
+</header>
+<!-- Search Results Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg">
+<!-- Card Item 1 -->
+<div class="group bg-surface-container-lowest rounded-xl p-base shadow-md border border-outline-variant hover:shadow-xl transition-all flex flex-col card-inner-shadow">
+<div class="holo-effect rounded-lg aspect-[3/4] overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A macro studio shot of a rare holographic Lugia Neo Genesis Pokemon card, showing intricate detail and vibrant rainbow light reflections on the silver card surface. The lighting is high-end studio-quality, emphasizing the pristine PSA 10 condition and the crisp edges of the cardstock. The atmosphere is prestigious and collectible, with a vibrant red and yellow high-energy marketplace vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEX08ul9Zvk3Y4UYuRTDRx--14pL4Tk53IsYhwbmxuxpEgCoE2M4-grlUw64Xbh2HYsm6i40DGSJJYs3_KD_krvbqJiRfYn4mJPu_duqJxvz6Ip6DrXJn5QVeL4vEUPSBJMDE-5GFF69oiwId0_HMgGBy1WNDi6hexjF47jWFpoU1KqfgMhrQHzhdsuar4wdXhKZJZ35PTFePZ8LCGI6xb4WqwPEZ7HAqaV0wEPu_AGI20d5Oar487EJnNnPOs3_otY5TL_7gTNEs">
+<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-md text-[12px] shadow-sm uppercase">PSA 10</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<h3 class="font-headline-lg text-body-md font-bold text-on-surface truncate">Lugia Holo #9</h3>
+<div class="flex items-center gap-2 mt-xs">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">NEO GENESIS</span>
+<span class="text-on-surface-variant text-[12px]">Seller: PokeKing_99</span>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-[12px]">Price</span>
+<span class="font-display-lg text-[24px] text-primary tracking-tight font-black">$450.00</span>
+</div>
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md btn-press shadow-[0_3px_0_#930100] hover:brightness-110 active:shadow-none">
+                                    Buy Now
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card Item 2 -->
+<div class="group bg-surface-container-lowest rounded-xl p-base shadow-md border border-outline-variant hover:shadow-xl transition-all flex flex-col card-inner-shadow">
+<div class="holo-effect rounded-lg aspect-[3/4] overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close up photograph of a vintage Charizard Base Set card featuring a fiery holographic background. The card is perfectly preserved with visible texture on the red cardstock and a high-gloss finish. The visual style is nostalgic and vibrant, using the primary red of the Pokemon brand. Bright studio lighting creates soft highlights across the card's surface, making it look tactile and valuable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdrH-DnjtNIp2F8LUgvq6AQqvGQddeJai77mL9qJbjY44LTLOKKaSn7y1Be789ZK_5rGAmrXTX7iFaetjuNcemQ5nM21aOyiS02h9lWdwyShoB_cD2Pe_QBgR4zCBul7xWoZxsLBpUBto2nM17W2EYHqJmYr6HF0JgXrWWS0MA61Ff882R0X0XL4yZxZl-AEb6f1v6i8ydvkHEKApGAXmU9izB4nZZhEFKcfXb4lH2PPRJV-293bqetYQfCL2xoTG1fruzeiKCi8c">
+<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-md text-[12px] shadow-sm uppercase">NM+</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<h3 class="font-headline-lg text-body-md font-bold text-on-surface truncate">Charizard Base Set #4</h3>
+<div class="flex items-center gap-2 mt-xs">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">BASE SET</span>
+<span class="text-on-surface-variant text-[12px]">Seller: VintageVault</span>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-[12px]">Price</span>
+<span class="font-display-lg text-[24px] text-primary tracking-tight font-black">$850.00</span>
+</div>
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md btn-press shadow-[0_3px_0_#930100] hover:brightness-110 active:shadow-none">
+                                    Buy Now
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card Item 3 -->
+<div class="group bg-surface-container-lowest rounded-xl p-base shadow-md border border-outline-variant hover:shadow-xl transition-all flex flex-col card-inner-shadow">
+<div class="holo-effect rounded-lg aspect-[3/4] overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional capture of a Shining Mewtwo from the Neo Destiny expansion set, featuring a distinct iridescent purple glow on the artwork. The card is presented on a textured dark leather background, highlighting its premium collectibility. The lighting is focused and dramatic, capturing the subtle textures of the vintage cardstock and the unique holographic pattern typical of the early 2000s TCG era." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG4wDRA556-QmAdJIHdG8ZpGbguy-rxP3WKWkFpJac5Si5YCReENxO7MSzszxp_Z_knIDfNLumXnXwijeC5bBy2JE__exHwOA4XZkC9EYa_-_7KBjLjjpf6UgLDw_2ashBZor3TWkTr9o_Qh_kNLAZOXck5eQBpo3I1bNgIpM1SUQMv-N8BVpnJtgaBGxJRqGg0Kw3LgytN3nZtcl0MXUxavtbFR05pP58cljE9MegFAkPhL0dRYnMV3plUpods5EMJbZk-orr84g">
+<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-md text-[12px] shadow-sm uppercase">BGS 9.5</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<h3 class="font-headline-lg text-body-md font-bold text-on-surface truncate">Shining Mewtwo</h3>
+<div class="flex items-center gap-2 mt-xs">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">NEO DESTINY</span>
+<span class="text-on-surface-variant text-[12px]">Seller: EliteTrainer</span>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-[12px]">Price</span>
+<span class="font-display-lg text-[24px] text-primary tracking-tight font-black">$1,200.00</span>
+</div>
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md btn-press shadow-[0_3px_0_#930100] hover:brightness-110 active:shadow-none">
+                                    Buy Now
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card Item 4 -->
+<div class="group bg-surface-container-lowest rounded-xl p-base shadow-md border border-outline-variant hover:shadow-xl transition-all flex flex-col card-inner-shadow">
+<div class="holo-effect rounded-lg aspect-[3/4] overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A detailed photograph of a Rayquaza VMAX Alternative Art card from a modern set, showing incredible depth and intricate linework. The card is shimmering with a high-fidelity gloss overlay. The setting is bright and clean with vibrant primary colors in the background. The image captures the modern high-grade card design with complex holographic patterns reflecting light from multiple directions." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwZI0SmtMWDT5Umu-jNPWaMG5ytuoqIpPY8A7mu98tKRzhMmqtu3Sj0h1cT8HEomGV5wko7z9HZMyTTKSgPy76aRpKKMKFSkKckW5PDQ8t0fS4HFerM6FBbyeQ_OFqPYFbLyrPT9FxaOf7nyKt6ERr6rtYRs_IN5620bAAbe2WmzYqPOzQ7bcUOuasdtnjMwaBmMStkRnjtIfd6CSHYlQGELW9X9KPqef7fqB0eg-ScK9vXXwh9r1xmxRxg08795Ud7-INqGiYOSQ">
+<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-md text-[12px] shadow-sm uppercase">PSA 9</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<h3 class="font-headline-lg text-body-md font-bold text-on-surface truncate">Rayquaza VMAX Alt Art</h3>
+<div class="flex items-center gap-2 mt-xs">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">EVOLVING CRIES</span>
+<span class="text-on-surface-variant text-[12px]">Seller: ModernMaster</span>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-[12px]">Price</span>
+<span class="font-display-lg text-[24px] text-primary tracking-tight font-black">$320.00</span>
+</div>
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md btn-press shadow-[0_3px_0_#930100] hover:brightness-110 active:shadow-none">
+                                    Buy Now
+                                </button>
+</div>
+</div>
+</div>
+<!-- Additional repeated items to fill grid -->
+<!-- Item 5 -->
+<div class="group bg-surface-container-lowest rounded-xl p-base shadow-md border border-outline-variant hover:shadow-xl transition-all flex flex-col card-inner-shadow">
+<div class="holo-effect rounded-lg aspect-[3/4] overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Full frame close up of a Golden Pikachu card with a high-gloss finish that creates a deep mirror-like golden reflection. The surface is pristine and clean, emphasizing its rarity. The visual style is luxurious yet playful, using a palette of bright yellow and metallic gold. The lighting is soft and even, highlighting the embossed details of the card's artwork." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdqVCgdu4_yQzwY3kbiIl6_sECpyYiangAfynd___vutMUnWqR_MkYV3AfEwISKUH-gY3Il-aRL2VsojjMQGigqlSWDpknUeTnsdUL6APm3aWzJp3fN1jXC7BMlIYNcgwGCLbw3Ur5NcB7FXH7KUmF5Jjm8IBYLyAu4IGBDN-aeobzRHqsEK4xSSFu6lVKZs7I4lJORCgyWA7XcYKQY297IxWLEyasiUJiO-77G-kZ6HMWUmkCymJZpY_npl_Vg4jrpMy_9MqLVdA">
+<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-md text-[12px] shadow-sm uppercase">LP</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<h3 class="font-headline-lg text-body-md font-bold text-on-surface truncate">Golden Pikachu Promo</h3>
+<div class="flex items-center gap-2 mt-xs">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">25TH ANNIV</span>
+<span class="text-on-surface-variant text-[12px]">Seller: PikachuLover</span>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-[12px]">Price</span>
+<span class="font-display-lg text-[24px] text-primary tracking-tight font-black">$125.00</span>
+</div>
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md btn-press shadow-[0_3px_0_#930100] hover:brightness-110 active:shadow-none">
+                                    Buy Now
+                                </button>
+</div>
+</div>
+</div>
+<!-- Item 6 -->
+<div class="group bg-surface-container-lowest rounded-xl p-base shadow-md border border-outline-variant hover:shadow-xl transition-all flex flex-col card-inner-shadow">
+<div class="holo-effect rounded-lg aspect-[3/4] overflow-hidden bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Detailed macro view of a vintage Jungle expansion Scyther card, showing the distinct set symbol and holographic foliage background. The card is positioned at a slight angle to catch the light, revealing subtle wear on the edges that indicates its authentic vintage history. The background is a vibrant, textured surface that evokes the adventurous spirit of a professional tournament organizer's kit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11fgwnSoRqqtxFXEoxEgp9SEq00tbiO8MWPP_e8e8PMSiIYTVHYodinDcY42F7lNsECk7HGWtkxeeVGygaWeGfMDfyVSKwtTYkXODvYxvPoCBtUL37TZnj34qYZce2soO-KW-1_8z7UqjqQHWAaFJO1NZrXx_pSN76nu1yNqW1UTNUNF77Bqzl0Vi_BLeu9VRXUWJm085a1f6nvAb4k59eJw2Ejfi77zwA_KFWohG7-nTC-RFBmBSlk91pHedxueZDqGxjdjspss">
+<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-md text-[12px] shadow-sm uppercase">MP</div>
+</div>
+<div class="p-md flex flex-col flex-1">
+<h3 class="font-headline-lg text-body-md font-bold text-on-surface truncate">Scyther Holo #10</h3>
+<div class="flex items-center gap-2 mt-xs">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">JUNGLE</span>
+<span class="text-on-surface-variant text-[12px]">Seller: RetroGamer</span>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-on-surface-variant text-[12px]">Price</span>
+<span class="font-display-lg text-[24px] text-primary tracking-tight font-black">$45.00</span>
+</div>
+<button class="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md text-label-md btn-press shadow-[0_3px_0_#930100] hover:brightness-110 active:shadow-none">
+                                    Buy Now
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination/Load More -->
+<div class="mt-xl flex justify-center pb-xl">
+<button class="flex items-center gap-2 bg-surface border-2 border-outline-variant text-on-surface-variant px-xl py-3 rounded-xl font-bold hover:bg-surface-container transition-all group btn-press shadow-sm">
+                        Load More Cards
+                        <span class="material-symbols-outlined group-hover:translate-y-1 transition-transform">keyboard_arrow_down</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+<!-- Background Atmospheric Effect -->
+<div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden opacity-10">
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary-container blur-[120px] rounded-full"></div>
+<div class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-secondary-container blur-[120px] rounded-full"></div>
+</div>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.02]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.02]');
+        });
+    </script>
+</body></html>

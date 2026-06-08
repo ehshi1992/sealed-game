@@ -1,0 +1,372 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Bricolage+Grotesque:wght@700;800&amp;family=Space+Grotesk:wght@600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#956d67",
+                        "on-secondary-container": "#706000",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-variant": "#e2e2e2",
+                        "inverse-primary": "#ffb4a8",
+                        "surface-container": "#eeeeee",
+                        "outline-variant": "#ebbbb4",
+                        "tertiary": "#3c4dcb",
+                        "on-tertiary-container": "#fffbff",
+                        "primary": "#bc0100",
+                        "on-tertiary-fixed-variant": "#2335b5",
+                        "background": "#f9f9f9",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-fixed": "#211b00",
+                        "tertiary-fixed-dim": "#bcc2ff",
+                        "primary-container": "#eb0000",
+                        "secondary-fixed-dim": "#e3c600",
+                        "surface-container-high": "#e8e8e8",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fddc00",
+                        "surface-bright": "#f9f9f9",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffe24a",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#c00100",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-surface-variant": "#603e39",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#dfe0ff",
+                        "surface-dim": "#dadada",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-secondary-fixed-variant": "#524600",
+                        "surface": "#f9f9f9",
+                        "on-primary-fixed": "#410000",
+                        "on-tertiary-fixed": "#000b62",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#ffdad4",
+                        "inverse-on-surface": "#f1f1f1",
+                        "tertiary-container": "#5768e6",
+                        "secondary": "#6d5e00",
+                        "on-primary-fixed-variant": "#930100",
+                        "on-background": "#1a1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xl": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "margin-desktop": "64px",
+                        "lg": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Bricolage Grotesque"],
+                        "display-lg": ["Bricolage Grotesque"],
+                        "headline-lg": ["Bricolage Grotesque"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .binder-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4), 0 20px 60px -10px rgba(0, 0, 0, 0.3);
+        }
+        .page-pocket {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            box-shadow: inset 0 0 2px rgba(255,255,255,0.1), inset 0 0 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-pocket::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.08) 55%, transparent 60%);
+            pointer-events: none;
+        }
+        .card-inner-stroke {
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2), 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .leather-texture {
+            background-image: url("https://www.transparenttextures.com/patterns/leather.png");
+            background-color: #1a1c1c;
+        }
+        .ring-binder-spine {
+            background: linear-gradient(to right, #2f3131, #1a1c1c 20%, #3a3c3c 50%, #1a1c1c 80%, #2f3131);
+        }
+        .holo-effect {
+            position: relative;
+        }
+        .holo-effect::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(125deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 55%, rgba(255,255,255,0) 100%);
+            mix-blend-mode: overlay;
+            opacity: 0.6;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .page-turn-active {
+            transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-origin: left center;
+        }
+        .page-turn-flip {
+            transform: rotateY(-180deg);
+        }
+        .button-3d {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 3px 0 #8a0100;
+        }
+        .button-3d:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 #8a0100;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- Top AppBar -->
+<header class="flex justify-between items-center h-20 px-margin-desktop w-[calc(100%-16rem)] ml-64 sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-md">
+<span class="font-headline-lg text-headline-lg text-primary tracking-tight">TCG Archival Pro</span>
+</div>
+<div class="flex items-center gap-xl">
+<nav class="flex gap-lg">
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md" href="#">Marketplace</a>
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md" href="#">Events</a>
+<a class="text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md" href="#">Forum</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all">account_balance_wallet</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden shadow-sm">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a male card collector wearing a high-tech enthusiast jersey. The lighting is soft and directional, highlighting a friendly and focused expression. The background is a blurred high-end gaming room with shelves of neatly organized collectible card boxes and binders, maintaining a clean and modern professional aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9vWG2GbB46Y2rTEDPVlNWzjsZ0SKGEXsG3HdLof9MMCvRvikehr5b_81M-Unwev8Ac7LklN5xreDnFx32J8Ac3Qz_2gvpHCKDE2EOGiHZJW02rTbsYHOgLJspePak9aonDLDFlBJPdpA5Di1R_dXBOJHIpcKSeGHLoeshuN_Y1uPfr7P6dqqdUf__dbpoayPqfINUeCDRHuRx0ihndED5vJOgK-zLNeK0Fp7prFuXUOPFyADU8WCiaJgTk3wUiCFvlwAZkKT7W8U">
+</div>
+</div>
+</div>
+</header>
+<!-- Side Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container shadow-[inset_-4px_0_12px_rgba(0,0,0,0.1)] flex flex-col py-lg px-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary tracking-tight">TCG Archive</h1>
+<p class="text-on-surface-variant text-label-md font-label-md opacity-70">Master Rank</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">shopping_bag</span>
+                Booster Store
+            </a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">style</span>
+                My Collection
+            </a>
+<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-bright transition-transform duration-150 translate-x-1 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+                Master Binder
+            </a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">swap_horiz</span>
+                Trade Table
+            </a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<button class="mt-xl w-full bg-primary text-on-primary py-md rounded-lg font-label-md text-label-md button-3d transition-transform active:scale-95">
+            Open Pack
+        </button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 p-margin-desktop min-h-[calc(100vh-5rem)] bg-surface-container-low relative overflow-hidden">
+<!-- Environmental Background Props -->
+<div class="absolute -top-20 -right-20 w-96 h-96 opacity-10 pointer-events-none">
+<img alt="Playmat Texture" class="rotate-12" data-alt="A high-resolution close-up of a premium rubberized gaming playmat featuring abstract cosmic nebula patterns in deep indigo and violet. The texture shows the fine synthetic weave and a stitched edge. The lighting is low-key, emphasizing the tactile quality of the professional tournament-grade surface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwAK1fLH5sfyCk4ELurRmjsMHl-CskW64CQcHexo2vbwMHNUR6OKGmRXGLZFyE5XuAtSGpDyuZi7Gcm78l25V__olvl140Ef0Gq7h5liCGPwJu6v5wAT-kDqOmDTh0cJP6ZtKLJC33-4Yz0UJMIQKu_2ezNB4gFuovlqizspZ5SYPDndZc6uTkcwUrcMNJz9pVgPAXyIlZuQYkf0r-LEBanZeS22Fiqx-VnkjtikWseJHLWsU-BiAdQUSyXAGxeNDoYwHXwWhTkvI">
+</div>
+<div class="absolute bottom-10 left-10 w-48 h-48 opacity-20 rotate-[-15deg] pointer-events-none">
+<img alt="Card Sleeves" data-alt="A stack of high-quality matte black collectible card sleeves scattered on a dark wooden surface. Each sleeve has a subtle textured finish and reflects soft, ambient studio light. The composition is artistic and disorganized, suggesting a hobbyist's active workspace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPygwu2S8BLzLxOkYMrA5ci_RDmF9qiKFvVxkONWlqhcaHWD9rVc_pyiMGlQUej3LdppK9D_PcawOCDuQZOhneVFiEVYJyVTZSmc23uejNIBmKPEFry3RmrFYVIicOOdMCj5KxkLPOM8pLyqFogJUYG_1RhtFmCwzvg-QILoc7MGb8EH0OTI_M81vnL7FKsYPe2pbIL1MES0nCIgcqmUT9kNykxJoGNrisYsHJJaTWfoXrvNGup-995quOeEY0w8mVSC7oNk0Twrc">
+</div>
+<div class="max-w-7xl mx-auto flex flex-col gap-lg items-center relative z-10">
+<!-- Binder Controls -->
+<div class="w-full flex justify-between items-center px-xl py-md bg-surface-container shadow-sm rounded-xl border border-outline-variant">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-bright border border-outline-variant text-on-surface hover:bg-primary hover:text-white transition-all shadow-sm">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<span class="font-label-md text-label-md text-on-surface">Set: Neo Genesis Archival (Page 4-5 / 120)</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-bright border border-outline-variant text-on-surface hover:bg-primary hover:text-white transition-all shadow-sm">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-bright border border-outline-variant rounded-full text-label-md font-label-md text-on-surface hover:shadow-md transition-shadow">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filter
+                    </button>
+<button class="flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-full text-label-md font-label-md button-3d transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Insert Card
+                    </button>
+</div>
+</div>
+<!-- The Binder -->
+<div class="relative flex perspective-[2000px] gap-0">
+<!-- Left Page -->
+<div class="w-[500px] h-[700px] leather-texture p-lg rounded-l-3xl binder-shadow border-r border-black relative">
+<div class="w-full h-full bg-surface-container-highest rounded-xl p-md grid grid-cols-3 grid-rows-3 gap-sm shadow-inner overflow-hidden border border-black/20">
+<!-- 9 Pockets Left -->
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs relative">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke holo-effect" data-alt="A stunning holographic trading card featuring a majestic red dragon breathing fire. The card artwork is detailed and vibrant, with a metallic sheen and swirling prismatic light patterns. The card frame is gold with intricate gothic engravings, and the edges are sharp and perfectly preserved." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3qqOFhYu4-Hm072KMXZexuBYkw1rJt8cd9uxkLBDwUmRR3Xh4Ei3u2gR6YWFNzTPF3GSG8IMa0UbqOZ7VXcsOpcWwEEXUADcz_EkIiWcxu5mxJ2NmNkvuXeal5YyI81Px4X8BOCJSyj56mfEwacbRLK5HK-Ij34dMHV1i8OlVQdn6BNSi8lYm9zx0n9du7pTjCJ1N11wy518h8d3KoWPARXVU5VwUIkFH8gY2JsgBkzp3ACoU4Hj0hIxnd4v1nbJGDyHmwzmiTwE">
+</div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke" data-alt="A legendary rarity trading card showing an ethereal white wolf in a moonlit forest. The art is soft and painterly, with silver foil accents on the borders. The card is encased in a clear protective sleeve within the binder pocket, catching the light with a glossy reflection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtw4b0p-Jekt6-eiICbS0cvmGEZEAwXoL8kTOJEBybW7L9sanze3T5r_O2GMxLTWkhCyMHPYkW8Z26kzIRCRuTWwDXegbXTQC7ezhXM3l8VzJfDSFL9p8lixYtdGpsulvMCJarcISR_nuX8lfsbwuH_k8wgxm2FSGDsIQ-qi8E_Y4RxAr9BguvZaW8SeNC-rUV9kUn5mK7pd8KoM0eIEbjocMbM8-HtCaQqtvvSggVsruLX7dAgB7TIr1fS-GGMlOQG7qmoNK2kCI">
+</div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke" data-alt="A tactical trading card depicting a complex clockwork mechanism in a steampunk city. The illustration uses deep bronze and teal tones with metallic highlights. The card feels heavy and physical, with a slightly textured surface visible through the binder's plastic pocket." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSJT0uWqdkfRbXD8dWBPypwaNn6YazMxYYc8mdjfgo4-iXs6XPe6bjQxLrgT3PaxmIiEY-q7yDfO_6il1KVNr3gyLXtTaNgmo6CuRXxk5SboQ1J-J0EPc6kcjfXlGnylcQvAvCSt3ymxQZbQDCPi2GoTe8bLPlPIH3fPUajwZC246EeT4bDazQFqxJbCQCGGr42KlFTQXtxF6plB01FrGMiEDROVF5rts51ehXi6Z_NYXu7q5e2qPK0kLvFZHx3vG-whUsPdO6to0">
+</div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke holo-effect" data-alt="An ultra-rare holographic card showing a crystalline Phoenix rising from blue flames. The colors are incredibly vibrant, with iridescent shifts from sapphire to cyan. The holographic finish creates a depth effect as if the character is popping out of the card." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzcNfngL7u-16x-u5Y0btmjsyTO7eNi86nkzIeuk188FmzJUfggG4evowNIVjG8vTItlP71CxcKu0qOv37QF5krK81LlXhd_RXxwv734SasT3q4VZrTg_WkFGra7qya_IZsaK15VOKQOlME7I2K8HVZp1DS6jp6VlPFhIcMsk1EXr6EyBnysT_5j2e_C9r7W_ITyjcacxNI2thp05N3pCE1G8hGyErWfmMXMOQ0c2RIlkD_7fcPD_ROzt3c0HcDmGHNz21pI_GPp8">
+</div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+</div>
+<!-- Spine shadow -->
+<div class="absolute right-0 top-0 bottom-0 w-8 ring-binder-spine opacity-40 shadow-[4px_0_10px_rgba(0,0,0,0.5)]"></div>
+</div>
+<!-- Spine / Rings Area -->
+<div class="w-16 h-[720px] -my-2.5 z-20 flex flex-col justify-around py-xl ring-binder-spine shadow-2xl relative overflow-hidden">
+<div class="w-full h-4 bg-gradient-to-b from-[#666] to-[#333] border-y border-black/40"></div>
+<div class="w-full h-4 bg-gradient-to-b from-[#666] to-[#333] border-y border-black/40"></div>
+<div class="w-full h-4 bg-gradient-to-b from-[#666] to-[#333] border-y border-black/40"></div>
+<div class="w-full h-4 bg-gradient-to-b from-[#666] to-[#333] border-y border-black/40"></div>
+<div class="w-full h-4 bg-gradient-to-b from-[#666] to-[#333] border-y border-black/40"></div>
+</div>
+<!-- Right Page -->
+<div class="w-[500px] h-[700px] leather-texture p-lg rounded-r-3xl binder-shadow border-l border-black relative">
+<!-- Spine shadow -->
+<div class="absolute left-0 top-0 bottom-0 w-8 ring-binder-spine opacity-40 shadow-[-4px_0_10px_rgba(0,0,0,0.5)]"></div>
+<div class="w-full h-full bg-surface-container-highest rounded-xl p-md grid grid-cols-3 grid-rows-3 gap-sm shadow-inner overflow-hidden border border-black/20">
+<!-- 9 Pockets Right -->
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke" data-alt="A common trading card featuring a cute earth elemental spirit made of mossy stones and vines. The background is a sunny glade with bright green foliage. The card design is clean, with easy-to-read typography and a simple border." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyXQ198EuwuAiWUb_2bODzAaAm7q3VPge4ojclmQNXHJLvaygIGSwBGqoBovnHKRnbe39xJHwpeC7F86QWtVqfPyY5bcN1R0cPOABMkkyyAlLn92k-UaW_TCgxnBJswpoJL6PNm20G59F0qv99LptnVKSWq8yzyY6wpEujA_p2a-Mpws4CeD6TbFkU1Je4tTfxkSucW8ch_iIy2B3mn6loyl32vM7rtaOkdJ6Jai4awFzcmnFqC92UjpN-Y8S3cGkk-8c2ML9EwrI">
+</div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke holo-effect" data-alt="A secret rare trading card with a full-art illustration of a galactic nebula containing a hidden deity. The entire card face has a shimmering rainbow foil effect that glistens in the light. The illustration is expansive and detailed, breaking through the traditional card frame." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDatU1J-aAr1EW2bTgqcY1PFFZXcKgiG8sRqAZIJvTFSMVo5xk1vRura4kKZ8QeAbKoBq_XeFMA5AKoRANermv3vkQevfDWTywD413oNl7ovWUr7ShVn9yw5OkqI7KaXUAyOgDpU0pn3AKJ8Yk-1XKhLdzP50v9FxryyyGwelEOEb6LFLajykL02ucZGKyvJcP2k7DzX5CT9zyHwveT4YlNvP4ePvU_TVEtLUGLbAmijMqnZ0HyFvN_CiESpVJ2r2tT3ChNrnCf0GY">
+</div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs"></div>
+<div class="page-pocket rounded-sm flex items-center justify-center p-xs">
+<img class="w-full h-full object-cover rounded-sm card-inner-stroke" data-alt="An ancient relic trading card depicting a weathered stone tablet with glowing runes. The art style is gritty and textured, mimicking the look of aged stone. The card borders are dark charcoal with embossed silver metallic ink." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxP5W-oncUfIPcCMk2agLvCelJZsWNKGdqTUrKfnU5fmgZv_PsYaBQiv9wdkzuR4Wy_WAb508K26hbKcZHWnSz5CUXXIxfksUCkxI7Bknf7AvxE8lTBugBL3gLNKzQN9T8AHfdhluXb17P257F54EhDT3dwD-wceIHW70qhH97Xiampm3dBtSNV9hvRp7Kjv--KHcHWqkSNvJ7Hna3x5WkHJVcnHef5ZmhrJMwItYYKd2gyt8jDX_HpINqRMB-meTxMrUH192bqyc">
+</div>
+</div>
+</div>
+</div>
+<!-- Descriptive Info & Stats -->
+<div class="grid grid-cols-4 gap-lg w-full mt-lg">
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-xs">
+<span class="text-on-surface-variant font-label-md text-label-md opacity-60">Collection Progress</span>
+<div class="flex items-end justify-between">
+<span class="text-headline-lg font-headline-lg text-primary">64%</span>
+<span class="text-on-surface font-label-md text-label-md">154/240</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden mt-sm">
+<div class="h-full bg-primary w-[64%]"></div>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-xs">
+<span class="text-on-surface-variant font-label-md text-label-md opacity-60">Binder Value</span>
+<span class="text-headline-lg font-headline-lg text-secondary">$1,240.50</span>
+<span class="text-on-surface font-label-md text-label-md text-green-600 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+                        +4.2% this week
+                    </span>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-xs">
+<span class="text-on-surface-variant font-label-md text-label-md opacity-60">Master Rank</span>
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container font-black">M</div>
+<div class="flex flex-col">
+<span class="text-on-surface font-label-md text-label-md font-bold">Collector LV. 42</span>
+<span class="text-on-surface-variant text-[12px]">Top 5% Global</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl border border-outline-variant shadow-sm flex flex-col justify-center items-center gap-sm">
+<button class="w-full h-full flex items-center justify-center gap-md text-primary font-bold hover:bg-surface-container-highest transition-colors rounded-lg border-2 border-dashed border-outline-variant">
+<span class="material-symbols-outlined">share</span>
+                        Export Binder PDF
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction: Card Hover Glow
+        document.querySelectorAll('.page-pocket img').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const xPercent = (x / rect.width) * 100;
+                const yPercent = (y / rect.height) * 100;
+                
+                card.style.transform = `scale(1.1) perspective(500px) rotateX(${(yPercent - 50) / 5}deg) rotateY(${-(xPercent - 50) / 5}deg)`;
+                card.style.zIndex = "50";
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `scale(1) rotateX(0) rotateY(0)`;
+                card.style.zIndex = "1";
+            });
+        });
+
+        // Simulating the "Flipping" Navigation logic
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.innerText.includes('chevron')) {
+                btn.onclick = () => {
+                    const binder = document.querySelector('.perspective-\\[2000px\\]');
+                    binder.style.opacity = '0.5';
+                    binder.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        binder.style.opacity = '1';
+                        binder.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            }
+        });
+    </script>
+</body></html>

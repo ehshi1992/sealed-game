@@ -1,0 +1,351 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#211b00",
+                    "on-primary-fixed-variant": "#930100",
+                    "surface": "#f9f9f9",
+                    "on-secondary-fixed-variant": "#524600",
+                    "surface-container-high": "#e8e8e8",
+                    "primary": "#bc0100",
+                    "tertiary": "#3c4dcb",
+                    "on-primary-fixed": "#410000",
+                    "inverse-surface": "#2f3131",
+                    "surface-dim": "#dadada",
+                    "surface-bright": "#f9f9f9",
+                    "surface-container-highest": "#e2e2e2",
+                    "tertiary-fixed": "#dfe0ff",
+                    "on-background": "#1a1c1c",
+                    "secondary": "#6d5e00",
+                    "background": "#f9f9f9",
+                    "secondary-container": "#fddc00",
+                    "on-tertiary-fixed-variant": "#2335b5",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#ffe24a",
+                    "on-tertiary-fixed": "#000b62",
+                    "primary-fixed": "#ffdad4",
+                    "on-error": "#ffffff",
+                    "primary-container": "#eb0000",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "surface-tint": "#c00100",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e2e2e2",
+                    "inverse-primary": "#ffb4a8",
+                    "tertiary-fixed-dim": "#bcc2ff",
+                    "surface-container": "#eeeeee",
+                    "tertiary-container": "#5768e6",
+                    "on-surface": "#1a1c1c",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#603e39",
+                    "on-primary-container": "#fffbff",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#ebbbb4",
+                    "secondary-fixed-dim": "#e3c600",
+                    "on-tertiary-container": "#fffbff",
+                    "surface-container-low": "#f3f3f3",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#f1f1f1",
+                    "outline": "#956d67",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#706000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "md": "16px",
+                    "base": "4px",
+                    "xl": "40px",
+                    "gutter": "16px",
+                    "margin-desktop": "64px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-md": ["Space Grotesk"],
+                    "display-lg": ["Bricolage Grotesque"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Bricolage Grotesque"],
+                    "headline-lg": ["Bricolage Grotesque"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-glint {
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+        }
+        .binder-slot {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .holo-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .holo-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 20%,
+                rgba(255, 255, 255, 0.3) 25%,
+                transparent 30%,
+                rgba(255, 255, 255, 0.3) 35%,
+                transparent 40%
+            );
+            transform: rotate(25deg);
+            animation: holo-shimmer 4s infinite linear;
+            pointer-events: none;
+        }
+        @keyframes holo-shimmer {
+            0% { transform: translateX(-100%) rotate(25deg); }
+            100% { transform: translateX(100%) rotate(25deg); }
+        }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md antialiased">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-16 bg-surface-container-low dark:bg-surface-container-high shadow-sm">
+<div class="flex items-center gap-2">
+<button class="material-symbols-outlined text-primary hover:bg-surface-variant/50 transition-colors p-2 rounded-full active:scale-95 transition-transform duration-100">
+                search
+            </button>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-extrabold text-primary dark:text-primary-fixed-dim">
+            TCG Marketplace
+        </h1>
+<button class="material-symbols-outlined text-primary hover:bg-surface-variant/50 transition-colors p-2 rounded-full active:scale-95 transition-transform duration-100" id="openFilter">
+            tune
+        </button>
+</header>
+<!-- Drawer Overlay -->
+<div class="fixed inset-0 bg-black/40 z-[55] opacity-0 pointer-events-none transition-opacity duration-300" id="drawerOverlay"></div>
+<!-- Navigation Drawer (Filters) -->
+<aside class="fixed inset-y-0 left-0 z-[60] flex flex-col h-full w-80 rounded-r-xl bg-surface dark:bg-surface-dim border-r border-outline-variant shadow-xl -translate-x-full transition-transform duration-300" id="filterDrawer">
+<div class="p-6">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-lg text-headline-lg text-primary">Filters</h2>
+<button class="material-symbols-outlined text-on-surface-variant" id="closeDrawer">close</button>
+</div>
+<nav class="flex flex-col gap-1">
+<div class="bg-secondary-container text-on-secondary-container rounded-full mx-2 px-4 py-3 flex items-center gap-3 font-label-md text-label-md">
+<span class="material-symbols-outlined">style</span>
+<span>Set Type</span>
+</div>
+<div class="text-on-surface-variant flex items-center gap-3 mx-2 px-4 py-3 hover:bg-surface-container-highest transition-colors rounded-full font-label-md text-label-md active:opacity-80">
+<span class="material-symbols-outlined">grade</span>
+<span>Rarity</span>
+</div>
+<div class="text-on-surface-variant flex items-center gap-3 mx-2 px-4 py-3 hover:bg-surface-container-highest transition-colors rounded-full font-label-md text-label-md active:opacity-80">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span>Element</span>
+</div>
+<div class="text-on-surface-variant flex items-center gap-3 mx-2 px-4 py-3 hover:bg-surface-container-highest transition-colors rounded-full font-label-md text-label-md active:opacity-80">
+<span class="material-symbols-outlined">payments</span>
+<span>Price Range</span>
+</div>
+<div class="text-on-surface-variant flex items-center gap-3 mx-2 px-4 py-3 hover:bg-surface-container-highest transition-colors rounded-full font-label-md text-label-md active:opacity-80">
+<span class="material-symbols-outlined">verified</span>
+<span>Condition</span>
+</div>
+</nav>
+</div>
+<div class="mt-auto p-6">
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl font-label-md text-label-md shadow-lg active:scale-95 transition-transform card-glint">
+                Apply Filters
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="pt-20 pb-24 px-4 max-w-md mx-auto">
+<!-- Sort & Header -->
+<div class="flex justify-between items-center mb-4">
+<span class="font-label-md text-label-md text-on-surface-variant">2,481 Results</span>
+<div class="relative group">
+<button class="flex items-center gap-1 bg-surface-container px-3 py-2 rounded-lg font-label-md text-label-md text-on-surface border border-outline-variant active:scale-95 transition-transform">
+                    Sort: Newest
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<!-- Simplified Dropdown -->
+<div class="hidden group-focus-within:block absolute right-0 mt-1 w-40 bg-surface rounded-lg shadow-xl border border-outline-variant z-10">
+<button class="w-full text-left px-4 py-2 hover:bg-surface-container text-label-md font-label-md">Lowest Price</button>
+<button class="w-full text-left px-4 py-2 hover:bg-surface-container text-label-md font-label-md">Newest Arrivals</button>
+</div>
+</div>
+</div>
+<!-- 2-Column Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col border border-outline-variant hover:shadow-lg transition-shadow active:scale-[0.98] transition-transform">
+<div class="relative aspect-[3/4] bg-surface-container-high holo-effect">
+<img alt="Charizard Card" class="w-full h-full object-cover" data-alt="A highly detailed collectible trading card featuring a majestic, fiery dragon in a dynamic battle pose. The card has a brilliant holographic shimmer across the surface, reflecting vibrant shades of orange, red, and gold. It sits on a textured surface with soft professional studio lighting highlighting its pristine edges and the intricate artwork. The mood is nostalgic and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnew3ckIoNNU-IHdGgneJ5qqiUUJZaxIsbKiSiGd1tjNuej-x3yRUVQ40UDPRkXzK6OdXQT6pGXsgXeUb3QXCRYZRSLMav_DVg_0SUMaRi5sCO2oFNSYPyi3eKittYc8vPSpWhe7o4mFTnABrHBIWOaiSm1IP4MsTCx-MZ_Abn3KGbanIil8lVkOO5ThqGC6mUswqodEiTkspaBZaaILIvaODSjs0LUi71ISDDihFcDnhEmamcsjZMcxmdE-X-JcGkbCc2DXqZRGs">
+<div class="absolute top-2 left-2 bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-label-md uppercase tracking-wider">MINT</div>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h3 class="font-label-md text-label-md text-on-surface line-clamp-1">Charizard GX - Shiny</h3>
+<div class="flex justify-between items-baseline mt-1">
+<span class="font-headline-lg-mobile text-[18px] text-primary">$499.00</span>
+<span class="text-[10px] text-on-surface-variant font-label-md">Holo Rare</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col border border-outline-variant active:scale-[0.98] transition-transform">
+<div class="relative aspect-[3/4] bg-surface-container-high">
+<img alt="Pikachu Card" class="w-full h-full object-cover" data-alt="A collectible pocket monster trading card showcasing a famous electric yellow mouse-like character with lightning bolts in the background. The art style is bold and vibrant with saturated yellows and energetic lines. The card is displayed at a slight angle showing its 1mm thickness and high-grade cardstock quality. Soft natural light creates a gentle depth on the surface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPLlSM5cb_feBD6hjBCAiGD_UBRpjqjHJKI9YPG0wPq8py47PcCzpfnvXIiZpI1kY2yKJdQG6LPqPb0xzdRSn7HVnXRzHv_PrtrJ2nIIyHdurTOfPmfKoA3FUrUFLboAu-EdhnCd1OsFncp7_J4pwZpIyBgnr3I0sikrP5AWMnbKKeOiJxjNKsGnlrOygZ0PmP6UMPkUSC4rcvLtHo6s5azf2XqtI5a1IzZ1_NFukCH2AgupEelxHQucG47alaUOunp8Y6edNEZZQ">
+<div class="absolute top-2 left-2 bg-surface-variant text-on-surface px-2 py-1 rounded text-[10px] font-label-md uppercase tracking-wider">NM</div>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h3 class="font-label-md text-label-md text-on-surface line-clamp-1">Pikachu VMAX</h3>
+<div class="flex justify-between items-baseline mt-1">
+<span class="font-headline-lg-mobile text-[18px] text-primary">$125.50</span>
+<span class="text-[10px] text-on-surface-variant font-label-md">Ultra Rare</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col border border-outline-variant active:scale-[0.98] transition-transform">
+<div class="relative aspect-[3/4] bg-surface-container-high">
+<img alt="Psychic Card" class="w-full h-full object-cover" data-alt="A dark and mysterious collectible card featuring a psychic creature with glowing purple eyes and aura. The card background is deep violet with galaxy-like patterns. The lighting is low-key, emphasizing the luminescent elements of the character. The card appears in a protective plastic sleeve, adding a slight professional sheen to the presentation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTLMa_SPxmjkw8ZfC8T0txJB0NUg4ynSNe7RWmCc295aJ9UIn-ixdNobSAne68XAZnL9xS7wr41odzPZA76xx3aCFrFMxz2Qb7TLni4jqxBk_gz6eZVjHld4RDzdplhRCfLyZz6pP1s-nVIfinHm8SmR7Ugbo4GqmrEuvd9fwybeiVE1eey0Ak4Nu1h0VWgwUicGriO1qXmjHjPeUa67--AR-hIvUgN4tA7X27yl1SU-8HCMNjoD7xRVRHVTQbKFR7vhtu-y_gH6A">
+<div class="absolute top-2 left-2 bg-error-container text-on-error-container px-2 py-1 rounded text-[10px] font-label-md uppercase tracking-wider">LP</div>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h3 class="font-label-md text-label-md text-on-surface line-clamp-1">Mewtwo Strikes</h3>
+<div class="flex justify-between items-baseline mt-1">
+<span class="font-headline-lg-mobile text-[18px] text-primary">$85.00</span>
+<span class="text-[10px] text-on-surface-variant font-label-md">Secret Rare</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col border border-outline-variant holo-effect active:scale-[0.98] transition-transform">
+<div class="relative aspect-[3/4] bg-surface-container-high">
+<img alt="Water Card" class="w-full h-full object-cover" data-alt="A vibrant water-type collectible trading card featuring a large turtle with water cannons on its shell. The art is explosive, with crashing blue waves and white foam filling the background. The coloring is rich and saturated, with deep blues and crisp whites. High-contrast studio lighting makes the colors pop and highlights the crisp print quality of the text on the card." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBa7Ujlm82NdxUMblMpSKLVBjvkgwts_HvJM_Fq2kiEZ6h08PJgxRpdbx3p_9L05EOdpt8IpmygzQn-1PkbHR4qbDdk40nw9CH1H0nSNr3prhHRvM3g5sJMMqgVDuVWmLTeizV40PahpB3wKWytgYSN615r9LuxiB4E4Q0akpcESgKK2Zvz9yH9G_PzsJb81E8sZtAqz3Ry2xMtlIBfDfKGamuR4CgolbhN-IV9sJp6uZZ-sPIq1ccCpjFIEonZeLxT5oz9P7OkxPg">
+<div class="absolute top-2 left-2 bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-label-md uppercase tracking-wider">MINT</div>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h3 class="font-label-md text-label-md text-on-surface line-clamp-1">Blastoise Base Set</h3>
+<div class="flex justify-between items-baseline mt-1">
+<span class="font-headline-lg-mobile text-[18px] text-primary">$320.00</span>
+<span class="text-[10px] text-on-surface-variant font-label-md">Holo Rare</span>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col border border-outline-variant active:scale-[0.98] transition-transform">
+<div class="relative aspect-[3/4] bg-surface-container-high">
+<img alt="Grass Card" class="w-full h-full object-cover" data-alt="An elegant grass-type collectible card showing a leafy monster in a lush forest setting. Sunbeams filter through the canopy in the artwork, creating a serene and natural mood. The card has a high-gloss finish that catches the light beautifully. The overall aesthetic is clean, organic, and highly detailed, presented in a bright gallery-style environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDghBzNUFzP-TwDeyiUMpwwEn0koTtgNUhdiuBZZxCH7y0hxPzBjKselQhLUg3oSRN_EMDnVe-Nqe7j8cFBLfFZq-7zDUjnyhMzCN7WhEU6G5WsQdFLbma1adw2D2U8D7ZVLDpoSP3FxfFDSTwbpLcy6koIMtpTF1n0nTgbWHrBpz6ZTV5mB-_T8STTrWTkqoIv5PKz-tcwkkLG3jLIfCiIpX5q2JwP7QyA7HOgEHRK_hlnL_Lx8zbYlD4FJLCY4Vsc8_akvHHSYMQ">
+<div class="absolute top-2 left-2 bg-surface-variant text-on-surface px-2 py-1 rounded text-[10px] font-label-md uppercase tracking-wider">NM</div>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h3 class="font-label-md text-label-md text-on-surface line-clamp-1">Venusaur V</h3>
+<div class="flex justify-between items-baseline mt-1">
+<span class="font-headline-lg-mobile text-[18px] text-primary">$54.99</span>
+<span class="text-[10px] text-on-surface-variant font-label-md">Ultra Rare</span>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col border border-outline-variant active:scale-[0.98] transition-transform">
+<div class="relative aspect-[3/4] bg-surface-container-high">
+<img alt="Ancient Card" class="w-full h-full object-cover" data-alt="A rare ancient-themed trading card with hieroglyphic-like patterns and a mysterious stone-textured background. The lighting is warm and dramatic, like an explorer's torch. The card surface shows simulated weathering and age, making it look like a historical artifact. The primary colors are ochre, brown, and weathered gold, fitting a museum-like aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP0GHjxdCzzjZpemlC4sbbkWMyIwsFertn4jNr7DjRwoPvZoriF-a3KsfcQBm1lCn4AXzM5JzxHziykjAwQ9dwHf3jERWnRPs531Z5o-p_S3i0CPM23qGlYBFxF1JSJi6tiFtwtgn5ovK2ukBg3DGxDWb-ursDSrTP4qi5gpCRG1S-692xwCduzgXkbrdjni5Dx9Cn26FYdfOwSQiM8WGi9gp2eyH_li79MtzO-rVsvIKIt-exCH1r-31qiWM2E6yTNJNYGXdlQKo">
+<div class="absolute top-2 left-2 bg-surface-variant text-on-surface px-2 py-1 rounded text-[10px] font-label-md uppercase tracking-wider">NM</div>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<h3 class="font-label-md text-label-md text-on-surface line-clamp-1">Ancient Mew</h3>
+<div class="flex justify-between items-baseline mt-1">
+<span class="font-headline-lg-mobile text-[18px] text-primary">$110.00</span>
+<span class="text-[10px] text-on-surface-variant font-label-md">Promo Rare</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface-container-lowest dark:bg-surface-container shadow-[0_-4px_12px_rgba(0,0,0,0.05)] rounded-t-xl">
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-label-md text-label-md">Shop</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">style</span>
+<span class="font-label-md text-label-md">Collection</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">local_fire_department</span>
+<span class="font-label-md text-label-md">Deals</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</button>
+</nav>
+<script>
+        const openFilter = document.getElementById('openFilter');
+        const closeDrawer = document.getElementById('closeDrawer');
+        const drawer = document.getElementById('filterDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+
+        function toggleDrawer(isOpen) {
+            if (isOpen) {
+                drawer.classList.remove('-translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+            } else {
+                drawer.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+            }
+        }
+
+        openFilter.addEventListener('click', () => toggleDrawer(true));
+        closeDrawer.addEventListener('click', () => toggleDrawer(false));
+        overlay.addEventListener('click', () => toggleDrawer(false));
+
+        // Basic card interaction ripple simulation
+        document.querySelectorAll('main div.grid > div').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.classList.add('brightness-95');
+            });
+            card.addEventListener('touchend', function() {
+                this.classList.remove('brightness-95');
+            });
+        });
+    </script>
+</body></html>

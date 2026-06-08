@@ -1,0 +1,402 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TCG Archive | Booster Pack Store</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;600&amp;family=Space+Grotesque:wght@600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#956d67",
+                    "on-secondary-container": "#706000",
+                    "surface-container-low": "#f3f3f3",
+                    "surface-variant": "#e2e2e2",
+                    "inverse-primary": "#ffb4a8",
+                    "surface-container": "#eeeeee",
+                    "outline-variant": "#ebbbb4",
+                    "tertiary": "#3c4dcb",
+                    "on-tertiary-container": "#fffbff",
+                    "primary": "#bc0100",
+                    "on-tertiary-fixed-variant": "#2335b5",
+                    "background": "#f9f9f9",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#fffbff",
+                    "on-secondary-fixed": "#211b00",
+                    "tertiary-fixed-dim": "#bcc2ff",
+                    "primary-container": "#eb0000",
+                    "secondary-fixed-dim": "#e3c600",
+                    "surface-container-high": "#e8e8e8",
+                    "inverse-surface": "#2f3131",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#fddc00",
+                    "surface-bright": "#f9f9f9",
+                    "error": "#ba1a1a",
+                    "on-surface": "#1a1c1c",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#ffe24a",
+                    "on-secondary": "#ffffff",
+                    "surface-tint": "#c00100",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-surface-variant": "#603e39",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#dfe0ff",
+                    "surface-dim": "#dadada",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "on-secondary-fixed-variant": "#524600",
+                    "surface": "#f9f9f9",
+                    "on-primary-fixed": "#410000",
+                    "on-tertiary-fixed": "#000b62",
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#ffdad4",
+                    "inverse-on-surface": "#f1f1f1",
+                    "tertiary-container": "#5768e6",
+                    "secondary": "#6d5e00",
+                    "on-primary-fixed-variant": "#930100",
+                    "on-background": "#1a1c1c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "xl": "40px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-desktop": "64px",
+                    "lg": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-md": ["Space Grotesk"],
+                    "headline-lg-mobile": ["Bricolage Grotesque"],
+                    "display-lg": ["Bricolage Grotesque"],
+                    "headline-lg": ["Bricolage Grotesque"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        
+        /* Skeuomorphic Polish */
+        .foil-shimmer {
+            background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 200%;
+            animation: shimmer 4s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% -200%; }
+            100% { background-position: 200% 200%; }
+        }
+
+        .button-3d {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 3px 0 #930100;
+        }
+
+        .button-3d:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 0 #930100;
+        }
+
+        .recessed-pocket {
+            box-shadow: inset 2px 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-stack-border {
+            border: 1px solid rgba(149, 109, 103, 0.2);
+        }
+
+        .holo-overlay {
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- Sidebar Navigation Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container shadow-[inset_-4px_0_12px_rgba(0,0,0,0.1)] flex flex-col py-lg px-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary tracking-tight">TCG Archive</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70 uppercase tracking-widest mt-xs">Master Rank</p>
+</div>
+<nav class="flex-1 space-y-sm">
+<!-- Active Tab: Booster Store -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-bright transition-transform duration-150 active:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="font-label-md text-label-md">Booster Store</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="font-label-md text-label-md">My Collection</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-md text-label-md">Master Binder</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="font-label-md text-label-md">Trade Table</span>
+</a>
+<div class="pt-xl opacity-50 px-md">
+<hr class="border-outline-variant">
+</div>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors mt-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-sm pt-lg">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl button-3d flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+                Open Pack
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center h-20 px-margin-desktop sticky top-0 bg-surface-container-lowest shadow-sm z-40 border-b border-outline-variant">
+<div class="flex items-center gap-xl">
+<h2 class="font-headline-lg text-headline-lg text-primary">Booster Store</h2>
+<nav class="hidden lg:flex gap-lg">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1" href="#">Marketplace</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Events</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Forum</a>
+</nav>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative group">
+<input class="bg-surface-container border-none rounded-full px-xl py-sm font-label-md text-label-md w-64 focus:ring-2 focus:ring-tertiary transition-all recessed-pocket" placeholder="Search sets..." type="text">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:text-primary transition-transform active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:text-primary transition-transform active:scale-95">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<img alt="Collector Profile" class="w-10 h-10 rounded-full border-2 border-primary-container" data-alt="A professional headshot of a friendly young man with a slight smile, set against a soft-focus office background. The lighting is bright and modern, matching a high-fidelity digital dashboard aesthetic. The overall mood is approachable, professional, and clean." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAa7Ow3vFH5BZhh7VZ9bbckjlkcKgn_WuzF4E3_Yvt17EIY67vQecUbrVunfoLKrj-tAZ3_H4fITAvxD2lKTIaQLi8E0tJXKoQ2BpkfRcEkaG2MHQLfBJRTklaxlS8sdxDeytgjKAhWHE_qfqSMSNwb4--NbmxufgYiPj0qXeoJ5lfT0VKg3PKJ_Oceslnlma-hHt13-UEwZamBi9QcMw9MlECVelqAdAzaw5TlVLfYoEJwvh3Eh-ozxngCwav4D61PzNJEA0yGBiI">
+</div>
+</div>
+</header>
+<!-- Dashboard Body -->
+<div class="p-margin-desktop space-y-xl">
+<!-- Hero Promo Section -->
+<section class="relative h-64 rounded-3xl overflow-hidden shadow-xl bg-primary">
+<div class="absolute inset-0 foil-shimmer opacity-30"></div>
+<div class="relative h-full flex flex-col justify-center px-xl space-y-md z-10">
+<span class="bg-secondary-container text-on-secondary-container px-md py-xs rounded-full font-label-md text-label-md w-fit uppercase tracking-wider">Flash Sale</span>
+<h3 class="font-display-lg text-display-lg text-on-primary">Crimson Legends <br> Booster Box</h3>
+<p class="text-on-primary opacity-90 max-w-md">The ultimate set for master collectors. Featuring 36 packs of rare dragon-type entities and secret holographic prints.</p>
+<div class="flex gap-md pt-sm">
+<button class="bg-surface-container-lowest text-primary font-label-md text-label-md px-xl py-md rounded-xl button-3d">Buy Now</button>
+<button class="bg-primary-container text-on-primary border border-white/20 font-label-md text-label-md px-xl py-md rounded-xl">View Set List</button>
+</div>
+</div>
+<img class="absolute right-0 top-0 h-full w-1/2 object-cover opacity-80" data-alt="A collection of dynamic, high-fidelity fantasy trading cards with vibrant red and gold elemental effects. The cards are arranged in a dynamic spread with glowing magical particles, reflecting a high-energy TCG atmosphere. The lighting is cinematic with sharp highlights and deep shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA026LyeuvGK4I5Swl0dZOtMyFibstdzxs4jy0AZA7HkV8k6sooWXcTY8Sn3XuSAExpxeTWfW_5trhq8_5qsZeziGz6ub6SRC8hE4VCSm7TBOOoMe4R7pfq24_kEFB2MPWqC0oHbtdDufJhgtFvcPbhs1gMlPm07q1Oq6V3JCIcasQkG1z4FcDKvug7iB1G4w0Yg77BkqM29R7v_G7DykvYK-wEPbedqeMld2sS1lWw5nhih49j35ViRJRcxwGETfF6kaHq0i14x-U" style="mask-image: linear-gradient(to left, black 60%, transparent);">
+</section>
+<!-- New Arrivals Section -->
+<section class="space-y-lg">
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline-lg text-headline-lg text-on-background">New Arrivals</h4>
+<p class="text-on-surface-variant">Just landed in the vault</p>
+</div>
+<a class="text-primary font-label-md text-label-md flex items-center gap-xs hover:underline" href="#">View All <span class="material-symbols-outlined">chevron_right</span></a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+<!-- Pack Card 1 -->
+<div class="group relative bg-surface-container-lowest p-md rounded-2xl shadow-md border border-outline-variant transition-transform hover:-translate-y-2 hover:shadow-xl cursor-pointer">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-md bg-surface-container card-stack-border">
+<div class="absolute inset-0 foil-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<img class="w-full h-full object-cover" data-alt="A stylized digital illustration of a booster pack featuring a powerful mechanical dragon in electric blue and silver. The packaging has a metallic, foil texture with vibrant graphic elements and sharp typography. The lighting is high-key and glossy, suggesting a premium, collectible physical object." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA735jfaHfZ_1X_DTBhReq5YG2TiAMU2m-2NopUSMaHa1_y3Mb56wHi6dcJHWghatEwD-uwE5dtCCawsNmh1xSqbkOXv_2_i599MsaEryNhD-WapvCAioMgWj61DFBotJmUREGwGRH4HYlc8gtLFHHDT6GJy_V4t9f9wWV9vXm3nu1TRgRNCBg6ZxFL5X_YpuTPiYQuFlXQWlsjPqiBhjRWhfQtrmaoJKyFbmoe0vG7AxWhn3mxOyTWtgHRsgZXxRCqFjmojjE0TZU">
+<div class="absolute top-sm left-sm bg-tertiary text-on-tertiary px-sm py-xs rounded font-label-md text-xs uppercase">New Set</div>
+</div>
+<div class="space-y-xs">
+<h5 class="font-label-md text-label-md text-on-surface">Cyber Nexus Pack</h5>
+<div class="flex justify-between items-center">
+<span class="font-headline-lg text-xl text-primary">$4.99</span>
+<button class="bg-secondary-container text-on-secondary-container p-sm rounded-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pack Card 2 -->
+<div class="group relative bg-surface-container-lowest p-md rounded-2xl shadow-md border border-outline-variant transition-transform hover:-translate-y-2 hover:shadow-xl cursor-pointer">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-md bg-surface-container card-stack-border">
+<div class="absolute inset-0 foil-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<img class="w-full h-full object-cover" data-alt="A booster pack design centered around a mystical fire phoenix rising from embers. The packaging uses warm oranges, reds, and deep purples with a shimmering gold foil finish on the logo. The atmosphere is magical and intense, captured with a professional studio product photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtDRXnVwDwHHLc6cRpPMJWWTxEPZMY-391zlsU9nBavDpSnatNLLMUDO8SC9thkB6Aqr0gD0_CAjuAJjNIrvdet_trK6TEYX-_Z-Am7wp72cucpjaQaBPd-8OgT7w2Udi3TPmwuCG51vrrtDndi-OnWi8wYOYG86XEOChrZlax7iwrMsRrYIEwVNerWRgS_tNinvF_sBHUvTYTbeX6HptHBf5dPDfiUmyDlFAzo9huFgJmsngJjNZIfE-kjHj_BCzyzF-_D-d5ZzI">
+</div>
+<div class="space-y-xs">
+<h5 class="font-label-md text-label-md text-on-surface">Eternal Embers</h5>
+<div class="flex justify-between items-center">
+<span class="font-headline-lg text-xl text-primary">$5.50</span>
+<button class="bg-secondary-container text-on-secondary-container p-sm rounded-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pack Card 3 -->
+<div class="group relative bg-surface-container-lowest p-md rounded-2xl shadow-md border border-outline-variant transition-transform hover:-translate-y-2 hover:shadow-xl cursor-pointer">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-md bg-surface-container card-stack-border">
+<div class="absolute inset-0 foil-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<img class="w-full h-full object-cover" data-alt="A professional TCG booster pack featuring an aquatic themed sea serpent in shades of turquoise and deep sea green. The pack surface has a realistic plastic crinkle effect and high-gloss spot UV coating on the character. The design feels futuristic and clean, set against a soft studio grey background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYkEwzGCwfxMNYvjhikKVLedPXEyJxqdTPCr3nh1Y7P7WqhIkFo5Us6AB1lw_JHPBndf_3H3VWNs5OXPuJDPQhckNIxic-9GAr1dBiPR16RZ7O3uzm9mNpQ_JrH73j0y_ekG_MMLOe5tqhzMb5ijvmreCf5BL3-SZTAraWxfih6-i0MBwNz8DJA2fA_xw0Mc4SfrAoFHjiZKKJUqhatbe0uJmqCowadeFvCQVbkxQCQ0pbdA8yQT_BBT75pstVBy3WtEY5gxMW_U4">
+</div>
+<div class="space-y-xs">
+<h5 class="font-label-md text-label-md text-on-surface">Abyssal Depths</h5>
+<div class="flex justify-between items-center">
+<span class="font-headline-lg text-xl text-primary">$4.99</span>
+<button class="bg-secondary-container text-on-secondary-container p-sm rounded-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pack Card 4 -->
+<div class="group relative bg-surface-container-lowest p-md rounded-2xl shadow-md border border-outline-variant transition-transform hover:-translate-y-2 hover:shadow-xl cursor-pointer">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-md bg-surface-container card-stack-border">
+<div class="absolute inset-0 foil-shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<img class="w-full h-full object-cover" data-alt="A digital art representation of a trading card booster pack showcasing a sleek, futuristic lightning elemental. The art style is vibrant and high-contrast, with yellow energy bolts against a dark background. The packaging includes high-quality holographic details that sparkle when viewed from an angle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE-qkQJYH3Xr5PmG5PQEAyr0r3-68Y2SqTvWpZy5N2IHCkZwWPd3lkOVIIHs7V2cS4qCSPJ5GmzElUPLB4vfAc9YstbqkKQho_msKk8RFlTe8EdDD9tVyNfG3LYH58H2EU7oBo3hIvE9-RwrbqW4XrM9o08910JMV0euMCc22tCpbyiWEGrFFx14bq3A9-iGpho2uc2-qtz_1kvC_AcXopuUXCv1ZUF6KUYkIVXcCadB0IpsbDSsGPIPH4VVGlzwumcOgTsP-WoNo">
+</div>
+<div class="space-y-xs">
+<h5 class="font-label-md text-label-md text-on-surface">Volt Surge</h5>
+<div class="flex justify-between items-center">
+<span class="font-headline-lg text-xl text-primary">$4.50</span>
+<button class="bg-secondary-container text-on-secondary-container p-sm rounded-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Discounted Packs / Bento Grid Section -->
+<section class="space-y-lg">
+<div class="flex justify-between items-end">
+<div>
+<h4 class="font-headline-lg text-headline-lg text-on-background">Clearance &amp; Bundles</h4>
+<p class="text-on-surface-variant">Limited time savings for bulk buyers</p>
+</div>
+</div>
+<div class="grid grid-cols-12 grid-rows-2 gap-lg h-[600px]">
+<!-- Large Feature Bundle -->
+<div class="col-span-12 lg:col-span-7 row-span-2 relative group bg-surface-container rounded-3xl overflow-hidden shadow-md border border-outline-variant recessed-pocket p-lg flex flex-col justify-end">
+<img class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-105 transition-transform duration-700" data-alt="A stylized top-down view of a gaming table covered in various colorful trading cards, deck boxes, and metal tokens. The scene is lit with warm, ambient lighting, creating a cozy and immersive gaming room atmosphere. The palette features rich reds, yellows, and wood tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpdbtZR6_7UxedLeWxi-fb2uLNy3_FEmkxpV3Mcj5xGM9mAH1abE5Ijoa_o_4j6FfPHn2SY2iUVx4P995T8djb1iFSPaDLbXlsYYFNj9p3eRUhOl-Ncu-h-CFnRGai26WMldY5bpSxJuHj2DdC6e0qDahry_rtT6h4xhxT2yE4tXioQzsPzjgWMXW5QHu1xqCBRAw8kevKa_03F_dbY8L-1EcclZCUUDsCZeE6mQdOq_f5WtTAl0OU9RR210B5-n0A9QivweJcVBI">
+<div class="relative z-10 space-y-md">
+<div class="bg-secondary-container text-on-secondary-container px-lg py-sm rounded-full font-label-md text-xl inline-block shadow-lg">BUNDLE SAVE: 25% OFF</div>
+<h5 class="font-display-lg text-headline-lg text-on-surface">The Collector's Archive Box</h5>
+<p class="text-on-surface-variant max-w-md">Includes 10 random booster packs, 1 guaranteed Holo-Rare, and a premium storage sleeve set.</p>
+<div class="flex items-center gap-lg">
+<span class="font-headline-lg text-primary text-4xl">$49.99 <span class="text-on-surface-variant text-lg line-through opacity-50 ml-sm">$64.99</span></span>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-xl py-md rounded-xl button-3d">Add Bundle</button>
+</div>
+</div>
+</div>
+<!-- Small Item 1 -->
+<div class="col-span-12 lg:col-span-5 row-span-1 bg-surface-container-highest rounded-3xl p-lg flex items-center gap-lg shadow-inner group hover:shadow-lg transition-all cursor-pointer">
+<div class="w-1/3 aspect-square rounded-2xl overflow-hidden shadow-lg border-2 border-white rotate-3 group-hover:rotate-0 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of an older, vintage-style TCG booster pack with nostalgic art and muted colors. The packaging shows slight signs of shelf wear, emphasizing its status as a collector's find from a legacy set." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx34gLQjPPDjKx-ca-uMbABH0ofC3YureL4IFB4OKADDKRQot6GvIFPVW5P3kmQfOrBRHHzChPG8OGC247AC0SFzWP6DD30LIAwk2fvxkyXO7UrROC7Lfb6tI0qxAN5ShEgKylfJoeukeYS6AeI3xVNNv4Vvpg69jT9OR14ZdfaCITnwyD7268BiQM7eakL6qSueS7cJ1QmxsMuhR8fLQQTLl7-LS6SiVMnPaCZN6IAhKuDgcUH2vg1tZzwRtKmTlYLg_NpatPJe0">
+</div>
+<div class="flex-1 space-y-xs">
+<span class="text-error font-bold uppercase text-xs">Ending Soon</span>
+<h6 class="font-label-md text-label-md">Legacy Set: Genesis</h6>
+<p class="text-on-surface-variant text-sm">Last 5 units in stock</p>
+<p class="font-bold text-primary">$12.99</p>
+</div>
+</div>
+<!-- Small Item 2 -->
+<div class="col-span-12 lg:col-span-5 row-span-1 bg-secondary-fixed rounded-3xl p-lg flex items-center gap-lg shadow-inner group hover:shadow-lg transition-all cursor-pointer">
+<div class="w-1/3 aspect-square rounded-2xl overflow-hidden shadow-lg border-2 border-white -rotate-3 group-hover:rotate-0 transition-transform">
+<img class="w-full h-full object-cover" data-alt="A modern, minimalist trading card pack featuring bold geometric patterns and vibrant neon accents. The background is dark, making the bright lime green and electric yellow elements pop with energy. The pack looks sleek and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA29hpFK2Lg7FS878B6nQo5fwYMYJf9jr5vPVj0s34rFo2xuTGeezuqYSWQEczV3dVYA_NhuvvVujYAn3bZuT8u9gRg1w2zliDekx0dzqHUIiFD7E5o5L5djfOJp-4OJezcVatnaIZ7dS_gvyq7fb571EVs753tuu012Cf9sKUHsY-PfuJ6Lf0g4ndnNxVplbgga1lIzLwoHGIHcpd3Wvdq4gg_vuW0Kg0WUHv2pHwfaKi1ip2B_2U8KQtviSYYxGCrxyZLSASv0Nc">
+</div>
+<div class="flex-1 space-y-xs">
+<span class="text-on-secondary-fixed-variant font-bold uppercase text-xs">Flash Deal</span>
+<h6 class="font-label-md text-label-md">Neon Strike Multi-Pack</h6>
+<p class="text-on-secondary-fixed-variant opacity-70 text-sm">3 Packs for the price of 2</p>
+<p class="font-bold text-primary">$8.99</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer / Credits Section -->
+<footer class="mt-xl px-margin-desktop py-xl border-t border-outline-variant bg-surface-container-low">
+<div class="flex flex-col md:flex-row justify-between items-center gap-lg">
+<div class="flex items-center gap-md">
+<span class="font-headline-lg text-primary">TCG Archive</span>
+<span class="text-on-surface-variant text-sm opacity-50">© 2024 Archival Pro. All cards remain property of their respective owners.</span>
+</div>
+<div class="flex gap-xl text-on-surface-variant font-label-md text-sm">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Trade</a>
+<a class="hover:text-primary transition-colors" href="#">Affiliate Program</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Floating Action Button for Shop Cart -->
+<div class="fixed bottom-lg right-lg z-50">
+<button class="w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center group active:scale-90 transition-transform button-3d">
+<span class="material-symbols-outlined text-3xl">shopping_cart</span>
+<div class="absolute -top-1 -right-1 w-6 h-6 bg-secondary-container text-on-secondary-container text-xs flex items-center justify-center rounded-full font-bold border-2 border-primary">
+                3
+            </div>
+</button>
+</div>
+<!-- Micro-interaction JS -->
+<script>
+        // Simple hover sound effect simulation or additional glow logic
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Optional: Dynamic reflection logic
+                const shimmer = card.querySelector('.foil-shimmer');
+                if(shimmer) {
+                    shimmer.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%)`;
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                const shimmer = card.querySelector('.foil-shimmer');
+                if(shimmer) {
+                    shimmer.style.background = '';
+                }
+            });
+        });
+    </script>
+</body></html>
