@@ -24,7 +24,7 @@ function PackList() {
   const [featured, ...rest] = packs
 
   return (
-    <div className="shop__pack-content">
+    <>
       {featured && (
         <div className="shop__hero">
           <img src={featured.image_url} alt="" className="shop__hero-bg" aria-hidden="true" />
@@ -67,7 +67,7 @@ function PackList() {
           </div>
         </section>
       )}
-    </div>
+    </>
   )
 }
 
