@@ -207,7 +207,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
               return (
                 <div key={`peek-${offset}`} className={`deck-card deck-card--peek${offset}`}>
                   {idx < cards.length
-                    ? <HoloCard card={cards[idx]} size="sm" />
+                    ? <HoloCard card={cards[idx]} size="md" />
                     : <div className="card-back">✦</div>
                   }
                 </div>
@@ -239,7 +239,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
               onPointerUp={handleCardPointerUp}
               onPointerCancel={handleCardPointerCancel}
             >
-              <HoloCard card={cards[deckIndex]} size="sm" />
+              <HoloCard card={cards[deckIndex]} size="md" />
             </div>
           </div>
           <p className="pack-rip__hint">Drag to reveal next</p>
@@ -261,7 +261,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
                 ].join(' ').trim()}
                 style={{ animationDelay: `${i * 0.06}s` }}
               >
-                <HoloCard card={card} size="sm" />
+                <HoloCard card={card} size="md" />
               </div>
             ))}
           </div>

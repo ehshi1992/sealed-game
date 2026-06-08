@@ -156,8 +156,8 @@
 
 .pack-rip__deck-stack {
   position: relative;
-  width: 120px;
-  height: 167px;
+  width: 200px;
+  height: 279px;
 }
 
 .deck-card {
@@ -243,8 +243,8 @@
 
 /* ─── Card back (placeholder for empty deck slots) ──────── */
 .card-back {
-  width: 120px;
-  height: 167px;
+  width: 200px;
+  height: 279px;
   background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
   border-radius: 4.75% / 3.5%;
   display: flex;
