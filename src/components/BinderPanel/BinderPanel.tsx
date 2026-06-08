@@ -9,6 +9,7 @@ type Props = {
   onStartDrag: (entryId: string, imageUrl: string, el: HTMLElement) => void
   onCreateBinder: (name: string, color: string) => Promise<void>
   onDeleteBinder: (binderId: string) => Promise<void>
+  onClose?: () => void
   editMode?: boolean
 }
 
@@ -18,6 +19,7 @@ export default function BinderPanel({
   onStartDrag,
   onCreateBinder,
   onDeleteBinder,
+  onClose,
   editMode = false,
 }: Props) {
   const [selectedBinderId, setSelectedBinderId] = useState<string | null>(null)
@@ -57,6 +59,9 @@ export default function BinderPanel({
           >
             + New
           </button>
+          {onClose && (
+            <button className="btn btn--secondary btn--sm" onClick={onClose}>×</button>
+          )}
         </div>
 
         {showCreateForm && (
@@ -90,16 +95,14 @@ export default function BinderPanel({
             <p className="binder-panel__empty">No binders yet.</p>
           )}
           {binders.map(binder => (
-            <div key={binder.id} className="binder-panel__row">
+            <div
+              key={binder.id}
+              className="binder-panel__row"
+              onClick={() => { setSelectedBinderId(binder.id); setPage(0) }}
+            >
               <span className="binder-panel__swatch" style={{ background: binder.color }} />
               <span className="binder-panel__name">{binder.name}</span>
               <span className="binder-panel__count">{binderCardCounts.get(binder.id) ?? 0}</span>
-              <button
-                className="btn btn--secondary btn--xs"
-                onClick={() => { setSelectedBinderId(binder.id); setPage(0) }}
-              >
-                View
-              </button>
               <button
                 className="btn btn--secondary binder-panel__delete"
                 onClick={e => {
@@ -219,6 +222,9 @@ export default function BinderPanel({
       <span className="binder-panel__swatch" style={{ background: binder.color }} />
       <span className="binder-panel__title">{binder.name}</span>
       <span className="binder-panel__count">{allBinderCards.length} cards</span>
+      {onClose && (
+        <button className="btn btn--secondary btn--sm" onClick={onClose}>×</button>
+      )}
     </div>
   )
 

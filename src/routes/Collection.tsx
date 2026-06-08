@@ -176,6 +176,7 @@ export default function Collection() {
             onStartDrag={startDrag}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
+            onClose={() => setPanelOpen(false)}
             editMode={binderEditMode}
           />
         </div>
