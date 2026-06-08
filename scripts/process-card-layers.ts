@@ -203,13 +203,23 @@ async function processCard(card: CardRow, force: boolean): Promise<'skipped' | '
   return 'processed'
 }
 
-async function fetchCardsByIds(ids: string[]): Promise<CardRow[]> {
-  const { data, error } = await supabase
-    .from('cards')
-    .select('id, image_url, card_layout_type, subject_layer_url, bg_layer_url')
-    .in('id', ids)
-  if (error) throw error
-  return data as CardRow[]
+async function fetchCardsByIds(cardKeys: string[]): Promise<CardRow[]> {
+  const results: CardRow[] = []
+  for (const key of cardKeys) {
+    const dashIdx = key.indexOf('-')
+    if (dashIdx === -1) throw new Error(`Invalid card key "${key}" — expected "{set}-{number}" e.g. neo1-1`)
+    const set = key.slice(0, dashIdx)
+    const number = key.slice(dashIdx + 1)
+    const { data, error } = await supabase
+      .from('cards')
+      .select('id, image_url, card_layout_type, subject_layer_url, bg_layer_url')
+      .eq('set', set)
+      .eq('number', number)
+      .single()
+    if (error) throw new Error(`DB fetch failed for ${key}: ${error.message}`)
+    results.push(data as CardRow)
+  }
+  return results
 }
 
 async function fetchCardsBySet(setId: string): Promise<CardRow[]> {
@@ -217,7 +227,7 @@ async function fetchCardsBySet(setId: string): Promise<CardRow[]> {
     .from('cards')
     .select('id, image_url, card_layout_type, subject_layer_url, bg_layer_url')
     .eq('set', setId)
-  if (error) throw error
+  if (error) throw new Error(`DB fetch failed: ${error.message}`)
   return data as CardRow[]
 }
 
@@ -260,5 +270,8 @@ async function main() {
 
 // Only run when executed directly (not imported in tests)
 if (process.env.VITEST !== 'true') {
-  main()
+  main().catch(err => {
+    console.error('Fatal:', err?.message ?? err)
+    process.exit(1)
+  })
 }
