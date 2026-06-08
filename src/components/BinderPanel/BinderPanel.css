@@ -12,6 +12,24 @@
   box-shadow: 0 0 0 2px var(--accent);
 }
 
+/* ─── Edit mode (mini) ─────────────────────────────────────── */
+.binder-panel--edit-mode {
+  background: rgba(229, 62, 62, 0.06);
+  border-color: rgba(229, 62, 62, 0.25);
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.binder-panel--edit-mode .binder-panel__row {
+  padding: 0.5rem;
+  justify-content: center;
+}
+
+.binder-panel--edit-mode .binder-panel__row--active {
+  background: rgba(229, 62, 62, 0.15);
+  outline: 2px solid rgba(229, 62, 62, 0.4);
+  outline-offset: -2px;
+}
+
 .binder-panel__header {
   display: flex;
   align-items: center;

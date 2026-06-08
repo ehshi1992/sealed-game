@@ -22,6 +22,7 @@ export default function Collection() {
   const [panelOpen, setPanelOpen] = useState(false)
   const [selectedBinderId, setSelectedBinderId] = useState<string | null>(null)
   const [binderEditMode, setBinderEditMode] = useState(false)
+  const [overlayPage, setOverlayPage] = useState(0)
 
   // Bulk = cards not in any binder
   const bulk = useMemo(() => collection.filter(e => !e.binder_id), [collection])
@@ -109,6 +110,7 @@ export default function Collection() {
   function handleSelectBinder(id: string) {
     setSelectedBinderId(id)
     setBinderEditMode(true)
+    setOverlayPage(0)
   }
   function handleViewBinder(id: string) {
     setSelectedBinderId(id)
@@ -180,11 +182,10 @@ export default function Collection() {
       </div>
 
       {panelOpen && (
-        <div className={`collection__panel-wrapper${draggedEntryId ? ' collection__panel-wrapper--dragging' : ''}`}>
+        <div className={`collection__panel-wrapper${binderEditMode ? ' collection__panel-wrapper--edit' : ''}${draggedEntryId && !binderEditMode ? ' collection__panel-wrapper--dragging' : ''}`}>
           <BinderPanel
             binders={binders}
             collection={collection}
-            onStartDrag={startDrag}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
             onClose={handleClosePanel}
@@ -196,6 +197,49 @@ export default function Collection() {
           />
         </div>
       )}
+
+      {/* Binder drag overlay — shows selected binder spread when dragging in edit mode */}
+      {draggedEntryId && binderEditMode && selectedBinderId && (() => {
+        const binder = binders.find(b => b.id === selectedBinderId)
+        if (!binder) return null
+        const binderCards = collection.filter(e => e.binder_id === binder.id)
+        const posMap = new Map<number, CollectionEntry>()
+        for (const e of binderCards) {
+          if (e.binder_position != null) posMap.set(e.binder_position, e)
+        }
+        const start = overlayPage * 9
+        const maxPos = binderCards.reduce((m, e) => Math.max(m, e.binder_position ?? -1), -1)
+        const totalPages = Math.max(1, Math.ceil((maxPos + 1) / 9))
+
+        return (
+          <div className="binder-drag-overlay">
+            <div className="binder-drag-overlay__header">
+              <span className="binder-panel__swatch" style={{ background: binder.color }} />
+              <span>{binder.name}</span>
+              {totalPages > 1 && (
+                <>
+                  <button className="btn btn--secondary btn--xs" style={{ pointerEvents: 'auto' }} onClick={() => setOverlayPage(p => Math.max(0, p - 1))} disabled={overlayPage === 0}>‹</button>
+                  <span style={{ fontSize: '0.8rem', color: '#aaa' }}>{overlayPage + 1}/{totalPages}</span>
+                  <button className="btn btn--secondary btn--xs" style={{ pointerEvents: 'auto' }} onClick={() => setOverlayPage(p => Math.min(totalPages - 1, p + 1))} disabled={overlayPage >= totalPages - 1}>›</button>
+                </>
+              )}
+            </div>
+            <div className="binder-drag-overlay__grid">
+              {Array.from({ length: 9 }, (_, i) => {
+                const slot = start + i
+                const entry = posMap.get(slot)
+                return entry ? (
+                  <div key={entry.id} className="binder-panel__slot" data-drop-zone={`binder-slot:${binder.id}:${slot}`}>
+                    <HoloCard card={entry.card} size="sm" interactive={false} holoSeed={entry.holo_seed ?? undefined} />
+                  </div>
+                ) : (
+                  <div key={`empty-${slot}`} className="binder-panel__slot binder-panel__slot--empty" data-drop-zone={`binder-slot:${binder.id}:${slot}`} />
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Card detail modal */}
       {selected && !editMode && (
