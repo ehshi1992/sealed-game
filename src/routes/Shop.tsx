@@ -1,4 +1,4 @@
-import { use, Suspense, useRef, useCallback, useEffect, useState } from 'react'
+import { use, Suspense, useRef, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { useAuth } from '../hooks/useAuth'
@@ -38,28 +38,26 @@ function PackList() {
           }
         })
       },
-      { root: carousel, threshold: 0.5, rootMargin: '0px -30% 0px -30%' }
+      { root: carousel, threshold: 0.6 }
     )
 
     slots.forEach(slot => observer.observe(slot))
     return () => observer.disconnect()
   }, [packs])
 
-  const scrollTo = useCallback((dir: -1 | 1) => {
+  function scrollToIndex(idx: number) {
     const carousel = carouselRef.current
     if (!carousel) return
-    const card = carousel.querySelector<HTMLElement>('.pack-card')
-    const gap = 32 // 2rem at 16px base
-    const step = card ? card.offsetWidth + gap : 252
-    carousel.scrollBy({ left: dir * step, behavior: 'smooth' })
-  }, [])
+    const cards = carousel.querySelectorAll<HTMLElement>('.pack-card')
+    cards[idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }
 
   return (
     <div className="shop__carousel-wrap">
       {packs.length > 1 && (
         <button
           className="shop__carousel-arrow"
-          onClick={() => scrollTo(-1)}
+          onClick={() => scrollToIndex(activeIndex - 1)}
           disabled={activeIndex === 0}
           aria-label="Previous pack"
         >
@@ -92,7 +90,7 @@ function PackList() {
       {packs.length > 1 && (
         <button
           className="shop__carousel-arrow"
-          onClick={() => scrollTo(1)}
+          onClick={() => scrollToIndex(activeIndex + 1)}
           disabled={activeIndex === packs.length - 1}
           aria-label="Next pack"
         >

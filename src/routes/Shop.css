@@ -41,7 +41,6 @@
   gap: 2rem;
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   padding: 3rem 4rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
