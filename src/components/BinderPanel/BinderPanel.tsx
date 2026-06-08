@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { Binder, CollectionEntry } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import './BinderPanel.css'
@@ -25,6 +25,12 @@ export default function BinderPanel({
   const [page, setPage] = useState(0)
   const [flipClass, setFlipClass] = useState('')
   const animatingRef = useRef(false)
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   async function handleCreateSubmit() {
     if (!newName.trim()) return
@@ -125,9 +131,11 @@ export default function BinderPanel({
     const direction = next > page ? 'right' : 'left'
     setFlipClass(`binder-panel__grid--flip-out-${direction}`)
     setTimeout(() => {
+      if (!mountedRef.current) return
       setPage(next)
       setFlipClass(`binder-panel__grid--flip-in-${direction}`)
       setTimeout(() => {
+        if (!mountedRef.current) return
         setFlipClass('')
         animatingRef.current = false
       }, 250)
