@@ -8,7 +8,8 @@
   width: 220px;
   flex-shrink: 0;
   background: var(--surface);
-  border-right: 1px solid var(--border);
+  border-right: none;
+  box-shadow: inset -1px 0 0 var(--border), 8px 0 32px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -91,6 +92,8 @@
   flex: 1;
   min-width: 0;
   overflow-y: auto;
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 64px), transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 64px), transparent 100%);
 }
 
 /* ─── Mobile: top bar ─────────────────────────────────────── */
