@@ -20,7 +20,7 @@ export default function Collection() {
 
   // Binder panel state
   const [panelOpen, setPanelOpen] = useState(false)
-  const [binderViewOpen, setBinderViewOpen] = useState(false)
+  const [binderEditMode, setBinderEditMode] = useState(false)
 
   // Bulk = cards not in any binder
   const bulk = useMemo(() => collection.filter(e => !e.binder_id), [collection])
@@ -95,23 +95,18 @@ export default function Collection() {
     if (zoneId === 'bulk') {
       const entry = collection.find(e => e.id === entryId)
       if (entry && entry.binder_id !== null) handleMoveCard(entryId, null, null)
-      setPanelOpen(false)
     } else if (zoneId.startsWith('binder-slot:')) {
       const [, binderId, slotStr] = zoneId.split(':')
       handleMoveCard(entryId, binderId, parseInt(slotStr))
-      setPanelOpen(false)
     } else if (zoneId.startsWith('binder:')) {
       handleMoveCard(entryId, zoneId.slice(7), null)
-      setPanelOpen(false)
-    } else {
-      setPanelOpen(false)
     }
   }
 
   const { draggedEntryId, startDrag } = useDrag(handleDrop)
 
   return (
-    <div className={`collection${panelOpen ? ' collection--panel-open' : ''}${binderViewOpen ? ' collection--binder-view' : ''}`}>
+    <div className={`collection${panelOpen ? ' collection--panel-open' : ''}`}>
       <div className="collection__toolbar">
         <span className="collection__count">{collection.length} cards</span>
         <button className="btn btn--secondary btn--sm" onClick={() => setEditMode(m => !m)}>
@@ -119,12 +114,20 @@ export default function Collection() {
         </button>
         <button className="btn btn--secondary btn--sm" onClick={() => {
           setPanelOpen(o => {
-            if (o) setBinderViewOpen(false)
+            if (!o) setBinderEditMode(false)
             return !o
           })
         }}>
           {panelOpen ? 'Close Binders' : 'Binders'}
         </button>
+        {panelOpen && (
+          <button
+            className={`btn btn--sm ${binderEditMode ? 'btn--primary' : 'btn--secondary'}`}
+            onClick={() => setBinderEditMode(m => !m)}
+          >
+            {binderEditMode ? 'Editing Binder' : 'Edit Binder'}
+          </button>
+        )}
       </div>
 
       <div className="collection__main">
@@ -141,12 +144,11 @@ export default function Collection() {
             {bulk.map((entry) => (
               <div
                 key={entry.id}
-                className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}`}
+                className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}${binderEditMode && !editMode ? ' collection__slot--draggable' : ''}`}
                 onPointerDown={e => {
                   if (e.button !== 0) return
-                  if (!editMode) {
+                  if (!editMode && binderEditMode) {
                     e.preventDefault()
-                    setPanelOpen(true)
                     startDrag(entry.id, entry.card.image_url, e.currentTarget)
                   }
                 }}
@@ -167,15 +169,14 @@ export default function Collection() {
       </div>
 
       {panelOpen && (
-        <div className="collection__panel-wrapper">
+        <div className={`collection__panel-wrapper${draggedEntryId ? ' collection__panel-wrapper--dragging' : ''}`}>
           <BinderPanel
             binders={binders}
             collection={collection}
             onStartDrag={startDrag}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
-            fullWidth={binderViewOpen}
-            onBinderViewChange={setBinderViewOpen}
+            editMode={binderEditMode}
           />
         </div>
       )}

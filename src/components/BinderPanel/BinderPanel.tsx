@@ -9,8 +9,7 @@ type Props = {
   onStartDrag: (entryId: string, imageUrl: string, el: HTMLElement) => void
   onCreateBinder: (name: string, color: string) => Promise<void>
   onDeleteBinder: (binderId: string) => Promise<void>
-  fullWidth?: boolean
-  onBinderViewChange?: (open: boolean) => void
+  editMode?: boolean
 }
 
 export default function BinderPanel({
@@ -19,8 +18,7 @@ export default function BinderPanel({
   onStartDrag,
   onCreateBinder,
   onDeleteBinder,
-  fullWidth = false,
-  onBinderViewChange,
+  editMode = false,
 }: Props) {
   const [selectedBinderId, setSelectedBinderId] = useState<string | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -92,18 +90,16 @@ export default function BinderPanel({
             <p className="binder-panel__empty">No binders yet.</p>
           )}
           {binders.map(binder => (
-            <div
-              key={binder.id}
-              className="binder-panel__row"
-              onClick={() => {
-                setSelectedBinderId(binder.id)
-                setPage(0)
-                onBinderViewChange?.(true)
-              }}
-            >
+            <div key={binder.id} className="binder-panel__row">
               <span className="binder-panel__swatch" style={{ background: binder.color }} />
               <span className="binder-panel__name">{binder.name}</span>
               <span className="binder-panel__count">{binderCardCounts.get(binder.id) ?? 0}</span>
+              <button
+                className="btn btn--secondary btn--xs"
+                onClick={() => { setSelectedBinderId(binder.id); setPage(0) }}
+              >
+                View
+              </button>
               <button
                 className="btn btn--secondary binder-panel__delete"
                 onClick={e => {
@@ -126,7 +122,6 @@ export default function BinderPanel({
   const binder = binders.find(b => b.id === selectedBinderId)
   if (!binder) {
     setSelectedBinderId(null)
-    onBinderViewChange?.(false)
     return null
   }
 
@@ -139,7 +134,7 @@ export default function BinderPanel({
     else unpositioned.push(e)
   }
 
-  const SLOTS_PER_VIEW = fullWidth ? 18 : 9
+  const SLOTS_PER_VIEW = 9
   const totalViews = Math.max(1, Math.ceil(allBinderCards.length / SLOTS_PER_VIEW))
 
   const viewSlots: (typeof allBinderCards[0] | null)[] = Array.from({ length: SLOTS_PER_VIEW }, (_, i) => {
@@ -178,10 +173,10 @@ export default function BinderPanel({
         key={entry.id}
         className="binder-panel__slot"
         data-drop-zone={`binder-slot:${binderId}:${globalSlot}`}
-        onPointerDown={e => {
+        onPointerDown={editMode ? e => {
           e.preventDefault()
           onStartDrag(entry.id, entry.card.image_url, e.currentTarget)
-        }}
+        } : undefined}
       >
         <HoloCard
           card={entry.card}
@@ -219,10 +214,7 @@ export default function BinderPanel({
     <div className="binder-panel__header">
       <button
         className="btn btn--secondary btn--sm"
-        onClick={() => {
-          setSelectedBinderId(null)
-          onBinderViewChange?.(false)
-        }}
+        onClick={() => setSelectedBinderId(null)}
       >←</button>
       <span className="binder-panel__swatch" style={{ background: binder.color }} />
       <span className="binder-panel__title">{binder.name}</span>
@@ -230,37 +222,6 @@ export default function BinderPanel({
     </div>
   )
 
-  if (fullWidth) {
-    const leftSlots = viewSlots.slice(0, 9)
-    const rightSlots = viewSlots.slice(9, 18)
-    const baseGlobal = page * SLOTS_PER_VIEW
-
-    return (
-      <div className="binder-panel binder-panel--spread" data-drop-zone={`binder:${binder.id}`}>
-        {spreadHeader}
-        <div className="binder-panel__spread-wrap">
-          <div className="binder-panel__page">
-            <div className="binder-panel__page-wrap">
-              <div className={`binder-panel__grid ${flipClass}`.trim()}>
-                {leftSlots.map((entry, i) => renderSlot(entry, baseGlobal + i))}
-              </div>
-            </div>
-          </div>
-          <div className="binder-panel__spread-divider" />
-          <div className="binder-panel__page">
-            <div className="binder-panel__page-wrap">
-              <div className={`binder-panel__grid ${flipClass}`.trim()}>
-                {rightSlots.map((entry, i) => renderSlot(entry, baseGlobal + 9 + i))}
-              </div>
-            </div>
-          </div>
-        </div>
-        {paginationControls}
-      </div>
-    )
-  }
-
-  // ── Narrow panel (existing behavior) ─────────────────────
   return (
     <div
       className="binder-panel"

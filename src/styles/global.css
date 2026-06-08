@@ -242,17 +242,26 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(420px, calc(100vw - 220px));
+  width: min(380px, calc(100vw - 220px));
   overflow-y: auto;
   background: var(--surface);
   border-left: 1px solid var(--border);
   z-index: 50;
   box-shadow: -4px 0 32px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.15s;
+}
+
+.collection__panel-wrapper--dragging {
+  opacity: 0.65;
 }
 
 .collection__slot--dragging {
   opacity: 0.5;
   cursor: grabbing;
+}
+
+.collection__slot--draggable {
+  cursor: grab;
 }
 
 .collection__grid--droptarget {
