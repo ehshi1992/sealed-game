@@ -8,7 +8,7 @@
   gap: 2rem;
   padding: 2rem 1rem;
   background: var(--bg);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* ─── Pack image wrapper ────────────────────────────────── */
