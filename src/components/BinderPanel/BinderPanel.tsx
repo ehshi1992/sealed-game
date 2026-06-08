@@ -10,6 +10,10 @@ type Props = {
   onCreateBinder: (name: string, color: string) => Promise<void>
   onDeleteBinder: (binderId: string) => Promise<void>
   onClose?: () => void
+  selectedBinderId: string | null
+  onSelectBinder: (id: string) => void  // row click — edit mode
+  onViewBinder: (id: string) => void    // view button — read-only
+  onDeselectBinder: () => void          // back button
   editMode?: boolean
 }
 
@@ -20,9 +24,12 @@ export default function BinderPanel({
   onCreateBinder,
   onDeleteBinder,
   onClose,
+  selectedBinderId,
+  onSelectBinder,
+  onViewBinder,
+  onDeselectBinder,
   editMode = false,
 }: Props) {
-  const [selectedBinderId, setSelectedBinderId] = useState<string | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState('#6366f1')
@@ -35,6 +42,9 @@ export default function BinderPanel({
     mountedRef.current = true
     return () => { mountedRef.current = false }
   }, [])
+
+  // Reset page when binder selection changes
+  useEffect(() => { setPage(0) }, [selectedBinderId])
 
   async function handleCreateSubmit() {
     if (!newName.trim()) return
@@ -53,10 +63,7 @@ export default function BinderPanel({
       <div className="binder-panel">
         <div className="binder-panel__header">
           <h2>Binders</h2>
-          <button
-            className="btn btn--primary btn--sm"
-            onClick={() => setShowCreateForm(s => !s)}
-          >
+          <button className="btn btn--primary btn--sm" onClick={() => setShowCreateForm(s => !s)}>
             + New
           </button>
           {onClose && (
@@ -75,18 +82,8 @@ export default function BinderPanel({
               autoFocus
             />
             <input type="color" value={newColor} onChange={e => setNewColor(e.target.value)} />
-            <button
-              className="btn btn--primary btn--sm"
-              onClick={handleCreateSubmit}
-            >
-              Save
-            </button>
-            <button
-              className="btn btn--secondary btn--sm"
-              onClick={() => setShowCreateForm(false)}
-            >
-              Cancel
-            </button>
+            <button className="btn btn--primary btn--sm" onClick={handleCreateSubmit}>Save</button>
+            <button className="btn btn--secondary btn--sm" onClick={() => setShowCreateForm(false)}>Cancel</button>
           </div>
         )}
 
@@ -98,11 +95,18 @@ export default function BinderPanel({
             <div
               key={binder.id}
               className="binder-panel__row"
-              onClick={() => { setSelectedBinderId(binder.id); setPage(0) }}
+              title="Click to edit — drag cards from collection into slots"
+              onClick={() => onSelectBinder(binder.id)}
             >
               <span className="binder-panel__swatch" style={{ background: binder.color }} />
               <span className="binder-panel__name">{binder.name}</span>
               <span className="binder-panel__count">{binderCardCounts.get(binder.id) ?? 0}</span>
+              <button
+                className="btn btn--secondary btn--xs"
+                onClick={e => { e.stopPropagation(); onViewBinder(binder.id) }}
+              >
+                View
+              </button>
               <button
                 className="btn btn--secondary binder-panel__delete"
                 onClick={e => {
@@ -121,10 +125,10 @@ export default function BinderPanel({
     )
   }
 
-  // ── Binder view ──────────────────────────────────────────────────────────
+  // ── Binder spread view ───────────────────────────────────────────────────
   const binder = binders.find(b => b.id === selectedBinderId)
   if (!binder) {
-    setSelectedBinderId(null)
+    onDeselectBinder()
     return null
   }
 
@@ -181,12 +185,7 @@ export default function BinderPanel({
           onStartDrag(entry.id, entry.card.image_url, e.currentTarget)
         } : undefined}
       >
-        <HoloCard
-          card={entry.card}
-          size="sm"
-          interactive={false}
-          holoSeed={entry.holo_seed ?? undefined}
-        />
+        <HoloCard card={entry.card} size="sm" interactive={false} holoSeed={entry.holo_seed ?? undefined} />
       </div>
     ) : (
       <div
@@ -199,41 +198,22 @@ export default function BinderPanel({
 
   const paginationControls = totalViews > 1 && (
     <div className="binder-panel__pagination">
-      <button
-        className="btn btn--secondary btn--xs"
-        onClick={() => flipToPage(Math.max(0, page - 1))}
-        disabled={page === 0}
-      >‹</button>
+      <button className="btn btn--secondary btn--xs" onClick={() => flipToPage(Math.max(0, page - 1))} disabled={page === 0}>‹</button>
       <span>{page + 1} / {totalViews}</span>
-      <button
-        className="btn btn--secondary btn--xs"
-        onClick={() => flipToPage(Math.min(totalViews - 1, page + 1))}
-        disabled={page === totalViews - 1}
-      >›</button>
-    </div>
-  )
-
-  const spreadHeader = (
-    <div className="binder-panel__header">
-      <button
-        className="btn btn--secondary btn--sm"
-        onClick={() => setSelectedBinderId(null)}
-      >←</button>
-      <span className="binder-panel__swatch" style={{ background: binder.color }} />
-      <span className="binder-panel__title">{binder.name}</span>
-      <span className="binder-panel__count">{allBinderCards.length} cards</span>
-      {onClose && (
-        <button className="btn btn--secondary btn--sm" onClick={onClose}>×</button>
-      )}
+      <button className="btn btn--secondary btn--xs" onClick={() => flipToPage(Math.min(totalViews - 1, page + 1))} disabled={page === totalViews - 1}>›</button>
     </div>
   )
 
   return (
-    <div
-      className="binder-panel"
-      data-drop-zone={`binder:${binder.id}`}
-    >
-      {spreadHeader}
+    <div className="binder-panel" data-drop-zone={`binder:${binder.id}`}>
+      <div className="binder-panel__header">
+        <button className="btn btn--secondary btn--sm" onClick={onDeselectBinder}>←</button>
+        <span className="binder-panel__swatch" style={{ background: binder.color }} />
+        <span className="binder-panel__title">{binder.name}</span>
+        <span className="binder-panel__count">{allBinderCards.length}</span>
+        {editMode && <span className="binder-panel__edit-badge">Editing</span>}
+        {onClose && <button className="btn btn--secondary btn--sm" onClick={onClose}>×</button>}
+      </div>
       <div className="binder-panel__page-wrap">
         <div className={`binder-panel__grid ${flipClass}`.trim()}>
           {Array.from({ length: 9 }, (_, i) => {

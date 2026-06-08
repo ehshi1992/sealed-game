@@ -20,6 +20,7 @@ export default function Collection() {
 
   // Binder panel state
   const [panelOpen, setPanelOpen] = useState(false)
+  const [selectedBinderId, setSelectedBinderId] = useState<string | null>(null)
   const [binderEditMode, setBinderEditMode] = useState(false)
 
   // Bulk = cards not in any binder
@@ -70,7 +71,6 @@ export default function Collection() {
 
   async function handleMoveCard(entryId: string, binderId: string | null, position: number | null = null) {
     const snapshot = state.collection
-    // Displace any card already occupying the target slot
     let occupantId: string | undefined
     if (binderId && position != null) {
       const occupant = collection.find(
@@ -105,6 +105,27 @@ export default function Collection() {
 
   const { draggedEntryId, startDrag } = useDrag(handleDrop)
 
+  // ── Binder selection ────────────────────────────────────────────────────
+  function handleSelectBinder(id: string) {
+    setSelectedBinderId(id)
+    setBinderEditMode(true)
+  }
+  function handleViewBinder(id: string) {
+    setSelectedBinderId(id)
+    setBinderEditMode(false)
+  }
+  function handleDeselectBinder() {
+    setSelectedBinderId(null)
+    setBinderEditMode(false)
+  }
+  function handleClosePanel() {
+    setPanelOpen(false)
+    setSelectedBinderId(null)
+    setBinderEditMode(false)
+  }
+
+  const canDrag = !editMode && binderEditMode && !!selectedBinderId
+
   return (
     <div className={`collection${panelOpen ? ' collection--panel-open' : ''}`}>
       <div className="collection__toolbar">
@@ -113,21 +134,14 @@ export default function Collection() {
           {editMode ? 'Done' : 'Edit'}
         </button>
         <button className="btn btn--secondary btn--sm" onClick={() => {
-          setPanelOpen(o => {
-            if (!o) setBinderEditMode(false)
-            return !o
-          })
+          if (panelOpen) {
+            handleClosePanel()
+          } else {
+            setPanelOpen(true)
+          }
         }}>
           {panelOpen ? 'Close Binders' : 'Binders'}
         </button>
-        {panelOpen && (
-          <button
-            className={`btn btn--sm ${binderEditMode ? 'btn--primary' : 'btn--secondary'}`}
-            onClick={() => setBinderEditMode(m => !m)}
-          >
-            {binderEditMode ? 'Editing Binder' : 'Edit Binder'}
-          </button>
-        )}
       </div>
 
       <div className="collection__main">
@@ -137,17 +151,14 @@ export default function Collection() {
             <Link className="btn btn--primary" to="/shop">Go to Shop</Link>
           </div>
         ) : (
-          <div
-            className="collection__grid"
-            data-drop-zone="bulk"
-          >
+          <div className="collection__grid" data-drop-zone="bulk">
             {bulk.map((entry) => (
               <div
                 key={entry.id}
-                className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}${binderEditMode && !editMode ? ' collection__slot--draggable' : ''}`}
+                className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}${canDrag ? ' collection__slot--draggable' : ''}`}
                 onPointerDown={e => {
                   if (e.button !== 0) return
-                  if (!editMode && binderEditMode) {
+                  if (canDrag) {
                     e.preventDefault()
                     startDrag(entry.id, entry.card.image_url, e.currentTarget)
                   }
@@ -176,7 +187,11 @@ export default function Collection() {
             onStartDrag={startDrag}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
-            onClose={() => setPanelOpen(false)}
+            onClose={handleClosePanel}
+            selectedBinderId={selectedBinderId}
+            onSelectBinder={handleSelectBinder}
+            onViewBinder={handleViewBinder}
+            onDeselectBinder={handleDeselectBinder}
             editMode={binderEditMode}
           />
         </div>
@@ -192,10 +207,7 @@ export default function Collection() {
               <p>{selected.card.set} · #{selected.card.number}</p>
               <p className="collection__rarity">{selected.card.rarity.replace('_', ' ')}</p>
             </div>
-            <button
-              className="btn btn--danger"
-              onClick={() => { openStepper(selected); setSelected(null) }}
-            >
+            <button className="btn btn--danger" onClick={() => { openStepper(selected); setSelected(null) }}>
               Remove
             </button>
             <button className="btn btn--secondary" onClick={() => setSelected(null)}>Close</button>
@@ -214,17 +226,9 @@ export default function Collection() {
               <p>You own: {removing.count}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button
-                className="btn btn--secondary"
-                onClick={() => setRemoveQty(q => Math.max(1, q - 1))}
-                disabled={removeQty <= 1}
-              >−</button>
+              <button className="btn btn--secondary" onClick={() => setRemoveQty(q => Math.max(1, q - 1))} disabled={removeQty <= 1}>−</button>
               <span>{removeQty}</span>
-              <button
-                className="btn btn--secondary"
-                onClick={() => setRemoveQty(q => Math.min(removing.count, q + 1))}
-                disabled={removeQty >= removing.count}
-              >+</button>
+              <button className="btn btn--secondary" onClick={() => setRemoveQty(q => Math.min(removing.count, q + 1))} disabled={removeQty >= removing.count}>+</button>
             </div>
             <button className="btn btn--danger" onClick={confirmRemove}>
               Remove {removeQty === removing.count ? 'all' : removeQty}

@@ -138,6 +138,17 @@
   height: 100% !important;
 }
 
+.binder-panel__edit-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #e53e3e;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .binder-panel__pagination {
   display: flex;
   align-items: center;
