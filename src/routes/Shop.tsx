@@ -1,4 +1,4 @@
-import { use, Suspense } from 'react'
+import { use, Suspense, useRef, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { useAuth } from '../hooks/useAuth'
@@ -6,6 +6,7 @@ import { useCurrency } from '../hooks/useCurrency'
 import CurrencyDisplay from '../components/ui/CurrencyDisplay'
 import { fetchPacks } from '../lib/queries'
 import type { Pack } from '../types'
+import './Shop.css'
 
 const packsPromise = fetchPacks()
 
@@ -13,6 +14,8 @@ function PackList() {
   const packs = use(packsPromise)
   const { state, dispatch } = useApp()
   const navigate = useNavigate()
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   function handleBuy(pack: Pack) {
     if (state.currency < pack.price) return
@@ -20,22 +23,73 @@ function PackList() {
     navigate('/pack-opening', { state: { packId: pack.id } })
   }
 
+  useEffect(() => {
+    const carousel = carouselRef.current
+    if (!carousel) return
+    const slots = carousel.querySelectorAll<HTMLElement>('.pack-card')
+    if (!slots.length) return
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.8) {
+            const idx = Array.from(slots).indexOf(entry.target as HTMLElement)
+            if (idx !== -1) setActiveIndex(idx)
+          }
+        })
+      },
+      { root: carousel, threshold: 0.8 }
+    )
+
+    slots.forEach(slot => observer.observe(slot))
+    return () => observer.disconnect()
+  }, [packs])
+
+  const scrollTo = useCallback((dir: -1 | 1) => {
+    carouselRef.current?.scrollBy({ left: dir * 252, behavior: 'smooth' })
+  }, [])
+
   return (
-    <div className="shop__packs">
-      {packs.map((pack) => (
-        <div key={pack.id} className="pack-card">
-          <img src={pack.image_url} alt={pack.name} className="pack-card__img" />
-          <h3 className="pack-card__name">{pack.name}</h3>
-          <p className="pack-card__price">✦ {pack.price}</p>
-          <button
-            className="btn btn--primary"
-            onClick={() => handleBuy(pack)}
-            disabled={state.currency < pack.price}
+    <div className="shop__carousel-wrap">
+      <button
+        className="shop__carousel-arrow"
+        onClick={() => scrollTo(-1)}
+        disabled={activeIndex === 0}
+        aria-label="Previous pack"
+      >
+        ‹
+      </button>
+
+      <div ref={carouselRef} className="shop__carousel">
+        {packs.map((pack, i) => (
+          <div
+            key={pack.id}
+            className={`pack-card${activeIndex === i ? ' pack-card--active' : ''}`}
           >
-            {state.currency < pack.price ? 'Not enough ✦' : 'Open Pack'}
-          </button>
-        </div>
-      ))}
+            <div className="pack-card__img-wrap">
+              <img src={pack.image_url} alt={pack.name} className="pack-card__img" />
+            </div>
+            <h3 className="pack-card__name">{pack.name}</h3>
+            <p className="pack-card__price">✦ {pack.price}</p>
+            <button
+              className="btn btn--primary pack-card__buy"
+              onClick={() => handleBuy(pack)}
+              disabled={state.currency < pack.price}
+            >
+              {state.currency < pack.price ? 'Not enough ✦' : 'Open Pack'}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <button
+        className="shop__carousel-arrow"
+        onClick={() => scrollTo(1)}
+        disabled={activeIndex === packs.length - 1}
+        aria-label="Next pack"
+      >
+        ›
+      </button>
     </div>
   )
 }

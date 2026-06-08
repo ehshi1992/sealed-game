@@ -1,0 +1,147 @@
+/* src/routes/Shop.css */
+
+.shop {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.shop__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.shop__title {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.shop__header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Carousel ───────────────────────────────────────────── */
+.shop__carousel-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shop__carousel {
+  display: flex;
+  gap: 2rem;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 3rem 4rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.shop__carousel::-webkit-scrollbar { display: none; }
+
+.shop__carousel-arrow {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.shop__carousel-arrow:hover { background: var(--border); }
+.shop__carousel-arrow:disabled { opacity: 0.3; cursor: default; }
+
+/* ─── Pack card ──────────────────────────────────────────── */
+.pack-card {
+  scroll-snap-align: center;
+  flex-shrink: 0;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transform: scale(0.85);
+  opacity: 0.55;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.35s ease,
+              border-color 0.35s ease;
+}
+
+.pack-card--active {
+  transform: scale(1);
+  opacity: 1;
+  border-color: var(--accent);
+  animation: pack-card-breathe 3s ease-in-out infinite;
+}
+
+@keyframes pack-card-breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.02); }
+}
+
+.pack-card__img-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.pack-card__img {
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.pack-card__name {
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pack-card__price {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.pack-card__buy {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  width: 100%;
+}
+
+.pack-card--active .pack-card__buy {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.shop__loading {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 4rem;
+}
