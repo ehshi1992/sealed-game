@@ -1,16 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Card } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import ParticleBurst from '../ParticleBurst/ParticleBurst'
 import './PackRip.css'
 
-type Phase =
-  | 'idle'
-  | 'shaking'
-  | 'tearing'
-  | 'revealing'
-  | 'done'
+type Phase = 'idle' | 'grabbed' | 'tearing' | 'discarded' | 'dealing' | 'summary'
 
 type Props = {
   packImageUrl: string
@@ -18,126 +13,187 @@ type Props = {
   onComplete: () => void
 }
 
+const TEAR_THRESHOLD = 80   // px horizontal drag to trigger tear
+const TEAR_VELOCITY  = 0.5  // px/ms — fast flick also triggers
+
 export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('idle')
-  const [flipped, setFlipped] = useState<boolean[]>([])
-  const [revealedCount, setRevealedCount] = useState(0)
+  const [dealIndex, setDealIndex] = useState(0)
+  const [flipped, setFlipped] = useState(false)
   const [burst, setBurst] = useState<{ x: number; y: number } | null>(null)
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
 
-  useEffect(() => {
-    if (phase === 'revealing' && cards.length > 0) {
-      setFlipped(new Array(cards.length).fill(false))
-      // Stagger card reveal
-      let i = 0
-      const interval = setInterval(() => {
-        i++
-        setRevealedCount(i)
-        if (i >= cards.length) clearInterval(interval)
-      }, 150)
-      return () => clearInterval(interval)
-    }
-  }, [phase, cards.length])
+  const packRef      = useRef<HTMLDivElement>(null)
+  const grabXRef     = useRef(0)
+  const grabTimeRef  = useRef(0)
+  const cardDealRef  = useRef<HTMLDivElement>(null)
 
-  function handlePackClick() {
+  // ── Drag handlers ──────────────────────────────────────
+  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (phase !== 'idle') return
-    setPhase('shaking')
-    setTimeout(() => setPhase('tearing'), 500)
-    setTimeout(() => setPhase('revealing'), 900)
+    e.currentTarget.setPointerCapture(e.pointerId)
+    grabXRef.current    = e.clientX
+    grabTimeRef.current = performance.now()
+    setPhase('grabbed')
   }
 
-  function handleCardFlip(index: number) {
-    setFlipped(prev => {
-      const next = [...prev]
-      next[index] = !next[index]
-      return next
-    })
-    const card = cards[index]
-    if (card && (card.rarity === 'secret_rare' || card.rarity === 'ultra_rare')) {
-      const el = cardRefs.current[index]
-      if (el) {
-        const rect = el.getBoundingClientRect()
-        const x = rect.left + rect.width / 2
-        const y = rect.top + rect.height / 2
-        setBurst({ x, y })
-        setTimeout(() => setBurst(null), 1500)
+  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (phase !== 'grabbed') return
+    const dx = Math.abs(e.clientX - grabXRef.current)
+    packRef.current?.style.setProperty('--tear-dx', `${dx / 2}px`)
+  }
+
+  function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    if (phase !== 'grabbed') return
+    const dx  = Math.abs(e.clientX - grabXRef.current)
+    const dt  = performance.now() - grabTimeRef.current
+    const vel = dt > 0 ? dx / dt : 0
+
+    if (dx >= TEAR_THRESHOLD || vel >= TEAR_VELOCITY) {
+      doTear()
+    } else {
+      snapBack()
+    }
+  }
+
+  function handlePointerCancel() {
+    if (phase === 'grabbed') snapBack()
+  }
+
+  function snapBack() {
+    packRef.current?.style.setProperty('--tear-dx', '0px')
+    setPhase('idle')
+  }
+
+  function doTear() {
+    setPhase('tearing')
+    setTimeout(() => {
+      setPhase('discarded')
+      setDealIndex(0)
+      setFlipped(false)
+      setTimeout(() => setPhase('dealing'), 100)
+    }, 450)
+  }
+
+  // ── Deal handlers ──────────────────────────────────────
+  function handleDealClick() {
+    if (phase !== 'dealing') return
+    if (!flipped) {
+      // Flip current card face-up
+      setFlipped(true)
+      const card = cards[dealIndex]
+      if (card && (card.rarity === 'secret_rare' || card.rarity === 'ultra_rare')) {
+        const el = cardDealRef.current
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          setBurst({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+          setTimeout(() => setBurst(null), 1500)
+        }
+      }
+    } else {
+      // Advance to next card or summary
+      const next = dealIndex + 1
+      if (next >= cards.length) {
+        setPhase('summary')
+      } else {
+        setDealIndex(next)
+        setFlipped(false)
       }
     }
   }
 
-  function allFlipped() {
-    return flipped.length > 0 && flipped.every(Boolean)
-  }
+  const currentCard = cards[dealIndex]
 
   return (
     <div className="pack-rip">
-      {(phase === 'idle' || phase === 'shaking' || phase === 'tearing') && (
+
+      {/* ── Pack (idle / grabbed / tearing) ── */}
+      {(phase === 'idle' || phase === 'grabbed' || phase === 'tearing') && (
         <>
           <div
-            className={`pack-rip__pack${phase === 'shaking' ? ' pack-rip__pack--shaking' : ''}`}
-            onClick={handlePackClick}
+            ref={packRef}
+            className={[
+              'pack-rip__pack',
+              phase === 'idle'    ? 'pack-rip__pack--idle'    : '',
+              phase === 'grabbed' ? 'pack-rip__pack--grabbed' : '',
+            ].join(' ').trim()}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
           >
             <img
               src={packImageUrl}
               alt="Pack"
-              className={`pack-rip__top${phase === 'tearing' ? ' pack-rip__top--tearing' : ''}`}
+              className={`pack-rip__left${phase === 'tearing' ? ' pack-rip__left--tearing' : ''}`}
             />
             <img
               src={packImageUrl}
               alt=""
               aria-hidden
-              className={`pack-rip__bottom${phase === 'tearing' ? ' pack-rip__bottom--tearing' : ''}`}
+              className={`pack-rip__right${phase === 'tearing' ? ' pack-rip__right--tearing' : ''}`}
             />
           </div>
           {phase === 'idle' && (
-            <p className="pack-rip__hint">Click the pack to open it</p>
+            <p className="pack-rip__hint">Drag to rip open</p>
           )}
         </>
       )}
 
-      {(phase === 'revealing' || phase === 'done') && (
+      {/* ── Deal phase — one card at a time ── */}
+      {phase === 'dealing' && currentCard && (
+        <div className="pack-rip__deal" onClick={handleDealClick}>
+          <p className="pack-rip__progress">{dealIndex + 1} / {cards.length}</p>
+          <div
+            key={`deal-${dealIndex}`}
+            ref={cardDealRef}
+            className="pack-rip__deal-card card-flip"
+          >
+            <div className={`card-flip__inner${flipped ? ' card-flip__inner--flipped' : ''}`}>
+              <div className="card-flip__front card-back">✦</div>
+              <div className="card-flip__back">
+                <HoloCard card={currentCard} size="sm" />
+              </div>
+            </div>
+          </div>
+          <p className="pack-rip__hint">
+            {flipped
+              ? dealIndex + 1 < cards.length ? 'Tap for next →' : 'Tap to see all'
+              : 'Tap to reveal'}
+          </p>
+        </div>
+      )}
+
+      {/* ── Summary — all cards ── */}
+      {phase === 'summary' && (
         <>
-          <div className="pack-rip__cards">
-            {cards.slice(0, revealedCount).map((card, i) => (
+          <div className="pack-rip__summary">
+            {cards.map((card, i) => (
               <div
                 key={card.id + i}
-                ref={el => { cardRefs.current[i] = el }}
-                className={`pack-rip__card-slot${card.rarity === 'secret_rare' || card.rarity === 'ultra_rare' ? ' pack-rip__card-slot--rare' : ''}`}
-                style={{ animationDelay: `${i * 0.05}s` }}
+                className={[
+                  'pack-rip__card-slot',
+                  card.rarity === 'secret_rare' || card.rarity === 'ultra_rare'
+                    ? 'pack-rip__card-slot--rare'
+                    : '',
+                ].join(' ').trim()}
+                style={{ animationDelay: `${i * 0.06}s` }}
               >
-                <div className="card-flip" onClick={() => handleCardFlip(i)}>
-                  <div className={`card-flip__inner${flipped[i] ? ' card-flip__inner--flipped' : ''}`}>
-                    <div className="card-flip__front card-back">✦</div>
-                    <div className="card-flip__back">
-                      <HoloCard card={card} size="sm" />
-                    </div>
-                  </div>
-                </div>
+                <HoloCard card={card} size="sm" />
               </div>
             ))}
           </div>
-
-          {revealedCount < cards.length && (
-            <p className="pack-rip__hint">Cards incoming…</p>
-          )}
-
-          {revealedCount >= cards.length && !allFlipped() && (
-            <p className="pack-rip__hint">Tap cards to reveal</p>
-          )}
-
-          {allFlipped() && (
-            <div className="pack-rip__actions">
-              <button className="btn btn--secondary" onClick={() => navigate('/shop')}>
-                ← Back to Shop
-              </button>
-              <button className="btn btn--primary" onClick={onComplete}>
-                Add to Collection
-              </button>
-            </div>
-          )}
+          <div className="pack-rip__actions">
+            <button className="btn btn--secondary" onClick={() => navigate('/shop')}>
+              ← Back to Shop
+            </button>
+            <button className="btn btn--primary" onClick={onComplete}>
+              Add to Collection
+            </button>
+          </div>
         </>
       )}
+
       {burst && <ParticleBurst x={burst.x} y={burst.y} active={true} />}
     </div>
   )
