@@ -272,10 +272,10 @@ body {
 
 .collection__panel-wrapper--edit {
   width: 160px;
-  background: var(--surface);
-  border-left-color: rgba(229, 62, 62, 0.3);
+  background: rgba(30, 10, 10, 0.98);
+  border-left-color: rgba(229, 62, 62, 0.4);
   overflow: hidden;
-  transition: width 0.2s, border-left-color 0.25s;
+  transition: width 0.2s, background 0.25s, border-left-color 0.25s;
 }
 
 /* ─── Binder drag overlay ───────────────────────────────────── */

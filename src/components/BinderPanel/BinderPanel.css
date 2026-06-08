@@ -14,9 +14,10 @@
 
 /* ─── Edit mode (mini) ─────────────────────────────────────── */
 .binder-panel--edit-mode {
-  background: rgba(229, 62, 62, 0.06);
-  border-color: rgba(229, 62, 62, 0.25);
+  background: rgba(229, 62, 62, 0.12);
+  border-color: rgba(229, 62, 62, 0.3);
   transition: background 0.25s, border-color 0.25s;
+  height: 100%;
 }
 
 .binder-panel--edit-mode .binder-panel__header {

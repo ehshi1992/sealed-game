@@ -62,17 +62,14 @@ export default function BinderPanel({
       <div className={`binder-panel${mini ? ' binder-panel--edit-mode' : ''}`}>
         <div className="binder-panel__header">
           {mini ? (
-            <>
-              <span className="binder-panel__edit-badge">Editing</span>
-              <button className="btn btn--secondary btn--sm" onClick={onDeselectBinder}>Done</button>
-            </>
+            <button className="btn btn--secondary btn--sm" style={{ width: '100%' }} onClick={onDeselectBinder}>Done</button>
           ) : (
             <>
               <h2>Binders</h2>
               <button className="btn btn--primary btn--sm" onClick={() => setShowCreateForm(s => !s)}>+ New</button>
+              {onClose && <button className="btn btn--secondary btn--sm" onClick={onClose}>×</button>}
             </>
           )}
-          {onClose && <button className="btn btn--secondary btn--sm" onClick={onClose}>×</button>}
         </div>
 
         {!mini && showCreateForm && (
