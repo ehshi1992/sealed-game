@@ -4,6 +4,8 @@ import type { Card } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import ParticleBurst from '../ParticleBurst/ParticleBurst'
 import './PackRip.css'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- wired in Task 3
+import { calcTearPct as _calcTearPct, shouldFlyOff as _shouldFlyOff } from './packRipLogic'
 
 type Phase = 'idle' | 'grabbed' | 'tearing' | 'discarded' | 'dealing' | 'summary'
 
@@ -132,17 +134,19 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerCancel}
           >
-            <img
-              src={packImageUrl}
-              alt="Pack"
-              className={`pack-rip__left${phase === 'tearing' ? ' pack-rip__left--tearing' : ''}`}
-            />
-            <img
-              src={packImageUrl}
-              alt=""
-              aria-hidden
-              className={`pack-rip__right${phase === 'tearing' ? ' pack-rip__right--tearing' : ''}`}
-            />
+            <div className="pack-rip__body">
+              <img src={packImageUrl} alt="" aria-hidden />
+            </div>
+            <div className={`pack-rip__flap${phase === 'tearing' ? ' pack-rip__flap--tearing' : ''}`}>
+              <img src={packImageUrl} alt="Pack" />
+            </div>
+            <div className="pack-rip__perf" aria-hidden>
+              <svg width="100%" height="100%" viewBox="0 0 200 8" preserveAspectRatio="none">
+                <line x1="8" y1="4" x2="90" y2="4" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeDasharray="5 3" />
+                <line x1="110" y1="4" x2="192" y2="4" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeDasharray="5 3" />
+                <polygon points="96,1 104,1 100,7" fill="rgba(255,255,255,0.95)" />
+              </svg>
+            </div>
           </div>
           {phase === 'idle' && (
             <p className="pack-rip__hint">Drag to rip open</p>

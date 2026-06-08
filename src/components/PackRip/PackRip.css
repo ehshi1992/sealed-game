@@ -32,32 +32,56 @@
   50%       { transform: scale(1.02); }
 }
 
-/* Left/right halves */
-.pack-rip__left,
-.pack-rip__right {
+/* ─── Flap (top 15%) + Body (bottom 85%) ───────────────── */
+.pack-rip__flap,
+.pack-rip__body {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-  filter: drop-shadow(0 0 24px var(--accent-glow));
-  will-change: transform;
-  z-index: 1;
+  pointer-events: none;
 }
 
-.pack-rip__left  { clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }
-.pack-rip__right { clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%); }
+.pack-rip__flap { clip-path: inset(0 0 85% 0); }
+.pack-rip__body { clip-path: inset(15% 0 0 0); }
 
-/* Drag: halves move apart via CSS custom property */
+.pack-rip__flap img,
+.pack-rip__body img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 24px var(--accent-glow));
+  display: block;
+}
+
+.pack-rip__flap {
+  transform: translateY(calc(var(--tear-pct, 0) * -10px))
+             rotate(calc(var(--tear-pct, 0) * -3deg));
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.pack-rip__pack--idle .pack-rip__flap {
+  transition: transform 0.3s ease-out;
+}
+
+/* ─── Perforations overlay ──────────────────────────────── */
+.pack-rip__perf {
+  position: absolute;
+  top: calc(15% - 4px);
+  left: 0;
+  width: 100%;
+  height: 8px;
+  pointer-events: none;
+  z-index: 3;
+  opacity: calc(0.3 + var(--tear-pct, 0) * 0.7);
+}
+
+/* ─── Drag: cursor ──────────────────────────────────────── */
 .pack-rip__pack--grabbed {
   cursor: grabbing;
 }
 
-.pack-rip__pack--grabbed .pack-rip__left  { transform: translateX(calc(-1 * var(--tear-dx, 0px))); }
-.pack-rip__pack--grabbed .pack-rip__right { transform: translateX(var(--tear-dx, 0px)); }
-
-/* Continuous shimmer sweep */
+/* ─── Shimmer sweep ─────────────────────────────────────── */
 .pack-rip__pack::after {
   content: '';
   position: absolute;
