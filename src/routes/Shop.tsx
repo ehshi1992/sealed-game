@@ -46,19 +46,26 @@ function PackList() {
   }, [packs])
 
   const scrollTo = useCallback((dir: -1 | 1) => {
-    carouselRef.current?.scrollBy({ left: dir * 252, behavior: 'smooth' })
+    const carousel = carouselRef.current
+    if (!carousel) return
+    const card = carousel.querySelector<HTMLElement>('.pack-card')
+    const gap = 32 // 2rem at 16px base
+    const step = card ? card.offsetWidth + gap : 252
+    carousel.scrollBy({ left: dir * step, behavior: 'smooth' })
   }, [])
 
   return (
     <div className="shop__carousel-wrap">
-      <button
-        className="shop__carousel-arrow"
-        onClick={() => scrollTo(-1)}
-        disabled={activeIndex === 0}
-        aria-label="Previous pack"
-      >
-        ‹
-      </button>
+      {packs.length > 1 && (
+        <button
+          className="shop__carousel-arrow"
+          onClick={() => scrollTo(-1)}
+          disabled={activeIndex === 0}
+          aria-label="Previous pack"
+        >
+          ‹
+        </button>
+      )}
 
       <div ref={carouselRef} className="shop__carousel">
         {packs.map((pack, i) => (
@@ -82,14 +89,16 @@ function PackList() {
         ))}
       </div>
 
-      <button
-        className="shop__carousel-arrow"
-        onClick={() => scrollTo(1)}
-        disabled={activeIndex === packs.length - 1}
-        aria-label="Next pack"
-      >
-        ›
-      </button>
+      {packs.length > 1 && (
+        <button
+          className="shop__carousel-arrow"
+          onClick={() => scrollTo(1)}
+          disabled={activeIndex === packs.length - 1}
+          aria-label="Next pack"
+        >
+          ›
+        </button>
+      )}
     </div>
   )
 }
