@@ -62,7 +62,7 @@ export default function BinderPanel({
       <div className={`binder-panel${mini ? ' binder-panel--edit-mode' : ''}`}>
         <div className="binder-panel__header">
           {mini ? (
-            <button className="btn btn--secondary btn--sm" style={{ width: '100%' }} onClick={onDeselectBinder}>Done</button>
+            <button className="binder-panel__done-btn" onClick={onDeselectBinder} title="Done editing">✓</button>
           ) : (
             <>
               <h2>Binders</h2>

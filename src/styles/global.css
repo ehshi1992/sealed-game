@@ -133,7 +133,7 @@ body {
 }
 
 .collection--panel-open-edit {
-  padding-right: calc(160px + 1.5rem);
+  padding-right: calc(56px + 1.5rem);
 }
 
 .collection__toolbar {
@@ -271,7 +271,7 @@ body {
 }
 
 .collection__panel-wrapper--edit {
-  width: 160px;
+  width: 56px;
   background: rgba(30, 10, 10, 0.98);
   border-left-color: rgba(229, 62, 62, 0.4);
   overflow: hidden;
