@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { removeFromCollection, createBinder, deleteBinder, moveCard } from '../lib/queries'
@@ -166,6 +167,7 @@ export default function Collection() {
                   }
                 }}
                 onClick={() => {
+                  if (canDrag) return
                   if (editMode) openStepper(entry)
                   else setSelected(entry)
                 }}
@@ -181,7 +183,7 @@ export default function Collection() {
         )}
       </div>
 
-      {panelOpen && (
+      {panelOpen && createPortal(
         <div className={`collection__panel-wrapper${binderEditMode ? ' collection__panel-wrapper--edit' : ''}${draggedEntryId && !binderEditMode ? ' collection__panel-wrapper--dragging' : ''}`}>
           <BinderPanel
             binders={binders}
@@ -195,7 +197,8 @@ export default function Collection() {
             onDeselectBinder={handleDeselectBinder}
             editMode={binderEditMode}
           />
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Binder drag overlay — shows selected binder spread when dragging in edit mode */}
@@ -211,7 +214,7 @@ export default function Collection() {
         const maxPos = binderCards.reduce((m, e) => Math.max(m, e.binder_position ?? -1), -1)
         const totalPages = Math.max(1, Math.ceil((maxPos + 1) / 9))
 
-        return (
+        return createPortal(
           <div className="binder-drag-overlay">
             <div className="binder-drag-overlay__header">
               <span className="binder-panel__swatch" style={{ background: binder.color }} />
@@ -237,7 +240,8 @@ export default function Collection() {
                 )
               })}
             </div>
-          </div>
+          </div>,
+          document.body
         )
       })()}
 
