@@ -273,20 +273,25 @@ body {
   border-radius: 8px;
 }
 
-/* Binder full-width spread view — collection above, spread below */
-.collection--binder-view .collection__toolbar {
-  flex-basis: 100%;
+/* Binder view — collection scrolls, spread sticks to bottom half */
+.collection--binder-view {
+  padding-bottom: 0 !important;
 }
 
 .collection--binder-view .collection__main {
   display: block;
   flex-basis: 100%;
+  padding-bottom: 50vh;
 }
 
 .collection--binder-view .collection__panel-wrapper {
-  flex-basis: 100%;
+  position: sticky;
+  bottom: 0;
   width: 100%;
-  position: static;
-  max-height: none;
-  overflow-y: visible;
+  height: 50vh;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  z-index: 10;
 }
