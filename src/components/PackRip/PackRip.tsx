@@ -92,16 +92,66 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     }, 450)
   }
 
-  // ── Card drag handlers (stubs — implemented in Task 6) ──
-  function handleCardPointerDown(_e: React.PointerEvent<HTMLDivElement>) {
-    void dragStartRef
+  // ── Card drag handlers ─────────────────────────────────
+  function handleCardPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (phase !== 'dealing' || flying) return
+    e.currentTarget.setPointerCapture(e.pointerId)
+    dragStartRef.current = { x: e.clientX, y: e.clientY, time: performance.now() }
   }
-  function handleCardPointerMove(_e: React.PointerEvent<HTMLDivElement>) {}
-  function handleCardPointerUp(_e: React.PointerEvent<HTMLDivElement>) {
-    void FLY_VELOCITY
-    void setBurst
+
+  function handleCardPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragStartRef.current || flying) return
+    const dx = e.clientX - dragStartRef.current.x
+    const dy = e.clientY - dragStartRef.current.y
+    setDragState({ dx, dy })
   }
-  function handleCardPointerCancel() {}
+
+  function handleCardPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragStartRef.current) return
+    const dx = e.clientX - dragStartRef.current.x
+    const dy = e.clientY - dragStartRef.current.y
+    const distance = Math.sqrt(dx * dx + dy * dy)
+    const dt = performance.now() - dragStartRef.current.time
+    const velocity = dt > 0 ? distance / dt : 0
+    dragStartRef.current = null
+
+    if (shouldFlyOff(distance, FLY_THRESHOLD, velocity, FLY_VELOCITY)) {
+      flyCard(dx, dy)
+    } else {
+      setDragState(null)
+    }
+  }
+
+  function handleCardPointerCancel() {
+    dragStartRef.current = null
+    setDragState(null)
+  }
+
+  function flyCard(dx: number, dy: number) {
+    const card = cards[deckIndex]
+    if (card && (card.rarity === 'secret_rare' || card.rarity === 'ultra_rare')) {
+      const el = topCardRef.current
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        setBurst({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+        setTimeout(() => setBurst(null), 1500)
+      }
+    }
+
+    setDragState(null)
+    setFlying({ dx: dx * 6, dy: dy * 6 })
+
+    setTimeout(() => {
+      if (!mountedRef.current) return
+      const next = deckIndex + 1
+      if (next >= cards.length) {
+        setPhase('summary')
+      } else {
+        setDeckIndex(next)
+        setFlying(null)
+      }
+    }, 320)
+  }
 
   const dragDistance = dragState
     ? Math.sqrt(dragState.dx ** 2 + dragState.dy ** 2)
