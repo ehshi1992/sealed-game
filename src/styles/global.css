@@ -273,25 +273,29 @@ body {
   border-radius: 8px;
 }
 
-/* Binder view — collection scrolls, spread sticks to bottom half */
-.collection--binder-view {
-  padding-bottom: 0 !important;
-}
-
+/* Binder view — fixed bottom sheet, collection scrolls behind */
 .collection--binder-view .collection__main {
   display: block;
   flex-basis: 100%;
-  padding-bottom: 50vh;
+  padding-bottom: 52vh;
 }
 
 .collection--binder-view .collection__panel-wrapper {
-  position: sticky;
+  position: fixed;
   bottom: 0;
-  width: 100%;
+  left: 220px;
+  right: 0;
   height: 50vh;
   max-height: 50vh;
   overflow-y: auto;
   background: var(--bg);
-  border-top: 1px solid var(--border);
-  z-index: 10;
+  border-top: 2px solid var(--border);
+  z-index: 50;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .collection--binder-view .collection__panel-wrapper {
+    left: 0;
+  }
 }
