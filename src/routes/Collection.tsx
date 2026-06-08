@@ -95,11 +95,16 @@ export default function Collection() {
     if (zoneId === 'bulk') {
       const entry = collection.find(e => e.id === entryId)
       if (entry && entry.binder_id !== null) handleMoveCard(entryId, null, null)
+      setPanelOpen(false)
     } else if (zoneId.startsWith('binder-slot:')) {
       const [, binderId, slotStr] = zoneId.split(':')
       handleMoveCard(entryId, binderId, parseInt(slotStr))
+      setPanelOpen(false)
     } else if (zoneId.startsWith('binder:')) {
       handleMoveCard(entryId, zoneId.slice(7), null)
+      setPanelOpen(false)
+    } else {
+      setPanelOpen(false)
     }
   }
 
@@ -139,8 +144,9 @@ export default function Collection() {
                 className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}`}
                 onPointerDown={e => {
                   if (e.button !== 0) return
-                  if (!editMode && panelOpen) {
+                  if (!editMode) {
                     e.preventDefault()
+                    setPanelOpen(true)
                     startDrag(entry.id, entry.card.image_url, e.currentTarget)
                   }
                 }}

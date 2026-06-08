@@ -236,22 +236,18 @@ body {
   }
 }
 
-/* Binder panel — fixed bottom sheet whenever open */
-.collection--panel-open .collection__main {
-  padding-bottom: 52vh;
-}
-
+/* Binder panel — fixed right overlay over collection */
 .collection__panel-wrapper {
   position: fixed;
-  bottom: 0;
-  left: 220px;
+  top: 0;
   right: 0;
-  height: 50vh;
+  bottom: 0;
+  width: min(420px, calc(100vw - 220px));
   overflow-y: auto;
-  background: var(--bg);
-  border-top: 2px solid var(--border);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
   z-index: 50;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.5);
 }
 
 .collection__slot--dragging {
@@ -267,6 +263,6 @@ body {
 
 @media (max-width: 768px) {
   .collection__panel-wrapper {
-    left: 0;
+    width: 100%;
   }
 }
