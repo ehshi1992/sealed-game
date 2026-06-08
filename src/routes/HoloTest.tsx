@@ -122,6 +122,12 @@ const TEST_CARDS: Card[] = [
     holo_type: 'standard', artwork_bounds: BOUNDS_STANDARD,
     holo_seed: { x: 0.21, y: 0.67 },
   },
+  {
+    id: 't5', name: 'Fire Energy (Base Set)', set: 'base1', number: '98',
+    rarity: 'common', image_url: 'https://images.pokemontcg.io/base1/98_hires.png',
+    holo_type: 'standard', artwork_bounds: { x: 0.08, y: 0.10, w: 0.84, h: 0.75 },
+    holo_seed: { x: 0.44, y: 0.29 },
+  },
 ]
 
 export default function HoloTest() {

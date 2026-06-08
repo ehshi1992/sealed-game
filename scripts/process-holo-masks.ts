@@ -5,12 +5,12 @@ dotenv.config({ path: '.env.local' })
 import type { ArtworkBounds } from '../src/types'
 
 const LAYOUT_DEFAULTS: Record<string, ArtworkBounds> = {
-  standard: { x: 0.07, y: 0.11, w: 0.86, h: 0.36 },
-  ex_gx:    { x: 0.07, y: 0.09, w: 0.86, h: 0.40 },
-  v_vmax:   { x: 0.00, y: 0.00, w: 1.00, h: 0.65 },
-  full_art:  { x: 0.00, y: 0.00, w: 1.00, h: 1.00 },
-  trainer:  { x: 0.20, y: 0.12, w: 0.60, h: 0.28 },
-  energy:   { x: 0.20, y: 0.12, w: 0.60, h: 0.28 },
+  standard: { x: 0.07, y: 0.135, w: 0.86, h: 0.385 },
+  ex_gx:    { x: 0.07, y: 0.09,  w: 0.86, h: 0.42  },
+  v_vmax:   { x: 0.00, y: 0.00,  w: 1.00, h: 0.65  },
+  full_art:  { x: 0.00, y: 0.00,  w: 1.00, h: 1.00  },
+  trainer:  { x: 0.20, y: 0.12,  w: 0.60, h: 0.28  },
+  energy:   { x: 0.20, y: 0.12,  w: 0.60, h: 0.28  },
 }
 
 export function getLayoutBounds(layoutType: string): ArtworkBounds {
@@ -26,10 +26,9 @@ async function main() {
   const { data: cards, error } = await supabase
     .from('cards')
     .select('id, card_layout_type')
-    .is('artwork_bounds', null)
 
   if (error) { console.error(error); process.exit(1) }
-  if (!cards || cards.length === 0) { console.log('All cards already have artwork_bounds.'); return }
+  if (!cards || cards.length === 0) { console.log('No cards found.'); return }
 
   console.log(`Processing ${cards.length} cards…`)
 

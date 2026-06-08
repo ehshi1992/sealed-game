@@ -48,7 +48,8 @@ export function useDrag(onDrop: DropHandler) {
     d.originEl = el
     el.style.opacity = '0.3'
 
-    const rect    = el.getBoundingClientRect()
+    const cardEl  = (el.querySelector('.card') as HTMLElement) ?? el
+    const rect    = cardEl.getBoundingClientRect()
     d.offsetX = rect.width  / 2
     d.offsetY = rect.height / 2
 

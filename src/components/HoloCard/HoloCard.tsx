@@ -136,7 +136,7 @@ export default function HoloCard({
       } as React.CSSProperties}
     >
       <div className="card__translucent" />
-      <img className="card__img" src={card.image_url} alt={card.name} />
+      <img className="card__img" src={card.image_url} alt={card.name} draggable={false} />
       <div className="card__holo" />
       <div className="card__sparkle" />
       <div className="card__glare" />

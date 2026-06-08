@@ -1,235 +1,195 @@
 // scripts/extract-holo-bitmap.ts
+// Extracts greyscale thresh bitmaps from full-card reference photos.
+// image-full-angled: perspective-corrected via homography before thresh.
+// image-full-bordered / image-full-scanned: direct crop + thresh.
+
 import sharp from 'sharp'
 import path from 'path'
 import fs from 'fs'
 
-const TEX = 512
-const OUT = path.resolve('public/textures/cosmo-bitmap.png')
+const W = 512
+const H = Math.round(W * 88 / 63)  // 715 — card portrait ratio
 const REF_DIR = path.resolve('docs/holo-reference')
-const BRIGHT_THRESHOLD = 180  // 0-255, pixels above this are "bright"
+const OUT_DIR = path.resolve('public/textures/cosmo-bitmaps')
 
-interface Component {
-  pixels: number[]  // flat indices into TEX×TEX grid
-  minX: number; maxX: number; minY: number; maxY: number
-}
+// ---------------------------------------------------------------------------
+// Homography helpers
+// ---------------------------------------------------------------------------
 
-function findComponents(luma: Uint8Array): Component[] {
-  const visited = new Uint8Array(TEX * TEX)
-  const components: Component[] = []
-
-  for (let start = 0; start < TEX * TEX; start++) {
-    if (luma[start] < BRIGHT_THRESHOLD || visited[start]) continue
-
-    // BFS flood fill (8-connectivity)
-    const pixels: number[] = []
-    const queue = [start]
-    visited[start] = 1
-    let minX = TEX, maxX = 0, minY = TEX, maxY = 0
-
-    while (queue.length > 0) {
-      const idx = queue.pop()!
-      pixels.push(idx)
-      const x = idx % TEX
-      const y = (idx / TEX) | 0
-      if (x < minX) minX = x; if (x > maxX) maxX = x
-      if (y < minY) minY = y; if (y > maxY) maxY = y
-
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          if (dx === 0 && dy === 0) continue
-          const nx = x + dx, ny = y + dy
-          if (nx < 0 || nx >= TEX || ny < 0 || ny >= TEX) continue
-          const ni = ny * TEX + nx
-          if (!visited[ni] && luma[ni] >= BRIGHT_THRESHOLD) {
-            visited[ni] = 1
-            queue.push(ni)
-          }
-        }
-      }
-    }
-
-    components.push({ pixels, minX, maxX, minY, maxY })
+// Solve 3×3 homography from 4 src→dst point pairs.
+// Returns H such that dst ~ H * src (in homogeneous coords).
+function solveHomography(
+  src: [number, number][],
+  dst: [number, number][]
+): number[] {
+  // Build 8×8 system Ax = b
+  const A: number[][] = []
+  const b: number[] = []
+  for (let i = 0; i < 4; i++) {
+    const [sx, sy] = src[i]
+    const [dx, dy] = dst[i]
+    A.push([sx, sy, 1, 0,  0,  0, -dx * sx, -dx * sy])
+    b.push(dx)
+    A.push([0,  0,  0, sx, sy, 1, -dy * sx, -dy * sy])
+    b.push(dy)
   }
-
-  return components
+  // Gaussian elimination
+  const n = 8
+  const M = A.map((row, i) => [...row, b[i]])
+  for (let col = 0; col < n; col++) {
+    let maxRow = col
+    for (let row = col + 1; row < n; row++)
+      if (Math.abs(M[row][col]) > Math.abs(M[maxRow][col])) maxRow = row;
+    [M[col], M[maxRow]] = [M[maxRow], M[col]]
+    const pivot = M[col][col]
+    for (let row = col + 1; row < n; row++) {
+      const f = M[row][col] / pivot
+      for (let k = col; k <= n; k++) M[row][k] -= f * M[col][k]
+    }
+  }
+  const x = new Array(n).fill(0)
+  for (let i = n - 1; i >= 0; i--) {
+    x[i] = M[i][n]
+    for (let j = i + 1; j < n; j++) x[i] -= M[i][j] * x[j]
+    x[i] /= M[i][i]
+  }
+  return [...x, 1]  // h00..h22 row-major
 }
 
-async function processOne(imgPath: string): Promise<{ R: Float32Array; G: Float32Array; B: Float32Array }> {
-  const px = TEX * TEX
+// Map output pixel (ox, oy) back to source coords via inverse homography.
+function applyHomographyInverse(H: number[], ox: number, oy: number): [number, number] {
+  // H is forward (src→dst). We need H^-1. Compute via 3×3 inverse.
+  const [h0,h1,h2,h3,h4,h5,h6,h7,h8] = H
+  // 3×3 cofactor inverse
+  const det =
+    h0*(h4*h8-h5*h7) - h1*(h3*h8-h5*h6) + h2*(h3*h7-h4*h6)
+  const inv = [
+    (h4*h8-h5*h7)/det, (h2*h7-h1*h8)/det, (h1*h5-h2*h4)/det,
+    (h5*h6-h3*h8)/det, (h0*h8-h2*h6)/det, (h2*h3-h0*h5)/det,
+    (h3*h7-h4*h6)/det, (h1*h6-h0*h7)/det, (h0*h4-h1*h3)/det,
+  ]
+  const w = inv[6]*ox + inv[7]*oy + inv[8]
+  return [(inv[0]*ox + inv[1]*oy + inv[2]) / w,
+          (inv[3]*ox + inv[4]*oy + inv[5]) / w]
+}
 
-  const { data: raw } = await sharp(imgPath)
-    .resize(TEX, TEX, { fit: 'cover' })
+function bilinear(buf: Buffer, bw: number, bh: number, x: number, y: number): number {
+  const x0 = Math.floor(x), y0 = Math.floor(y)
+  const x1 = Math.min(x0 + 1, bw - 1), y1 = Math.min(y0 + 1, bh - 1)
+  const fx = x - x0, fy = y - y0
+  const x0c = Math.max(0, x0), y0c = Math.max(0, y0)
+  const tl = buf[y0c * bw + x0c]
+  const tr = buf[y0c * bw + x1]
+  const bl = buf[y1  * bw + x0c]
+  const br = buf[y1  * bw + x1]
+  return tl*(1-fx)*(1-fy) + tr*fx*(1-fy) + bl*(1-fx)*fy + br*fx*fy
+}
+
+// ---------------------------------------------------------------------------
+// Extract functions
+// ---------------------------------------------------------------------------
+
+async function extractThresh(
+  srcPath: string,
+  outPath: string,
+  opts: { threshold: number; boost: number },
+  crop?: { left: number; top: number; width: number; height: number }
+) {
+  let pipeline = sharp(srcPath)
+  if (crop) pipeline = pipeline.extract(crop)
+  const { data, info } = await pipeline
+    .resize(W, H, { fit: 'cover', position: 'centre' })
     .greyscale()
     .raw()
     .toBuffer({ resolveWithObject: true })
 
-  const luma = raw as unknown as Uint8Array
-  const components = findComponents(luma)
-
-  const R = new Float32Array(px)
-  const G = new Float32Array(px)
-  const Braw = new Float32Array(px)
-
-  for (const comp of components) {
-    const area = comp.pixels.length
-    const bboxW = comp.maxX - comp.minX + 1
-    const bboxH = comp.maxY - comp.minY + 1
-    const bboxArea = bboxW * bboxH
-    const elongation = Math.max(bboxW, bboxH) / Math.max(1, Math.min(bboxW, bboxH))
-    const fill = area / bboxArea
-
-    if (area > 600 && elongation < 2.5) {
-      // Skip circle-fill for border-touching components — centroid is wrong for cropped orbs
-      const touchesBorder = comp.minX === 0 || comp.maxX === TEX - 1 || comp.minY === 0 || comp.maxY === TEX - 1
-
-      if (touchesBorder) {
-        // Just write raw pixels — don't attempt circle fit
-        for (const idx of comp.pixels) {
-          R[idx] = Math.max(R[idx], luma[idx] / 255)
-        }
-      } else {
-        // Fit a full circle from centroid + max radius
-        let cx = 0, cy = 0
-        for (const idx of comp.pixels) { cx += idx % TEX; cy += (idx / TEX) | 0 }
-        cx /= area; cy /= area
-
-        let maxR = 0
-        for (const idx of comp.pixels) {
-          const dx = (idx % TEX) - cx, dy = ((idx / TEX) | 0) - cy
-          const d = Math.sqrt(dx * dx + dy * dy)
-          if (d > maxR) maxR = d
-        }
-
-        const fillR = maxR * 1.25
-        const x0 = Math.max(0, Math.floor(cx - fillR))
-        const x1 = Math.min(TEX - 1, Math.ceil(cx + fillR))
-        const y0 = Math.max(0, Math.floor(cy - fillR))
-        const y1 = Math.min(TEX - 1, Math.ceil(cy + fillR))
-
-        for (let py = y0; py <= y1; py++) {
-          for (let px2 = x0; px2 <= x1; px2++) {
-            const dx = px2 - cx, dy = py - cy
-            const d = Math.sqrt(dx * dx + dy * dy)
-            if (d <= fillR) {
-              const ni = py * TEX + px2
-              const edge = d <= maxR ? 1.0 : 1.0 - ((d - maxR) / (fillR - maxR + 0.001)) * 0.4
-              R[ni] = Math.max(R[ni], edge)
-            }
-          }
-        }
-      }
-
-    } else if (area < 20) {
-      // Fine dot — keep as-is
-      for (const idx of comp.pixels) {
-        G[idx] = Math.max(G[idx], luma[idx] / 255)
-      }
-
-    } else if (elongation > 1.5 || fill < 0.55) {
-      // Spiral — write raw pixels, dilate afterward
-      for (const idx of comp.pixels) {
-        Braw[idx] = Math.max(Braw[idx], Math.min(1, (luma[idx] / 255) * 2.2))
-      }
-
-    } else {
-      // Medium orb → R at reduced intensity
-      for (const idx of comp.pixels) {
-        R[idx] = Math.max(R[idx], (luma[idx] / 255) * 0.6)
-      }
-    }
+  const luma = data as unknown as Uint8Array
+  const rgba = new Uint8Array(W * H * 4)
+  for (let i = 0; i < W * H; i++) {
+    const v = Math.min(255, Math.max(0, (luma[i] - opts.threshold) * opts.boost))
+    rgba[i*4]=v; rgba[i*4+1]=v; rgba[i*4+2]=v; rgba[i*4+3]=255
   }
-
-  // Dilate spiral channel by 3px so thin arms fill out
-  const B = new Float32Array(px)
-  const DILATE = 3
-  for (let y = 0; y < TEX; y++) {
-    for (let x = 0; x < TEX; x++) {
-      const src = Braw[y * TEX + x]
-      if (src === 0) continue
-      for (let dy = -DILATE; dy <= DILATE; dy++) {
-        for (let dx = -DILATE; dx <= DILATE; dx++) {
-          const nx = x + dx, ny = y + dy
-          if (nx < 0 || nx >= TEX || ny < 0 || ny >= TEX) continue
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist <= DILATE) {
-            const ni = ny * TEX + nx
-            const falloff = 1 - (dist / DILATE) * 0.35
-            B[ni] = Math.max(B[ni], src * falloff)
-          }
-        }
-      }
-    }
-  }
-
-  // Detect swirl zones: regions of high fine-dot density not already covered by orbs
-  // Convolve G channel with a 28px radius disk kernel, threshold → additional B channel swirls
-  const SWIRL_KERNEL_R = 28
-  const SWIRL_THRESHOLD = 0.18  // fraction of kernel area that must be lit
-  const kernelPixels = Math.PI * SWIRL_KERNEL_R * SWIRL_KERNEL_R
-
-  for (let y = SWIRL_KERNEL_R; y < TEX - SWIRL_KERNEL_R; y++) {
-    for (let x = SWIRL_KERNEL_R; x < TEX - SWIRL_KERNEL_R; x++) {
-      // Skip if already an orb here
-      if (R[y * TEX + x] > 0.3) continue
-
-      let dotSum = 0
-      for (let dy = -SWIRL_KERNEL_R; dy <= SWIRL_KERNEL_R; dy++) {
-        for (let dx = -SWIRL_KERNEL_R; dx <= SWIRL_KERNEL_R; dx++) {
-          if (dx * dx + dy * dy > SWIRL_KERNEL_R * SWIRL_KERNEL_R) continue
-          dotSum += G[(y + dy) * TEX + (x + dx)]
-        }
-      }
-
-      const density = dotSum / kernelPixels
-      if (density > SWIRL_THRESHOLD) {
-        const swirl = Math.min(1, (density - SWIRL_THRESHOLD) / (1 - SWIRL_THRESHOLD))
-        B[y * TEX + x] = Math.max(B[y * TEX + x], swirl * 0.75)
-      }
-    }
-  }
-
-  return { R, G, B }
+  await sharp(Buffer.from(rgba), { raw: { width: W, height: H, channels: 4 } }).png().toFile(outPath)
 }
 
+async function extractAngledThresh(
+  srcPath: string,
+  outPath: string,
+  // Card corner coordinates in the source image (px), clockwise from top-left
+  corners: { tl: [number,number], tr: [number,number], br: [number,number], bl: [number,number] },
+  opts: { threshold: number; boost: number }
+) {
+  const { data: rawData, info } = await sharp(srcPath)
+    .greyscale()
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+
+  const srcBuf = rawData as unknown as Buffer
+  const sw = info.width, sh = info.height
+
+  const srcPts: [number,number][] = [corners.tl, corners.tr, corners.br, corners.bl]
+  const dstPts: [number,number][] = [[0,0],[W,0],[W,H],[0,H]]
+  const H_mat = solveHomography(srcPts, dstPts)
+
+  const rgba = new Uint8Array(W * H * 4)
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const [sx, sy] = applyHomographyInverse(H_mat, px, py)
+      const raw = sx < 0 || sy < 0 || sx >= sw || sy >= sh
+        ? 0
+        : bilinear(srcBuf as unknown as Buffer, sw, sh, sx, sy)
+      const v = Math.min(255, Math.max(0, (raw - opts.threshold) * opts.boost))
+      rgba[(py*W+px)*4]=v; rgba[(py*W+px)*4+1]=v; rgba[(py*W+px)*4+2]=v; rgba[(py*W+px)*4+3]=255
+    }
+  }
+  await sharp(Buffer.from(rgba), { raw: { width: W, height: H, channels: 4 } }).png().toFile(outPath)
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
 async function main() {
-  const files = await fs.promises.readdir(REF_DIR)
-  const refs = files
-    .filter(f => /\.(jpe?g|png)$/i.test(f))
-    .map(f => path.join(REF_DIR, f))
+  await fs.promises.mkdir(OUT_DIR, { recursive: true })
 
-  if (refs.length === 0) {
-    console.error('No reference images found in docs/holo-reference/')
-    process.exit(1)
+  const opts = { threshold: 60, boost: 2.2 }
+
+  // image-full-angled: 735×891, card slightly foreshortened from above.
+  // Corners estimated from visual inspection — adjust if output looks off.
+  await extractAngledThresh(
+    path.join(REF_DIR, 'image-full-angled.png'),
+    path.join(OUT_DIR, 'image-full-angled-thresh.png'),
+    {
+      tl: [52,  28],
+      tr: [683, 24],
+      br: [678, 860],
+      bl: [57,  863],
+    },
+    opts
+  )
+  console.log('image-full-angled-thresh.png')
+
+  // image-full-bordered: crop yellow border (~18px each side) then thresh
+  await extractThresh(
+    path.join(REF_DIR, 'image-full-bordered.png'),
+    path.join(OUT_DIR, 'image-full-bordered-thresh.png'),
+    opts,
+    { left: 18, top: 18, width: 409 - 36, height: 567 - 36 }
+  )
+  console.log('image-full-bordered-thresh.png')
+
+  // image-full-scanned: direct crop+thresh (add file to docs/holo-reference first)
+  const scannedPath = fs.existsSync(path.join(REF_DIR, 'image-full-scanned.jpg'))
+    ? path.join(REF_DIR, 'image-full-scanned.jpg')
+    : path.join(REF_DIR, 'image-full-scanned.png')
+  if (fs.existsSync(scannedPath)) {
+    await extractThresh(scannedPath, path.join(OUT_DIR, 'image-full-scanned-thresh.png'), opts)
+    console.log('image-full-scanned-thresh.png')
+  } else {
+    console.log('image-full-scanned.png not found — skipping')
   }
 
-  console.log(`Processing ${refs.length} reference(s)...`)
-
-  const px = TEX * TEX
-  const sumR = new Float32Array(px)
-  const sumG = new Float32Array(px)
-  const sumB = new Float32Array(px)
-
-  for (const ref of refs) {
-    const { R, G, B } = await processOne(ref)
-    for (let i = 0; i < px; i++) { sumR[i] += R[i]; sumG[i] += G[i]; sumB[i] += B[i] }
-    console.log(`  done: ${path.basename(ref)}`)
-  }
-
-  const rgba = new Uint8Array(px * 4)
-  const n = refs.length
-  for (let i = 0; i < px; i++) {
-    rgba[i * 4 + 0] = Math.round((sumR[i] / n) * 255)
-    rgba[i * 4 + 1] = Math.round((sumG[i] / n) * 255)
-    rgba[i * 4 + 2] = Math.round((sumB[i] / n) * 255)
-    rgba[i * 4 + 3] = 255
-  }
-
-  await sharp(Buffer.from(rgba), { raw: { width: TEX, height: TEX, channels: 4 } })
-    .png()
-    .toFile(OUT)
-
-  console.log(`Written: ${OUT}`)
-  console.log(`Components found per reference — check output channels in an image viewer.`)
+  console.log('\nDone.')
 }
 
 main().catch(e => { console.error(e); process.exit(1) })

@@ -49,7 +49,9 @@ function PackList() {
     const carousel = carouselRef.current
     if (!carousel) return
     const cards = carousel.querySelectorAll<HTMLElement>('.pack-card')
-    cards[idx]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    const card = cards[idx]
+    if (!card) return
+    card.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' })
   }
 
   return (

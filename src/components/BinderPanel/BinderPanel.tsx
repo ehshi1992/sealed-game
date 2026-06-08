@@ -121,9 +121,29 @@ export default function BinderPanel({
     return null
   }
 
-  const binderCards = collection.filter(e => e.binder_id === binder.id)
-  const totalPages = Math.max(1, Math.ceil(binderCards.length / 9))
-  const pageCards = binderCards.slice(page * 9, page * 9 + 9)
+  const allBinderCards = collection.filter(e => e.binder_id === binder.id)
+
+  // Build position map: globalSlot → entry
+  const positionedMap = new Map<number, typeof allBinderCards[0]>()
+  const unpositioned: typeof allBinderCards = []
+  for (const e of allBinderCards) {
+    if (e.binder_position != null) positionedMap.set(e.binder_position, e)
+    else unpositioned.push(e)
+  }
+
+  const totalPages = Math.max(1, Math.ceil(allBinderCards.length / 9))
+
+  // For this page: fill slots by position, then backfill with unpositioned
+  const pageSlots: (typeof allBinderCards[0] | null)[] = Array.from({ length: 9 }, (_, i) => {
+    const globalSlot = page * 9 + i
+    return positionedMap.get(globalSlot) ?? null
+  })
+  let unpIdx = 0
+  for (let i = 0; i < 9; i++) {
+    if (!pageSlots[i] && unpIdx < unpositioned.length) {
+      pageSlots[i] = unpositioned[unpIdx++]
+    }
+  }
 
   function flipToPage(next: number) {
     if (animatingRef.current) return
@@ -145,7 +165,7 @@ export default function BinderPanel({
   return (
     <div
       className="binder-panel"
-      data-drop-zone={`binder-${binder.id}`}
+      data-drop-zone={`binder:${binder.id}`}
     >
       <div className="binder-panel__header">
         <button
@@ -156,20 +176,23 @@ export default function BinderPanel({
         </button>
         <span className="binder-panel__swatch" style={{ background: binder.color }} />
         <span className="binder-panel__title">{binder.name}</span>
-        <span className="binder-panel__count">{binderCards.length} cards</span>
+        <span className="binder-panel__count">{allBinderCards.length} cards</span>
       </div>
 
       <div className="binder-panel__page-wrap">
       <div className={`binder-panel__grid ${flipClass}`.trim()}>
         {Array.from({ length: 9 }, (_, i) => {
-          const entry = pageCards[i]
+          const entry = pageSlots[i]
+          const globalSlot = page * 9 + i
           return entry ? (
             <div
               key={entry.id}
               className="binder-panel__slot"
-              onPointerDown={e =>
+              data-drop-zone={`binder-slot:${binder.id}:${globalSlot}`}
+              onPointerDown={e => {
+                e.preventDefault()
                 onStartDrag(entry.id, entry.card.image_url, e.currentTarget)
-              }
+              }}
             >
               <HoloCard
                 card={entry.card}
@@ -179,7 +202,11 @@ export default function BinderPanel({
               />
             </div>
           ) : (
-            <div key={`empty-${i}`} className="binder-panel__slot binder-panel__slot--empty" />
+            <div
+              key={`empty-${i}`}
+              className="binder-panel__slot binder-panel__slot--empty"
+              data-drop-zone={`binder-slot:${binder.id}:${globalSlot}`}
+            />
           )
         })}
       </div>

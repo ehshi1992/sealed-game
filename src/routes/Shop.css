@@ -34,6 +34,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .shop__carousel {
@@ -41,7 +44,7 @@
   gap: 2rem;
   overflow-x: scroll;
   scroll-snap-type: x mandatory;
-  padding: 3rem 4rem;
+  padding: 2rem 1.5rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }

@@ -68,11 +68,23 @@ export default function Collection() {
     }
   }
 
-  async function handleMoveCard(entryId: string, binderId: string | null) {
+  async function handleMoveCard(entryId: string, binderId: string | null, position: number | null = null) {
     const snapshot = state.collection
-    dispatch({ type: 'MOVE_CARD', entryId, binderId })
+    // Displace any card already occupying the target slot
+    let occupantId: string | undefined
+    if (binderId && position != null) {
+      const occupant = collection.find(
+        e => e.binder_id === binderId && e.binder_position === position && e.id !== entryId
+      )
+      if (occupant) {
+        occupantId = occupant.id
+        dispatch({ type: 'MOVE_CARD', entryId: occupant.id, binderId, position: null })
+      }
+    }
+    dispatch({ type: 'MOVE_CARD', entryId, binderId, position })
     try {
-      await moveCard(entryId, binderId)
+      if (occupantId) await moveCard(occupantId, binderId, null)
+      await moveCard(entryId, binderId, position)
     } catch {
       dispatch({ type: 'SET_COLLECTION', collection: snapshot })
       alert('Failed to move card.')
@@ -82,10 +94,12 @@ export default function Collection() {
   function handleDrop(entryId: string, zoneId: string) {
     if (zoneId === 'bulk') {
       const entry = collection.find(e => e.id === entryId)
-      if (entry && entry.binder_id !== null) handleMoveCard(entryId, null)
-    } else if (zoneId.startsWith('binder-')) {
-      const binderId = zoneId.slice(7)
-      handleMoveCard(entryId, binderId)
+      if (entry && entry.binder_id !== null) handleMoveCard(entryId, null, null)
+    } else if (zoneId.startsWith('binder-slot:')) {
+      const [, binderId, slotStr] = zoneId.split(':')
+      handleMoveCard(entryId, binderId, parseInt(slotStr))
+    } else if (zoneId.startsWith('binder:')) {
+      handleMoveCard(entryId, zoneId.slice(7), null)
     }
   }
 
@@ -128,8 +142,10 @@ export default function Collection() {
                 className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}`}
                 onPointerDown={e => {
                   if (e.button !== 0) return
-                  if (!editMode && panelOpen)
+                  if (!editMode && panelOpen) {
+                    e.preventDefault()
                     startDrag(entry.id, entry.card.image_url, e.currentTarget)
+                  }
                 }}
                 onClick={() => {
                   if (editMode) openStepper(entry)

@@ -19,18 +19,32 @@ beforeEach(() => {
 })
 
 describe('HoloCard', () => {
-  it('renders canvas overlay for holo card', () => {
+  it('renders canvas overlay for lg holo card', () => {
     const { container } = render(
-      <HoloCard card={holoCard} holoSeed={{ x: 0.3, y: 0.7 }} />
+      <HoloCard card={holoCard} size="lg" holoSeed={{ x: 0.3, y: 0.7 }} />
     )
     expect(container.querySelector('canvas.card__holo-canvas')).not.toBeNull()
   })
 
-  it('still renders canvas for none holo type (shader outputs transparent)', () => {
+  it('still renders canvas for lg none holo type (shader outputs transparent)', () => {
     const { container } = render(
-      <HoloCard card={{ ...holoCard, holo_type: 'none' }} />
+      <HoloCard card={{ ...holoCard, holo_type: 'none' }} size="lg" />
     )
     expect(container.querySelector('canvas.card__holo-canvas')).not.toBeNull()
+  })
+
+  it('skips canvas overlay for sm cards', () => {
+    const { container } = render(
+      <HoloCard card={holoCard} size="sm" />
+    )
+    expect(container.querySelector('canvas.card__holo-canvas')).toBeNull()
+  })
+
+  it('skips canvas overlay for md cards', () => {
+    const { container } = render(
+      <HoloCard card={holoCard} size="md" />
+    )
+    expect(container.querySelector('canvas.card__holo-canvas')).toBeNull()
   })
 
   it('renders card image', () => {

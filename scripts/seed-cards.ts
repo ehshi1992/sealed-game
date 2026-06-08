@@ -64,8 +64,48 @@ async function fetchCards(setId: string): Promise<RawCard[]> {
   return json.data as RawCard[]
 }
 
-async function seed() {
-  const setId = 'base1'
+type SetConfig = {
+  setId: string
+  packName: string
+  packPrice: number
+  packImageUrl: string
+}
+
+const SETS: SetConfig[] = [
+  {
+    setId: 'base1',
+    packName: 'Base Set Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/base1/logo.png',
+  },
+  {
+    setId: 'neo1',
+    packName: 'Neo Genesis Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/neo1/logo.png',
+  },
+  {
+    setId: 'ecard1',
+    packName: 'Neo Expedition Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/ecard1/logo.png',
+  },
+  {
+    setId: 'ex13',
+    packName: 'EX Delta Species Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/ex13/logo.png',
+  },
+  {
+    setId: 'xy4',
+    packName: 'XY Phantom Forces Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/xy4/logo.png',
+  },
+]
+
+async function seedSet(config: SetConfig) {
+  const { setId, packName, packPrice, packImageUrl } = config
   const raw = await fetchCards(setId)
 
   const cards = raw.map((c) => {
@@ -110,17 +150,27 @@ async function seed() {
 
   const cardIds = fetchedCards!.map((c: { id: string }) => c.id)
 
-  const { error: packError } = await supabase
+  const { data: existingPack } = await supabase
     .from('packs')
-    .insert({
-      name: 'Base Set Booster',
-      price: 100,
-      image_url: 'https://images.pokemontcg.io/base1/logo.png',
-      card_pool: cardIds,
-    })
+    .select('id')
+    .eq('name', packName)
+    .maybeSingle()
 
-  if (packError) { console.error(packError); process.exit(1) }
+  if (!existingPack) {
+    const { error: packError } = await supabase
+      .from('packs')
+      .insert({ name: packName, price: packPrice, image_url: packImageUrl, card_pool: cardIds })
 
+    if (packError) { console.error(packError); process.exit(1) }
+  }
+
+  console.log(`Done: ${packName}`)
+}
+
+async function seed() {
+  for (const config of SETS) {
+    await seedSet(config)
+  }
   console.log('Seed complete.')
 }
 

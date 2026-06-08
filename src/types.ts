@@ -73,6 +73,7 @@ export type CollectionEntry = {
   count: number
   holo_seed?: HoloSeed | null  // unique per card instance
   binder_id?: string | null
+  binder_position?: number | null
 }
 
 export type Transaction = {
@@ -107,7 +108,7 @@ export type AppAction =
   | { type: 'ADD_BINDER'; binder: Binder }
   | { type: 'UPDATE_BINDER'; binder: Binder }
   | { type: 'DELETE_BINDER'; binderId: string }
-  | { type: 'MOVE_CARD'; entryId: string; binderId: string | null }
+  | { type: 'MOVE_CARD'; entryId: string; binderId: string | null; position?: number | null }
 
 export type PackOpenResult = {
   cards: Card[]

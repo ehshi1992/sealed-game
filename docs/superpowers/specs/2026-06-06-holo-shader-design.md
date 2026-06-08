@@ -90,41 +90,46 @@ Seed is generated server-side, stored once, never regenerated.
 
 ## 4. WebGL Shader Architecture
 
-### New files
+### Files
 
 ```
 src/components/HoloCard/
   shaders.ts          # GLSL vertex + fragment shader source strings
   useHoloShader.ts    # Hook: WebGL context lifecycle, uniform updates, rAF loop
+public/textures/
+  cosmo-bitmap.png    # 512×715 greyscale bitmap extracted from real foil photos
+scripts/
+  extract-holo-bitmap.ts   # Generates cosmo-bitmap.png from docs/holo-reference/
+  generate-cosmo-bitmaps.ts  # Generates scrambled variants for experimentation
 ```
 
 ### Canvas placement
 
-Single `<canvas>` added inside `.card`, `position: absolute; inset: 0`. `mix-blend-mode: color-dodge`. Existing CSS holo/sparkle/glare layers are retained for parallax and glare; the WebGL canvas adds the cosmo foil pattern on top.
+Single `<canvas>` inside `.card`, `position: absolute; inset: -12px` (bleeds 12px beyond card edge). `mix-blend-mode: screen`. `.card` has `overflow: visible`; other layers (img, holo, sparkle, glare) use `clip-path: inset(0 round 4.75% / 3.5%)` to maintain rounded corners.
 
 ### Fragment shader uniforms
 
 ```glsl
-uniform vec2  u_resolution;      // canvas pixel dimensions
-uniform vec2  u_seed_offset;     // from user_collection.holo_seed [0,1]
-uniform vec2  u_pointer;         // normalized mouse/touch position [0,1]
-uniform float u_time;            // seconds, drives animation
-uniform int   u_holo_mode;       // 0=none, 1=full_holo, 2=reverse_holo
-uniform vec4  u_artwork_bounds;  // xywh as [0,1] fractions of card dims
+uniform vec2      u_resolution;      // canvas pixel dimensions
+uniform vec2      u_seed_offset;     // from user_collection.holo_seed [0,1]
+uniform vec2      u_pointer;         // normalized mouse/touch position [0,1]
+uniform int       u_holo_mode;       // 0=none, 1=full_holo, 2=reverse_holo
+uniform vec4      u_artwork_bounds;  // xywh as [0,1] fractions of card dims
+uniform sampler2D u_cosmo_bitmap;    // greyscale foil pattern texture
 ```
 
 ### Cosmo foil algorithm
 
-1. Compute UV from `gl_FragCoord / u_resolution`
-2. Determine `in_art`: UV inside `u_artwork_bounds`
-3. Discard (output `vec4(0)`) based on mode:
-   - `full_holo`: discard if `!in_art`
-   - `reverse_holo`: discard if `in_art`
-   - `none`: discard all (canvas invisible)
-4. Shift UV by `u_seed_offset` — sole visual effect of the seed (pattern placement)
-5. Domain-warp UV with FBM noise → organic cosmo swirl
-6. Compute hue: `hue = atan(warped.y, warped.x) + u_time * 0.2 + u_pointer.x * 2.0`
-7. Output HSL→RGB, saturation=1, lightness=0.5, alpha=0.6
+1. Compute UV from `gl_FragCoord / u_resolution`, flip Y
+2. Clip based on `u_holo_mode` + `u_artwork_bounds` (same as before)
+3. Sample bitmap twice at slightly different UV scales (layers 0 and 1)
+4. Each layer has a per-pixel preferred tilt angle encoded from UV + seed
+5. Activation = `mix(0.25, cos(tiltAngle - pixelAngle) * 0.5 + 0.5, tilt * 2.5)` — wide cosine wave, nothing fully hides
+6. Layers are offset 180° in tilt space so they shimmer alternately as you tilt
+7. Hue per layer driven by `baseHue + UV spread + per-layer offset`
+8. Final color/alpha = `max()` across both layers (brightest wins)
+
+**Key constraint:** bitmap is NPOT (512×715) — `CLAMP_TO_EDGE`, no mipmaps.
 
 ### `useHoloShader` hook
 
@@ -132,6 +137,7 @@ uniform vec4  u_artwork_bounds;  // xywh as [0,1] fractions of card dims
 useHoloShader(
   canvasRef: RefObject<HTMLCanvasElement>,
   opts: {
+    enabled: boolean
     seedOffset: { x: number; y: number }
     artworkBounds: { x: number; y: number; w: number; h: number } | null
     holoMode: 'none' | 'full_holo' | 'reverse_holo'
@@ -140,24 +146,16 @@ useHoloShader(
 )
 ```
 
-Responsibilities:
-- Init WebGL context on mount; cleanup (lose context) on unmount
-- Compile vertex + fragment shaders; link program
-- Draw fullscreen quad (2 triangles covering NDC)
-- Start `requestAnimationFrame` loop updating `u_time`
-- Update `u_pointer` and `u_seed_offset` on prop change (no recompile)
-- Fallback: if WebGL unavailable, canvas stays hidden; CSS holo layers still render
+- Only enabled for `size === 'lg'` cards
+- Module-level `cosmoImg` preload shared across all instances
+- Context cap: 16 active WebGL contexts max; excess cards skip canvas
+- Fallback: WebGL unavailable → canvas hidden, CSS layers still render
 
-### HoloCard.tsx changes
+### HoloCard.tsx
 
-- New prop: `holoSeed?: { x: number; y: number }` (defaults to `{x:0.5, y:0.5}` if absent)
-- Derive `holoMode` from `card.holo_type`:
-  - `'standard'` → `full_holo`
-  - `'reverse'` → `reverse_holo`
-  - `'full_art'` | `'rainbow'` → `full_holo` (artwork_bounds = full card)
-  - `'none'` → `none`
-- Pointer state from existing `handleMouseMove` also fed to `useHoloShader` opts
-- `card.artwork_bounds` passed through; if null (not yet computed), shader mode = `none`
+- `holoSeed` prop defaults to `{x:0.5, y:0.5}`
+- `holoMode` derived from `card.holo_type` (standard/full_art/rainbow → full_holo, reverse → reverse_holo, none → none)
+- Canvas only rendered for `size === 'lg'`; `enabled: size === 'lg'` passed to hook
 
 ---
 

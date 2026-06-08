@@ -145,10 +145,10 @@ export async function deleteBinder(binderId: string): Promise<void> {
   if (error) throw new Error('Failed to delete binder')
 }
 
-export async function moveCard(entryId: string, binderId: string | null): Promise<void> {
+export async function moveCard(entryId: string, binderId: string | null, position: number | null = null): Promise<void> {
   const { error } = await supabase
     .from('user_collection')
-    .update({ binder_id: binderId })
+    .update({ binder_id: binderId, binder_position: position })
     .eq('id', entryId)
   if (error) throw new Error('Failed to move card')
 }

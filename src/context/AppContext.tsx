@@ -60,7 +60,9 @@ export function reducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         collection: state.collection.map(e =>
-          e.id === action.entryId ? { ...e, binder_id: action.binderId } : e
+          e.id === action.entryId
+            ? { ...e, binder_id: action.binderId, binder_position: action.position ?? null }
+            : e
         ),
       }
     default:

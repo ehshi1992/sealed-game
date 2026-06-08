@@ -24,7 +24,6 @@ type Uniforms = {
   u_resolution:     WebGLUniformLocation | null
   u_seed_offset:    WebGLUniformLocation | null
   u_pointer:        WebGLUniformLocation | null
-  u_time:           WebGLUniformLocation | null
   u_holo_mode:      WebGLUniformLocation | null
   u_artwork_bounds: WebGLUniformLocation | null
   u_cosmo_bitmap:   WebGLUniformLocation | null
@@ -52,14 +51,16 @@ function uploadBitmapTexture(gl: WebGLRenderingContext, unit: number): WebGLText
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]))
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
 
   function upload() {
     gl.bindTexture(gl.TEXTURE_2D, tex)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cosmoImg)
-    gl.generateMipmap(gl.TEXTURE_2D)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+    // NPOT texture — no mipmaps, must clamp
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   }
 
   if (cosmoImg.complete && cosmoImg.naturalWidth > 0) {
@@ -117,7 +118,6 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
     u_resolution:     gl.getUniformLocation(program, 'u_resolution'),
     u_seed_offset:    gl.getUniformLocation(program, 'u_seed_offset'),
     u_pointer:        gl.getUniformLocation(program, 'u_pointer'),
-    u_time:           gl.getUniformLocation(program, 'u_time'),
     u_holo_mode:      gl.getUniformLocation(program, 'u_holo_mode'),
     u_artwork_bounds: gl.getUniformLocation(program, 'u_artwork_bounds'),
     u_cosmo_bitmap:   gl.getUniformLocation(program, 'u_cosmo_bitmap'),
@@ -152,7 +152,6 @@ export function useHoloShader(
     }
 
     const { gl, uniforms } = ctx
-    const startTime = performance.now()
     let rafId: number
 
     function render() {
@@ -170,11 +169,9 @@ export function useHoloShader(
       gl.viewport(0, 0, canvas!.width, canvas!.height)
       gl.clear(gl.COLOR_BUFFER_BIT)
 
-      const t = (performance.now() - startTime) / 1000
       gl.uniform2f(uniforms.u_resolution,     canvas!.width, canvas!.height)
       gl.uniform2f(uniforms.u_seed_offset,    seedOffset.x, seedOffset.y)
       gl.uniform2f(uniforms.u_pointer,        pointer.x, pointer.y)
-      gl.uniform1f(uniforms.u_time,           t)
       gl.uniform1i(uniforms.u_holo_mode,      HOLO_MODE_INT[holoMode])
       gl.uniform4f(uniforms.u_artwork_bounds, bounds.x, bounds.y, bounds.w, bounds.h)
 
