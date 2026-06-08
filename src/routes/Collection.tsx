@@ -130,7 +130,7 @@ export default function Collection() {
   const canDrag = !editMode && binderEditMode && !!selectedBinderId
 
   return (
-    <div className={`collection${panelOpen ? ' collection--panel-open' : ''}`}>
+    <div className={`collection${panelOpen && !binderEditMode ? ' collection--panel-open' : ''}${panelOpen && binderEditMode ? ' collection--panel-open-edit' : ''}`}>
       <div className="collection__toolbar">
         <span className="collection__count">{collection.length} cards</span>
         <button className="btn btn--secondary btn--sm" onClick={() => setEditMode(m => !m)}>

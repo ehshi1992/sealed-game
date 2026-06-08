@@ -125,6 +125,15 @@ body {
 .collection {
   padding: 2rem 1.5rem;
   background: linear-gradient(to bottom, rgba(124, 58, 237, 0.04) 0%, transparent 320px);
+  transition: padding-right 0.2s;
+}
+
+.collection--panel-open {
+  padding-right: calc(380px + 1.5rem);
+}
+
+.collection--panel-open-edit {
+  padding-right: calc(160px + 1.5rem);
 }
 
 .collection__toolbar {
@@ -263,9 +272,9 @@ body {
 
 .collection__panel-wrapper--edit {
   width: 160px;
-  background: rgba(229, 62, 62, 0.04);
-  border-left-color: rgba(229, 62, 62, 0.25);
-  transition: width 0.2s, background 0.25s, border-color 0.25s;
+  background: var(--surface);
+  border-left-color: rgba(229, 62, 62, 0.3);
+  transition: width 0.2s, border-left-color 0.25s;
 }
 
 /* ─── Binder drag overlay ───────────────────────────────────── */
