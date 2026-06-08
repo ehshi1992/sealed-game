@@ -20,7 +20,6 @@
   user-select: none;
   flex-shrink: 0;
   touch-action: none;
-  overflow: hidden;
 }
 
 .pack-rip__pack--idle {
@@ -99,19 +98,15 @@
   100% { transform: translateX(200%); }
 }
 
-/* ─── Tear animation ────────────────────────────────────── */
-@keyframes tear-left {
-  0%   { transform: translateX(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateX(-200vw) rotate(-15deg); opacity: 0; }
+/* ─── Flap fly-off ──────────────────────────────────────── */
+@keyframes flap-fly-off {
+  0%   { transform: translateY(-10px) rotate(-3deg); opacity: 1; }
+  100% { transform: translateY(-120vh) rotate(-15deg); opacity: 0; }
 }
 
-@keyframes tear-right {
-  0%   { transform: translateX(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateX(200vw) rotate(15deg); opacity: 0; }
+.pack-rip__flap--tearing {
+  animation: flap-fly-off 0.4s ease-in forwards;
 }
-
-.pack-rip__left--tearing  { animation: tear-left  0.4s ease-in forwards; }
-.pack-rip__right--tearing { animation: tear-right 0.4s ease-in forwards; }
 
 /* ─── Deal phase — single card center ───────────────────── */
 .pack-rip__deal {
