@@ -4,8 +4,7 @@ import type { Card } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import ParticleBurst from '../ParticleBurst/ParticleBurst'
 import './PackRip.css'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- wired in Task 3
-import { calcTearPct as _calcTearPct, shouldFlyOff as _shouldFlyOff } from './packRipLogic'
+import { calcTearPct, shouldFlyOff } from './packRipLogic'
 
 type Phase = 'idle' | 'grabbed' | 'tearing' | 'discarded' | 'dealing' | 'summary'
 
@@ -47,8 +46,9 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
 
   function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
     if (phase !== 'grabbed') return
-    const dx = Math.abs(e.clientX - grabXRef.current)
-    packRef.current?.style.setProperty('--tear-dx', `${dx / 2}px`)
+    const dx = e.clientX - grabXRef.current
+    const pct = calcTearPct(dx, TEAR_THRESHOLD)
+    packRef.current?.style.setProperty('--tear-pct', String(pct))
   }
 
   function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
@@ -57,7 +57,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     const dt  = performance.now() - grabTimeRef.current
     const vel = dt > 0 ? dx / dt : 0
 
-    if (dx >= TEAR_THRESHOLD || vel >= TEAR_VELOCITY) {
+    if (shouldFlyOff(dx, TEAR_THRESHOLD, vel, TEAR_VELOCITY)) {
       doTear()
     } else {
       snapBack()
@@ -69,7 +69,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   }
 
   function snapBack() {
-    packRef.current?.style.setProperty('--tear-dx', '0px')
+    packRef.current?.style.setProperty('--tear-pct', '0')
     setPhase('idle')
   }
 
