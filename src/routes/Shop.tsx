@@ -1,9 +1,6 @@
 import { use, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { useAuth } from '../hooks/useAuth'
-import { useCurrency } from '../hooks/useCurrency'
-import CurrencyDisplay from '../components/ui/CurrencyDisplay'
 import { fetchPacks } from '../lib/queries'
 import type { Pack } from '../types'
 import './Shop.css'
@@ -72,24 +69,8 @@ function PackList() {
 }
 
 export default function Shop() {
-  const { signOut } = useAuth()
-  const { claim } = useCurrency()
-  const navigate = useNavigate()
-
   return (
     <div className="shop">
-      <header className="shop__header">
-        <h1 className="shop__title">Shop</h1>
-        <div className="shop__header-right">
-          <CurrencyDisplay />
-          <button className="btn btn--secondary shop__daily" onClick={claim}>
-            Claim Daily ✦50
-          </button>
-          <button className="btn btn--secondary" onClick={() => navigate('/collection')}>Collection</button>
-          <button className="btn btn--secondary" onClick={signOut}>Sign Out</button>
-        </div>
-      </header>
-
       <Suspense fallback={<p className="shop__loading">Loading packs…</p>}>
         <PackList />
       </Suspense>

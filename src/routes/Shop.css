@@ -1,31 +1,10 @@
 /* src/routes/Shop.css */
 
 .shop {
-  min-height: 100vh;
-  padding: 2rem 1rem;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-}
-
-.shop__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.shop__title {
-  font-size: 2rem;
-  font-weight: 800;
-}
-
-.shop__header-right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
 }
 
 /* ─── Hero banner ─────────────────────────────────────────── */
@@ -153,14 +132,6 @@
 }
 
 @media (max-width: 640px) {
-  .shop__header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .shop__header-right {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
   .shop__grid {
     grid-template-columns: repeat(2, 1fr);
   }

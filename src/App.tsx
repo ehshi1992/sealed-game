@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppProvider, useApp } from './context/AppContext'
+import AppLayout from './components/AppLayout/AppLayout'
 import Home from './routes/Home'
 import Shop from './routes/Shop'
 import PackOpening from './routes/PackOpening'
@@ -18,9 +19,9 @@ function Router() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/shop" element={<AuthGuard><Shop /></AuthGuard>} />
+        <Route path="/shop" element={<AuthGuard><AppLayout><Shop /></AppLayout></AuthGuard>} />
         <Route path="/pack-opening" element={<AuthGuard><PackOpening /></AuthGuard>} />
-        <Route path="/collection" element={<AuthGuard><Collection /></AuthGuard>} />
+        <Route path="/collection" element={<AuthGuard><AppLayout><Collection /></AppLayout></AuthGuard>} />
         <Route path="/holo-test" element={<HoloTest />} />
         <Route path="/polygon-test" element={<PolygonTest />} />
       </Routes>

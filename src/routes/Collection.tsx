@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { removeFromCollection, createBinder, deleteBinder, moveCard } from '../lib/queries'
 import HoloCard from '../components/HoloCard/HoloCard'
@@ -8,7 +8,6 @@ import { useDrag } from '../hooks/useDrag'
 import type { CollectionEntry } from '../types'
 
 export default function Collection() {
-  const navigate = useNavigate()
   const { state, dispatch } = useApp()
   const collection = state.collection
   const binders = state.binders
@@ -108,34 +107,26 @@ export default function Collection() {
 
   return (
     <div className={`collection${panelOpen ? ' collection--panel-open' : ''}${binderViewOpen ? ' collection--binder-view' : ''}`}>
-      <header className="collection__header">
-        <button className="btn btn--secondary" onClick={() => navigate('/shop')}>
-          ← Shop
+      <div className="collection__toolbar">
+        <span className="collection__count">{collection.length} cards</span>
+        <button className="btn btn--secondary btn--sm" onClick={() => setEditMode(m => !m)}>
+          {editMode ? 'Done' : 'Edit'}
         </button>
-        <h1 className="collection__title">Collection</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span className="collection__count">{collection.length} cards</span>
-          <button className="btn btn--secondary" onClick={() => setEditMode(m => !m)}>
-            {editMode ? 'Done' : 'Edit'}
-          </button>
-          <button className="btn btn--secondary" onClick={() => {
-            setPanelOpen(o => {
-              if (o) setBinderViewOpen(false)
-              return !o
-            })
-          }}>
-            {panelOpen ? 'Close Binders' : 'Binders'}
-          </button>
-        </div>
-      </header>
+        <button className="btn btn--secondary btn--sm" onClick={() => {
+          setPanelOpen(o => {
+            if (o) setBinderViewOpen(false)
+            return !o
+          })
+        }}>
+          {panelOpen ? 'Close Binders' : 'Binders'}
+        </button>
+      </div>
 
       <div className="collection__main">
         {bulk.length === 0 ? (
           <div className="collection__empty">
             <p>No cards in bulk. Open some packs or check your binders!</p>
-            <button className="btn btn--primary" onClick={() => navigate('/shop')}>
-              Go to Shop
-            </button>
+            <Link className="btn btn--primary" to="/shop">Go to Shop</Link>
           </div>
         ) : (
           <div
