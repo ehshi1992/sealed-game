@@ -268,3 +268,15 @@ body {
   outline-offset: 4px;
   border-radius: 8px;
 }
+
+/* Binder full-width spread view */
+.collection--binder-view .collection__main {
+  display: none;
+}
+
+.collection--binder-view .collection__panel-wrapper {
+  width: 100%;
+  position: static;
+  max-height: none;
+  overflow-y: visible;
+}

@@ -21,6 +21,7 @@ export default function Collection() {
 
   // Binder panel state
   const [panelOpen, setPanelOpen] = useState(false)
+  const [binderViewOpen, setBinderViewOpen] = useState(false)
 
   // Bulk = cards not in any binder
   const bulk = useMemo(() => collection.filter(e => !e.binder_id), [collection])
@@ -106,7 +107,7 @@ export default function Collection() {
   const { draggedEntryId, startDrag } = useDrag(handleDrop)
 
   return (
-    <div className={`collection${panelOpen ? ' collection--panel-open' : ''}`}>
+    <div className={`collection${panelOpen ? ' collection--panel-open' : ''}${binderViewOpen ? ' collection--binder-view' : ''}`}>
       <header className="collection__header">
         <button className="btn btn--secondary" onClick={() => navigate('/shop')}>
           ← Shop
@@ -117,7 +118,12 @@ export default function Collection() {
           <button className="btn btn--secondary" onClick={() => setEditMode(m => !m)}>
             {editMode ? 'Done' : 'Edit'}
           </button>
-          <button className="btn btn--secondary" onClick={() => setPanelOpen(o => !o)}>
+          <button className="btn btn--secondary" onClick={() => {
+            setPanelOpen(o => {
+              if (o) setBinderViewOpen(false)
+              return !o
+            })
+          }}>
             {panelOpen ? 'Close Binders' : 'Binders'}
           </button>
         </div>
@@ -171,6 +177,8 @@ export default function Collection() {
             onStartDrag={startDrag}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
+            fullWidth={binderViewOpen}
+            onBinderViewChange={setBinderViewOpen}
           />
         </div>
       )}
