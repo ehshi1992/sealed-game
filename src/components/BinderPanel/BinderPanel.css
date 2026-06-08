@@ -159,3 +159,45 @@
   box-shadow: inset 0 0 8px rgba(124, 58, 237, 0.15);
   transition: box-shadow 0.2s;
 }
+
+/* ─── Book flip page turn ───────────────────────────────── */
+.binder-panel__page-wrap {
+  perspective: 1200px;
+  width: 100%;
+}
+
+.binder-panel__grid--flip-out-right {
+  animation: flip-out-right 0.25s ease-in forwards;
+}
+
+.binder-panel__grid--flip-in-right {
+  animation: flip-in-right 0.25s ease-out forwards;
+}
+
+.binder-panel__grid--flip-out-left {
+  animation: flip-out-left 0.25s ease-in forwards;
+}
+
+.binder-panel__grid--flip-in-left {
+  animation: flip-in-left 0.25s ease-out forwards;
+}
+
+@keyframes flip-out-right {
+  from { transform: rotateY(0deg);   opacity: 1; }
+  to   { transform: rotateY(-90deg); opacity: 0.4; }
+}
+
+@keyframes flip-in-right {
+  from { transform: rotateY(90deg);  opacity: 0.4; }
+  to   { transform: rotateY(0deg);   opacity: 1; }
+}
+
+@keyframes flip-out-left {
+  from { transform: rotateY(0deg);  opacity: 1; }
+  to   { transform: rotateY(90deg); opacity: 0.4; }
+}
+
+@keyframes flip-in-left {
+  from { transform: rotateY(-90deg); opacity: 0.4; }
+  to   { transform: rotateY(0deg);   opacity: 1; }
+}

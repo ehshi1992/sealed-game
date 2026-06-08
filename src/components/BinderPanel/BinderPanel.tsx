@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { Binder, CollectionEntry } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import './BinderPanel.css'
@@ -23,6 +23,8 @@ export default function BinderPanel({
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState('#6366f1')
   const [page, setPage] = useState(0)
+  const [flipClass, setFlipClass] = useState('')
+  const animatingRef = useRef(false)
 
   async function handleCreateSubmit() {
     if (!newName.trim()) return
@@ -117,6 +119,21 @@ export default function BinderPanel({
   const totalPages = Math.max(1, Math.ceil(binderCards.length / 9))
   const pageCards = binderCards.slice(page * 9, page * 9 + 9)
 
+  function flipToPage(next: number) {
+    if (animatingRef.current) return
+    animatingRef.current = true
+    const direction = next > page ? 'right' : 'left'
+    setFlipClass(`binder-panel__grid--flip-out-${direction}`)
+    setTimeout(() => {
+      setPage(next)
+      setFlipClass(`binder-panel__grid--flip-in-${direction}`)
+      setTimeout(() => {
+        setFlipClass('')
+        animatingRef.current = false
+      }, 250)
+    }, 250)
+  }
+
   return (
     <div
       className="binder-panel"
@@ -134,7 +151,8 @@ export default function BinderPanel({
         <span className="binder-panel__count">{binderCards.length} cards</span>
       </div>
 
-      <div className="binder-panel__grid">
+      <div className="binder-panel__page-wrap">
+      <div className={`binder-panel__grid ${flipClass}`.trim()}>
         {Array.from({ length: 9 }, (_, i) => {
           const entry = pageCards[i]
           return entry ? (
@@ -157,12 +175,13 @@ export default function BinderPanel({
           )
         })}
       </div>
+      </div>
 
       {totalPages > 1 && (
         <div className="binder-panel__pagination">
           <button
             className="btn btn--secondary btn--xs"
-            onClick={() => setPage(p => Math.max(0, p - 1))}
+            onClick={() => flipToPage(Math.max(0, page - 1))}
             disabled={page === 0}
           >
             ‹
@@ -170,7 +189,7 @@ export default function BinderPanel({
           <span>{page + 1} / {totalPages}</span>
           <button
             className="btn btn--secondary btn--xs"
-            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+            onClick={() => flipToPage(Math.min(totalPages - 1, page + 1))}
             disabled={page === totalPages - 1}
           >
             ›
