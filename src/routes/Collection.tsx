@@ -127,6 +127,7 @@ export default function Collection() {
                 key={entry.id}
                 className={`collection__slot${editMode ? ' collection__slot--edit' : ''}${draggedEntryId === entry.id ? ' collection__slot--dragging' : ''}`}
                 onPointerDown={e => {
+                  if (e.button !== 0) return
                   if (!editMode && panelOpen)
                     startDrag(entry.id, entry.card.image_url, e.currentTarget)
                 }}

@@ -1,5 +1,5 @@
 // src/hooks/useDrag.ts
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 export type DropHandler = (entryId: string, zoneId: string) => void
 
@@ -25,6 +25,21 @@ export function useDrag(onDrop: DropHandler) {
 
   // Keep onDrop current without re-creating handlers
   dragRef.current.onDrop = onDrop
+
+  // Clean up if component unmounts during active drag
+  useEffect(() => {
+    return () => {
+      const d = dragRef.current
+      if (d.clone) {
+        d.clone.remove()
+        if (d.originEl) d.originEl.style.opacity = ''
+        if (d.moveHandler) document.removeEventListener('pointermove', d.moveHandler)
+        if (d.upHandler)   document.removeEventListener('pointerup',   d.upHandler)
+        if (d.cancelHandler) document.removeEventListener('pointercancel', d.cancelHandler)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function startDrag(entryId: string, imageUrl: string, el: HTMLElement) {
     const d = dragRef.current

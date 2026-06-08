@@ -32,13 +32,13 @@ function PackList() {
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.8) {
+          if (entry.isIntersecting) {
             const idx = Array.from(slots).indexOf(entry.target as HTMLElement)
             if (idx !== -1) setActiveIndex(idx)
           }
         })
       },
-      { root: carousel, threshold: 0.8 }
+      { root: carousel, threshold: 0.5, rootMargin: '0px -30% 0px -30%' }
     )
 
     slots.forEach(slot => observer.observe(slot))
