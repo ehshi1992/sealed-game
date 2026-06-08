@@ -66,8 +66,7 @@ async function callRemoveBg(imageUrl: string): Promise<{ buffer: Buffer; credits
   return { buffer, creditsRemaining }
 }
 
-async function compositeSubject(originalUrl: string, removeBgRgba: Buffer): Promise<Buffer> {
-  const original = await fetch(originalUrl).then(r => r.arrayBuffer()).then(b => Buffer.from(b))
+async function compositeSubject(originalBuf: Buffer, removeBgRgba: Buffer): Promise<Buffer> {
   const { data: alphaData, info } = await sharp(removeBgRgba)
     .ensureAlpha()
     .raw()
@@ -76,7 +75,7 @@ async function compositeSubject(originalUrl: string, removeBgRgba: Buffer): Prom
   const { width, height } = info
   const channels = info.channels
 
-  const originalRaw = await sharp(original)
+  const originalRaw = await sharp(originalBuf)
     .resize(width, height)
     .ensureAlpha()
     .raw()
@@ -95,8 +94,7 @@ async function compositeSubject(originalUrl: string, removeBgRgba: Buffer): Prom
     .toBuffer()
 }
 
-async function compositeBg(originalUrl: string, removeBgRgba: Buffer): Promise<Buffer> {
-  const original = await fetch(originalUrl).then(r => r.arrayBuffer()).then(b => Buffer.from(b))
+async function compositeBg(originalBuf: Buffer, removeBgRgba: Buffer): Promise<Buffer> {
   const { data: alphaData, info } = await sharp(removeBgRgba)
     .ensureAlpha()
     .raw()
@@ -105,7 +103,7 @@ async function compositeBg(originalUrl: string, removeBgRgba: Buffer): Promise<B
   const { width, height } = info
   const channels = info.channels
 
-  const originalRaw = await sharp(original)
+  const originalRaw = await sharp(originalBuf)
     .resize(width, height)
     .ensureAlpha()
     .raw()
@@ -144,14 +142,11 @@ async function uploadToStorage(cardId: string, subjectBuf: Buffer, bgBuf: Buffer
 }
 
 async function processCard(card: CardRow, force: boolean): Promise<'skipped' | 'processed' | 'error'> {
-  const skipReason = SKIP_LAYOUT_TYPES.has(card.card_layout_type)
-    ? card.card_layout_type
-    : !force && card.subject_layer_url && card.bg_layer_url
-      ? 'already processed, use --force to re-run'
-      : null
-
-  if (skipReason) {
-    console.log(`[${card.id}] skip (${skipReason})`)
+  if (shouldSkipCard(card, force)) {
+    const reason = SKIP_LAYOUT_TYPES.has(card.card_layout_type)
+      ? card.card_layout_type
+      : 'already processed, use --force to re-run'
+    console.log(`[${card.id}] skip (${reason})`)
     return 'skipped'
   }
 
@@ -171,12 +166,14 @@ async function processCard(card: CardRow, force: boolean): Promise<'skipped' | '
     return 'error'
   }
 
+  let originalBuf: Buffer
   let subjectBuf: Buffer
   let bgBuf: Buffer
   try {
+    originalBuf = Buffer.from(await fetch(card.image_url).then(r => r.arrayBuffer()))
     ;[subjectBuf, bgBuf] = await Promise.all([
-      compositeSubject(card.image_url, removeBgRgba),
-      compositeBg(card.image_url, removeBgRgba),
+      compositeSubject(originalBuf, removeBgRgba),
+      compositeBg(originalBuf, removeBgRgba),
     ])
   } catch (err: unknown) {
     console.error(`[${card.id}] composite error: ${err instanceof Error ? err.message : String(err)}`)
