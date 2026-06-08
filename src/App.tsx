@@ -4,6 +4,8 @@ import Home from './routes/Home'
 import Shop from './routes/Shop'
 import PackOpening from './routes/PackOpening'
 import Collection from './routes/Collection'
+import HoloTest from './routes/HoloTest'
+import PolygonTest from './routes/PolygonTest'
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { state } = useApp()
@@ -19,6 +21,8 @@ function Router() {
         <Route path="/shop" element={<AuthGuard><Shop /></AuthGuard>} />
         <Route path="/pack-opening" element={<AuthGuard><PackOpening /></AuthGuard>} />
         <Route path="/collection" element={<AuthGuard><Collection /></AuthGuard>} />
+        <Route path="/holo-test" element={<HoloTest />} />
+        <Route path="/polygon-test" element={<PolygonTest />} />
       </Routes>
     </BrowserRouter>
   )
