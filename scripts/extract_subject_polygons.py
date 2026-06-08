@@ -244,7 +244,7 @@ def process_card(
     metrics = compute_metrics(polygon, bounds, mean_alpha, contour_count)
 
     # Print metrics + flags
-    flags = [k for k, v in metrics['flags'].items() if v and k != 'coverage_ok']
+    flags = [k for k, v in metrics['flags'].items() if v and k not in ('coverage_ok', 'alpha_ok')]
     flag_str = '  WARNING: ' + ', '.join(flags) if flags else '  OK'
     print(f"    verts={metrics['vertex_count']}  cov={metrics['coverage_ratio']:.2f}  alpha={metrics['mean_alpha']:.0f}  contours={contour_count}{flag_str}")
 
