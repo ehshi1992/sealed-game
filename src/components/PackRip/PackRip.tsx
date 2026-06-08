@@ -16,18 +16,22 @@ type Props = {
 
 const TEAR_THRESHOLD = 80   // px horizontal drag to trigger tear
 const TEAR_VELOCITY  = 0.5  // px/ms — fast flick also triggers
+const FLY_THRESHOLD  = 130
+const FLY_VELOCITY   = 0.6
 
 export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('idle')
-  const [dealIndex, setDealIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
+  const [deckIndex, setDeckIndex] = useState(0)
+  const [dragState, setDragState] = useState<{ dx: number; dy: number } | null>(null)
+  const [flying, setFlying] = useState<{ dx: number; dy: number } | null>(null)
   const [burst, setBurst] = useState<{ x: number; y: number } | null>(null)
 
   const packRef      = useRef<HTMLDivElement>(null)
   const grabXRef     = useRef(0)
   const grabTimeRef  = useRef(0)
-  const cardDealRef  = useRef<HTMLDivElement>(null)
+  const topCardRef   = useRef<HTMLDivElement>(null)
+  const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
   const mountedRef   = useRef(true)
 
   useEffect(() => {
@@ -78,8 +82,9 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     setTimeout(() => {
       if (!mountedRef.current) return
       setPhase('discarded')
-      setDealIndex(0)
-      setFlipped(false)
+      setDeckIndex(0)
+      setDragState(null)
+      setFlying(null)
       setTimeout(() => {
         if (!mountedRef.current) return
         setPhase('dealing')
@@ -87,34 +92,21 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     }, 450)
   }
 
-  // ── Deal handlers ──────────────────────────────────────
-  function handleDealClick() {
-    if (phase !== 'dealing') return
-    if (!flipped) {
-      // Flip current card face-up
-      setFlipped(true)
-      const card = cards[dealIndex]
-      if (card && (card.rarity === 'secret_rare' || card.rarity === 'ultra_rare')) {
-        const el = cardDealRef.current
-        if (el) {
-          const rect = el.getBoundingClientRect()
-          setBurst({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-          setTimeout(() => setBurst(null), 1500)
-        }
-      }
-    } else {
-      // Advance to next card or summary
-      const next = dealIndex + 1
-      if (next >= cards.length) {
-        setPhase('summary')
-      } else {
-        setDealIndex(next)
-        setFlipped(false)
-      }
-    }
+  // ── Card drag handlers (stubs — implemented in Task 6) ──
+  function handleCardPointerDown(_e: React.PointerEvent<HTMLDivElement>) {
+    void dragStartRef
   }
+  function handleCardPointerMove(_e: React.PointerEvent<HTMLDivElement>) {}
+  function handleCardPointerUp(_e: React.PointerEvent<HTMLDivElement>) {
+    void FLY_VELOCITY
+    void setBurst
+  }
+  function handleCardPointerCancel() {}
 
-  const currentCard = cards[dealIndex]
+  const dragDistance = dragState
+    ? Math.sqrt(dragState.dx ** 2 + dragState.dy ** 2)
+    : 0
+  const isCommitting = dragDistance > FLY_THRESHOLD * 0.75
 
   return (
     <div className="pack-rip">
@@ -154,27 +146,51 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
         </>
       )}
 
-      {/* ── Deal phase — one card at a time ── */}
-      {phase === 'dealing' && currentCard && (
-        <div className="pack-rip__deal" onClick={handleDealClick}>
-          <p className="pack-rip__progress">{dealIndex + 1} / {cards.length}</p>
-          <div
-            key={`deal-${dealIndex}`}
-            ref={cardDealRef}
-            className="pack-rip__deal-card card-flip"
-          >
-            <div className={`card-flip__inner${flipped ? ' card-flip__inner--flipped' : ''}`}>
-              <div className="card-flip__front card-back">✦</div>
-              <div className="card-flip__back">
-                <HoloCard card={currentCard} size="sm" />
-              </div>
+      {/* ── Dealing phase — draggable card deck ── */}
+      {phase === 'dealing' && cards[deckIndex] && (
+        <div className="pack-rip__deck">
+          <p className="pack-rip__progress">{deckIndex + 1} / {cards.length}</p>
+          <div className="pack-rip__deck-stack">
+            {[2, 1].map(offset => {
+              const idx = deckIndex + offset
+              return (
+                <div key={`peek-${offset}`} className={`deck-card deck-card--peek${offset}`}>
+                  {idx < cards.length
+                    ? <HoloCard card={cards[idx]} size="sm" />
+                    : <div className="card-back">✦</div>
+                  }
+                </div>
+              )
+            })}
+            <div
+              key={`deck-${deckIndex}`}
+              ref={topCardRef}
+              className={[
+                'deck-card',
+                'deck-card--top',
+                flying       ? 'deck-card--flying'     : '',
+                isCommitting ? 'deck-card--committing' : '',
+              ].join(' ').trim()}
+              style={flying
+                ? {
+                    transform: `translate(${flying.dx}px, ${flying.dy}px) rotate(${Math.max(-20, Math.min(20, flying.dx / 8))}deg)`,
+                    opacity: 0,
+                  }
+                : dragState
+                  ? {
+                      transform: `translate(${dragState.dx}px, ${dragState.dy}px) rotate(${Math.max(-20, Math.min(20, dragState.dx / 8))}deg)`,
+                    }
+                  : undefined
+              }
+              onPointerDown={handleCardPointerDown}
+              onPointerMove={handleCardPointerMove}
+              onPointerUp={handleCardPointerUp}
+              onPointerCancel={handleCardPointerCancel}
+            >
+              <HoloCard card={cards[deckIndex]} size="sm" />
             </div>
           </div>
-          <p className="pack-rip__hint">
-            {flipped
-              ? dealIndex + 1 < cards.length ? 'Tap for next →' : 'Tap to see all'
-              : 'Tap to reveal'}
-          </p>
+          <p className="pack-rip__hint">Drag to reveal next</p>
         </div>
       )}
 
