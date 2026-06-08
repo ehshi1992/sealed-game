@@ -145,10 +145,10 @@ export default function BinderPanel({
     const globalSlot = page * SLOTS_PER_VIEW + i
     return positionedMap.get(globalSlot) ?? null
   })
-  let unpIdx2 = 0
+  let unpIdx = 0
   for (let i = 0; i < SLOTS_PER_VIEW; i++) {
-    if (!viewSlots[i] && unpIdx2 < unpositioned.length) {
-      viewSlots[i] = unpositioned[unpIdx2++]
+    if (!viewSlots[i] && unpIdx < unpositioned.length) {
+      viewSlots[i] = unpositioned[unpIdx++]
     }
   }
 
@@ -169,12 +169,14 @@ export default function BinderPanel({
     }, 250)
   }
 
+  const binderId = binder.id
+
   function renderSlot(entry: typeof allBinderCards[0] | null, globalSlot: number) {
     return entry ? (
       <div
         key={entry.id}
         className="binder-panel__slot"
-        data-drop-zone={`binder-slot:${binder!.id}:${globalSlot}`}
+        data-drop-zone={`binder-slot:${binderId}:${globalSlot}`}
         onPointerDown={e => {
           e.preventDefault()
           onStartDrag(entry.id, entry.card.image_url, e.currentTarget)
@@ -191,7 +193,7 @@ export default function BinderPanel({
       <div
         key={`empty-${globalSlot}`}
         className="binder-panel__slot binder-panel__slot--empty"
-        data-drop-zone={`binder-slot:${binder!.id}:${globalSlot}`}
+        data-drop-zone={`binder-slot:${binderId}:${globalSlot}`}
       />
     )
   }
@@ -230,7 +232,7 @@ export default function BinderPanel({
   if (fullWidth) {
     const leftSlots = viewSlots.slice(0, 9)
     const rightSlots = viewSlots.slice(9, 18)
-    const baseGlobal = page * 18
+    const baseGlobal = page * SLOTS_PER_VIEW
 
     return (
       <div className="binder-panel binder-panel--spread" data-drop-zone={`binder:${binder.id}`}>
