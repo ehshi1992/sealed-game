@@ -134,7 +134,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
       if (el) {
         const rect = el.getBoundingClientRect()
         setBurst({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-        setTimeout(() => setBurst(null), 1500)
+        setTimeout(() => { if (mountedRef.current) setBurst(null) }, 1500)
       }
     }
 
@@ -145,6 +145,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
       if (!mountedRef.current) return
       const next = deckIndex + 1
       if (next >= cards.length) {
+        setFlying(null)
         setPhase('summary')
       } else {
         setDeckIndex(next)
