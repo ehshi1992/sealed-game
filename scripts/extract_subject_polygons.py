@@ -158,7 +158,7 @@ def make_debug_row(
 
     # Label
     draw = ImageDraw.Draw(row)
-    draw.text((pad, pad), f"{card.get('name', card['id'])}  verts={metrics['vertex_count']}  cov={metrics['coverage_ratio']:.2f}  α={metrics['mean_alpha']:.0f}", fill=(180, 180, 180))
+    draw.text((pad, pad), f"{card.get('name', card['id'])}  verts={metrics['vertex_count']}  cov={metrics['coverage_ratio']:.2f}  alpha={metrics['mean_alpha']:.0f}", fill=(180, 180, 180))
 
     panel_top = pad + 20
 
@@ -203,7 +203,7 @@ def write_debug_sheet(rows: list[Image.Image], out_path: Path) -> None:
         y += row.height
     out_path.parent.mkdir(parents=True, exist_ok=True)
     sheet.save(str(out_path))
-    print(f"  debug sheet → {out_path}")
+    print(f"  debug sheet -> {out_path}")
 
 
 # ---------------------------------------------------------------------------
@@ -245,8 +245,8 @@ def process_card(
 
     # Print metrics + flags
     flags = [k for k, v in metrics['flags'].items() if v and k != 'coverage_ok']
-    flag_str = '  ⚠ ' + ', '.join(flags) if flags else '  ✓'
-    print(f"    verts={metrics['vertex_count']}  cov={metrics['coverage_ratio']:.2f}  α={metrics['mean_alpha']:.0f}  contours={contour_count}{flag_str}")
+    flag_str = '  WARNING: ' + ', '.join(flags) if flags else '  OK'
+    print(f"    verts={metrics['vertex_count']}  cov={metrics['coverage_ratio']:.2f}  alpha={metrics['mean_alpha']:.0f}  contours={contour_count}{flag_str}")
 
     # Write JSON
     out_path = output_dir / 'polygons' / f"{card_id}.json"
