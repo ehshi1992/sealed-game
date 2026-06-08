@@ -6,9 +6,7 @@ import './BinderPanel.css'
 type Props = {
   binders: Binder[]
   collection: CollectionEntry[]
-  draggedEntryId: string | null
   onStartDrag: (entryId: string, imageUrl: string, el: HTMLElement) => void
-  onMoveCard: (entryId: string, binderId: string | null) => void
   onCreateBinder: (name: string, color: string) => Promise<void>
   onDeleteBinder: (binderId: string) => Promise<void>
 }
@@ -16,9 +14,7 @@ type Props = {
 export default function BinderPanel({
   binders,
   collection,
-  draggedEntryId: _draggedEntryId,
   onStartDrag,
-  onMoveCard: _onMoveCard,
   onCreateBinder,
   onDeleteBinder,
 }: Props) {

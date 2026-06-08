@@ -151,9 +151,7 @@ export default function Collection() {
           <BinderPanel
             binders={binders}
             collection={collection}
-            draggedEntryId={draggedEntryId}
             onStartDrag={startDrag}
-            onMoveCard={handleMoveCard}
             onCreateBinder={handleCreateBinder}
             onDeleteBinder={handleDeleteBinder}
           />
