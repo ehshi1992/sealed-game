@@ -15,14 +15,25 @@
 .pack-rip__pack {
   position: relative;
   width: 200px;
-  height: 280px;          /* explicit height so children don't collapse parent */
-  cursor: pointer;
+  height: 280px;
+  cursor: grab;
   user-select: none;
   flex-shrink: 0;
+  touch-action: none;
 }
 
-.pack-rip__top,
-.pack-rip__bottom {
+.pack-rip__pack--idle {
+  animation: pack-breathe 3s ease-in-out infinite;
+}
+
+@keyframes pack-breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.02); }
+}
+
+/* Left/right halves */
+.pack-rip__left,
+.pack-rip__right {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -30,55 +41,73 @@
   object-fit: contain;
   border-radius: 8px;
   filter: drop-shadow(0 0 24px var(--accent-glow));
+  will-change: transform;
 }
 
-/* Idle shimmer overlay */
+.pack-rip__left  { clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }
+.pack-rip__right { clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%); }
+
+/* Drag: halves move apart via CSS custom property */
+.pack-rip__pack--grabbed .pack-rip__left  { transform: translateX(calc(-1 * var(--tear-dx, 0px))); }
+.pack-rip__pack--grabbed .pack-rip__right { transform: translateX(var(--tear-dx, 0px)); }
+
+/* Continuous shimmer sweep */
 .pack-rip__pack::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 8px;
-  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.3s;
+  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+  background-size: 200% 200%;
+  animation: shimmer-sweep 4s linear infinite;
   pointer-events: none;
 }
-.pack-rip__pack:hover::after { opacity: 1; }
 
-/* ─── Shake animation ───────────────────────────────────── */
-@keyframes pack-shake {
-  0%,100% { transform: rotate(0deg) scale(1); }
-  15%     { transform: rotate(-4deg) translateX(-6px) scale(1.02); }
-  30%     { transform: rotate(5deg) translateX(8px) scale(1.02); }
-  50%     { transform: rotate(-3deg) translateX(-4px) scale(1.01); }
-  70%     { transform: rotate(2deg) translateX(2px) scale(1); }
-  85%     { transform: rotate(-1deg) translateX(-1px); }
+@keyframes shimmer-sweep {
+  0%   { background-position: -100% -100%; }
+  100% { background-position: 200% 200%; }
 }
-.pack-rip__pack--shaking { animation: pack-shake 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
 /* ─── Tear animation ────────────────────────────────────── */
-.pack-rip__top {
-  clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%);
-}
-.pack-rip__bottom {
-  clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%);
+@keyframes tear-left {
+  0%   { transform: translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateX(-200vw) rotate(-15deg); opacity: 0; }
 }
 
-@keyframes pack-tear-top {
-  0%   { clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%); transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { clip-path: polygon(0 0, 100% 0, 100% 48%, 5% 52%); transform: translateY(-130%) rotate(-12deg); opacity: 0.6; }
+@keyframes tear-right {
+  0%   { transform: translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateX(200vw) rotate(15deg); opacity: 0; }
 }
 
-@keyframes pack-tear-bottom {
-  0%   { clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%); transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { clip-path: polygon(0 52%, 5% 48%, 100% 48%, 100% 100%, 0 100%); transform: translateY(130%) rotate(12deg); opacity: 0.6; }
+.pack-rip__left--tearing  { animation: tear-left  0.4s ease-in forwards; }
+.pack-rip__right--tearing { animation: tear-right 0.4s ease-in forwards; }
+
+/* ─── Deal phase — single card center ───────────────────── */
+.pack-rip__deal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-.pack-rip__top--tearing    { animation: pack-tear-top    0.5s ease-in forwards; }
-.pack-rip__bottom--tearing { animation: pack-tear-bottom 0.5s ease-in forwards; }
+.pack-rip__deal-card {
+  animation: deal-enter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 
-/* ─── Cards grid ────────────────────────────────────────── */
-.pack-rip__cards {
+@keyframes deal-enter {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.85); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pack-rip__progress {
+  color: var(--text-muted);
+  font-family: monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Summary fan grid ──────────────────────────────────── */
+.pack-rip__summary {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -88,16 +117,15 @@
   width: 100%;
 }
 
-/* ─── Card reveal animation ─────────────────────────────── */
+.pack-rip__card-slot {
+  animation: card-reveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
 @keyframes card-reveal {
   0%   { opacity: 0; transform: translateY(50px) scale(0.7) rotateX(45deg); }
   60%  { transform: translateY(-8px) scale(1.05) rotateX(0deg); }
   100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); }
-}
-
-.pack-rip__card-slot {
-  animation: card-reveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  opacity: 0;
 }
 
 @keyframes card-reveal-rare {
@@ -105,6 +133,7 @@
   50%  { transform: translateY(-15px) scale(1.1) rotateX(0deg); filter: drop-shadow(0 0 20px rgba(255,215,0,0.9)); }
   100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); filter: drop-shadow(0 0 6px rgba(255,215,0,0.3)); }
 }
+
 .pack-rip__card-slot--rare {
   animation: card-reveal-rare 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
 }
@@ -132,12 +161,11 @@
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden; /* Chromium */
+  -webkit-backface-visibility: hidden;
 }
 
 .card-flip__back {
   transform: rotateY(180deg);
-  /* HoloCard fills this slot — let it size naturally */
   display: flex;
   align-items: center;
   justify-content: center;
