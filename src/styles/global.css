@@ -273,56 +273,20 @@ body {
   border-radius: 8px;
 }
 
-/* Binder full-width spread view */
-.collection--binder-view {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
+/* Binder full-width spread view — collection above, spread below */
 .collection--binder-view .collection__toolbar {
   flex-basis: 100%;
 }
 
 .collection--binder-view .collection__main {
   display: block;
-  width: 220px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-}
-
-.collection--binder-view .collection__main .collection__grid {
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  flex-basis: 100%;
 }
 
 .collection--binder-view .collection__panel-wrapper {
-  flex: 1;
-  min-width: 0;
-  width: auto;
+  flex-basis: 100%;
+  width: 100%;
   position: static;
   max-height: none;
   overflow-y: visible;
-}
-
-@media (max-width: 900px) {
-  .collection--binder-view {
-    flex-wrap: wrap;
-  }
-  .collection--binder-view .collection__main {
-    width: 100%;
-    position: static;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .collection--binder-view .collection__main .collection__grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  }
-  .collection--binder-view .collection__panel-wrapper {
-    width: 100%;
-  }
 }
