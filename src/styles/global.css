@@ -274,6 +274,7 @@ body {
   width: 160px;
   background: var(--surface);
   border-left-color: rgba(229, 62, 62, 0.3);
+  overflow: hidden;
   transition: width 0.2s, border-left-color 0.25s;
 }
 

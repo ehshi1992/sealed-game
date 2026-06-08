@@ -19,6 +19,12 @@
   transition: background 0.25s, border-color 0.25s;
 }
 
+.binder-panel--edit-mode .binder-panel__header {
+  padding: 0.6rem 0.5rem;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
 .binder-panel--edit-mode .binder-panel__row {
   padding: 0.5rem;
   justify-content: center;
