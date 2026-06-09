@@ -15,10 +15,17 @@ function rollRarity(rand: number): string {
   return 'ultra_rare'
 }
 
-function buildPack(cardPool: Card[]): string[] {
+function buildPack(cardPool: Card[], cardCount: number): string[] {
+  if (cardCount <= 0) return []
   const rand = () => Math.random()
   const byRarity = (r: string) => cardPool.filter(c => c.rarity === r)
   const pick = (pool: Card[]) => pool[Math.floor(rand() * pool.length)]?.id
+
+  // Single-card packs: just pick one card, no rarity structure
+  if (cardCount === 1) {
+    const id = pick(cardPool)
+    return id ? [id] : []
+  }
 
   const cards: string[] = []
   const rarePool = cardPool.filter(c =>
@@ -27,7 +34,7 @@ function buildPack(cardPool: Card[]): string[] {
   const guaranteed = pick(rarePool.length > 0 ? rarePool : cardPool)
   if (guaranteed) cards.push(guaranteed)
 
-  for (let i = 1; i < 10; i++) {
+  for (let i = 1; i < cardCount; i++) {
     const rarity = rollRarity(rand())
     const pool = byRarity(rarity).length > 0 ? byRarity(rarity) : cardPool
     const card = pick(pool)
@@ -75,7 +82,7 @@ Deno.serve(async (req) => {
     // Fetch pack + price
     const { data: pack, error: packError } = await userClient
       .from('packs')
-      .select('id, price, card_pool')
+      .select('id, price, card_pool, card_count')
       .eq('id', packId)
       .single()
 
@@ -116,7 +123,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Empty card pool' }), { status: 500, headers: corsHeaders })
     }
 
-    const selectedIds = buildPack(poolCards as Card[])
+    const selectedIds = buildPack(poolCards as Card[], pack.card_count ?? 10)
 
     // Insert into user_collection
     const collectionRows = selectedIds.map(cardId => ({

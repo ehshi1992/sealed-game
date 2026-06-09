@@ -32,7 +32,6 @@ export default function HoloCard({
   const artworkBounds = card.artwork_bounds ?? null
   // No bounds → skip rendering to avoid full-card coverage with unknown clip region
   const holoMode = artworkBounds ? deriveHoloMode(card) : 'none'
-  if (size === 'lg') console.log('[HoloCard]', card.name, { holo_type: card.holo_type, artwork_bounds: artworkBounds, holoMode })
 
   useHoloShader(canvasRef, {
     enabled: size === 'lg',

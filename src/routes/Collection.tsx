@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { removeFromCollection, createBinder, deleteBinder, moveCard } from '../lib/queries'
+import { supabase } from '../lib/supabase'
 import HoloCard from '../components/HoloCard/HoloCard'
 import BinderPanel from '../components/BinderPanel/BinderPanel'
 import { useDrag } from '../hooks/useDrag'
@@ -129,6 +130,17 @@ export default function Collection() {
 
   const canDrag = !editMode && binderEditMode && !!selectedBinderId
 
+  async function purgeByHolo(keepHolos: boolean) {
+    if (!state.user) return
+    const toDelete = collection.filter(e =>
+      keepHolos ? e.card.holo_type === 'none' : e.card.holo_type !== 'none'
+    )
+    if (toDelete.length === 0) return
+    const ids = toDelete.map(e => e.card_id)
+    await supabase.from('user_collection').delete().eq('user_id', state.user.id).in('card_id', ids)
+    dispatch({ type: 'SET_COLLECTION', collection: collection.filter(e => !ids.includes(e.card_id)) })
+  }
+
   return (
     <div className={`collection${panelOpen && !binderEditMode ? ' collection--panel-open' : ''}${panelOpen && binderEditMode ? ' collection--panel-open-edit' : ''}`}>
       <div className="collection__toolbar">
@@ -145,6 +157,8 @@ export default function Collection() {
         }}>
           {panelOpen ? 'Close Binders' : 'Binders'}
         </button>
+        <button className="btn btn--danger btn--xs" onClick={() => purgeByHolo(true)}>- non-holos</button>
+        <button className="btn btn--danger btn--xs" onClick={() => purgeByHolo(false)}>- holos</button>
       </div>
 
       <div className="collection__main">
