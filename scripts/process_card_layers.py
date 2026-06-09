@@ -67,7 +67,12 @@ def bounds_to_pixels(bounds: dict, img_w: int, img_h: int) -> tuple[int, int, in
 # Image processing
 # ---------------------------------------------------------------------------
 
+PUBLIC_DIR = Path(__file__).parent.parent / 'public'
+
 def load_image(image_url: str) -> Image.Image:
+    if image_url.startswith('/'):
+        local_path = PUBLIC_DIR / image_url.lstrip('/')
+        return Image.open(local_path).convert('RGBA')
     resp = requests.get(image_url, timeout=15)
     resp.raise_for_status()
     return Image.open(io.BytesIO(resp.content)).convert('RGBA')
