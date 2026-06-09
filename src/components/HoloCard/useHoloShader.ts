@@ -4,12 +4,31 @@ import type { RefObject } from 'react'
 import { VERT_SRC, FRAG_SRC } from './shaders'
 import type { ArtworkBounds, HoloMode, HoloSeed } from '../../types'
 
+export interface HoloShaderParams {
+  brightness:       number
+  lumaScale:        number
+  saturation:       number
+  opacity:          number
+  tiltSensitivity:  number
+  activationFloor:  number
+}
+
+export const DEFAULT_HOLO_PARAMS: HoloShaderParams = {
+  brightness:      0.10,
+  lumaScale:       0.55,
+  saturation:      1.0,
+  opacity:         2.0,
+  tiltSensitivity: 5.2,
+  activationFloor: 0.15,
+}
+
 interface HoloShaderOpts {
   enabled:       boolean
   seedOffset:    HoloSeed
   artworkBounds: ArtworkBounds | null
   holoMode:      HoloMode
   pointer:       { x: number; y: number }
+  params?:       HoloShaderParams
 }
 
 // Module-level bitmap preload — one Image shared across all card instances
@@ -21,12 +40,18 @@ const MAX_CONTEXTS = 16
 let webglBroken = false
 
 type Uniforms = {
-  u_resolution:     WebGLUniformLocation | null
-  u_seed_offset:    WebGLUniformLocation | null
-  u_pointer:        WebGLUniformLocation | null
-  u_holo_mode:      WebGLUniformLocation | null
-  u_artwork_bounds: WebGLUniformLocation | null
-  u_cosmo_bitmap:   WebGLUniformLocation | null
+  u_resolution:      WebGLUniformLocation | null
+  u_seed_offset:     WebGLUniformLocation | null
+  u_pointer:         WebGLUniformLocation | null
+  u_holo_mode:       WebGLUniformLocation | null
+  u_artwork_bounds:  WebGLUniformLocation | null
+  u_cosmo_bitmap:    WebGLUniformLocation | null
+  u_brightness:      WebGLUniformLocation | null
+  u_luma_scale:      WebGLUniformLocation | null
+  u_saturation:      WebGLUniformLocation | null
+  u_opacity:         WebGLUniformLocation | null
+  u_tilt_sensitivity: WebGLUniformLocation | null
+  u_activation_floor: WebGLUniformLocation | null
 }
 
 function compileShader(gl: WebGLRenderingContext, type: number, src: string): WebGLShader | null {
@@ -115,12 +140,18 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
   uploadBitmapTexture(gl, 1)
 
   const uniforms: Uniforms = {
-    u_resolution:     gl.getUniformLocation(program, 'u_resolution'),
-    u_seed_offset:    gl.getUniformLocation(program, 'u_seed_offset'),
-    u_pointer:        gl.getUniformLocation(program, 'u_pointer'),
-    u_holo_mode:      gl.getUniformLocation(program, 'u_holo_mode'),
-    u_artwork_bounds: gl.getUniformLocation(program, 'u_artwork_bounds'),
-    u_cosmo_bitmap:   gl.getUniformLocation(program, 'u_cosmo_bitmap'),
+    u_resolution:       gl.getUniformLocation(program, 'u_resolution'),
+    u_seed_offset:      gl.getUniformLocation(program, 'u_seed_offset'),
+    u_pointer:          gl.getUniformLocation(program, 'u_pointer'),
+    u_holo_mode:        gl.getUniformLocation(program, 'u_holo_mode'),
+    u_artwork_bounds:   gl.getUniformLocation(program, 'u_artwork_bounds'),
+    u_cosmo_bitmap:     gl.getUniformLocation(program, 'u_cosmo_bitmap'),
+    u_brightness:       gl.getUniformLocation(program, 'u_brightness'),
+    u_luma_scale:       gl.getUniformLocation(program, 'u_luma_scale'),
+    u_saturation:       gl.getUniformLocation(program, 'u_saturation'),
+    u_opacity:          gl.getUniformLocation(program, 'u_opacity'),
+    u_tilt_sensitivity: gl.getUniformLocation(program, 'u_tilt_sensitivity'),
+    u_activation_floor: gl.getUniformLocation(program, 'u_activation_floor'),
   }
 
   gl.uniform1i(uniforms.u_cosmo_bitmap, 1)
@@ -129,7 +160,7 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
   return { gl, uniforms }
 }
 
-const HOLO_MODE_INT: Record<HoloMode, number> = { none: 0, full_holo: 1, reverse_holo: 2 }
+const HOLO_MODE_INT: Record<HoloMode, number> = { none: 0, full_holo: 1, reverse_holo: 2, subject_holo: 1 }
 
 export function useHoloShader(
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -155,8 +186,9 @@ export function useHoloShader(
     let rafId: number
 
     function render() {
-      const { seedOffset, artworkBounds, holoMode, pointer } = optsRef.current
+      const { seedOffset, artworkBounds, holoMode, pointer, params } = optsRef.current
       const bounds = artworkBounds ?? { x: 0, y: 0, w: 1, h: 1 }
+      const p = { ...DEFAULT_HOLO_PARAMS, ...params }
 
       const dpr = window.devicePixelRatio || 1
       const displayW = Math.round(canvas!.clientWidth  * dpr)
@@ -174,6 +206,12 @@ export function useHoloShader(
       gl.uniform2f(uniforms.u_pointer,        pointer.x, pointer.y)
       gl.uniform1i(uniforms.u_holo_mode,      HOLO_MODE_INT[holoMode])
       gl.uniform4f(uniforms.u_artwork_bounds, bounds.x, bounds.y, bounds.w, bounds.h)
+      gl.uniform1f(uniforms.u_brightness,       p.brightness)
+      gl.uniform1f(uniforms.u_luma_scale,        p.lumaScale)
+      gl.uniform1f(uniforms.u_saturation,        p.saturation)
+      gl.uniform1f(uniforms.u_opacity,           p.opacity)
+      gl.uniform1f(uniforms.u_tilt_sensitivity,  p.tiltSensitivity)
+      gl.uniform1f(uniforms.u_activation_floor,  p.activationFloor)
 
       gl.drawArrays(gl.TRIANGLES, 0, 6)
       rafId = requestAnimationFrame(render)

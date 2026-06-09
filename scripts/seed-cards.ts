@@ -85,6 +85,24 @@ const SETS: SetConfig[] = [
     packImageUrl: 'https://images.pokemontcg.io/neo1/logo.png',
   },
   {
+    setId: 'neo2',
+    packName: 'Neo Discovery Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/neo2/logo.png',
+  },
+  {
+    setId: 'neo3',
+    packName: 'Neo Revelation Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/neo3/logo.png',
+  },
+  {
+    setId: 'neo4',
+    packName: 'Neo Destiny Booster',
+    packPrice: 100,
+    packImageUrl: 'https://images.pokemontcg.io/neo4/logo.png',
+  },
+  {
     setId: 'ecard1',
     packName: 'Neo Expedition Booster',
     packPrice: 100,

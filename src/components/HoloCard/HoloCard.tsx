@@ -11,9 +11,10 @@ type Props = {
 }
 
 
-function deriveHoloMode(card: Card): HoloMode {
+export function deriveHoloMode(card: Card): HoloMode {
   if (card.holo_type === 'reverse') return 'reverse_holo'
   if (card.holo_type === 'none') return 'none'
+  if (card.subject_layer_url) return 'subject_holo'
   return 'full_holo'  // standard, full_art, rainbow
 }
 
@@ -144,6 +145,14 @@ export default function HoloCard({
         <canvas
           ref={canvasRef}
           className="card__holo-canvas"
+        />
+      )}
+      {size === 'lg' && artworkBounds && card.subject_layer_url && (
+        <img
+          className="card__subject-layer"
+          src={card.subject_layer_url}
+          alt=""
+          draggable={false}
         />
       )}
     </div>

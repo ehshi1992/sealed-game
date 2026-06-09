@@ -10,7 +10,7 @@ export type Rarity =
 
 export type HoloType = 'none' | 'standard' | 'reverse' | 'full_art' | 'rainbow'
 
-export type HoloMode = 'none' | 'full_holo' | 'reverse_holo'
+export type HoloMode = 'none' | 'full_holo' | 'reverse_holo' | 'subject_holo'
 
 export type ArtworkBounds = {
   x: number  // 0–1 fraction of card width
@@ -36,6 +36,7 @@ export type Card = {
   card_layout_type?: string
   artwork_bounds?: ArtworkBounds | null
   holo_seed?: HoloSeed | null
+  subject_layer_url?: string | null
   supertype?: string | null
   subtypes?: string[] | null
   hp?: number | null

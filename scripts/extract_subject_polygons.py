@@ -224,7 +224,7 @@ def process_card(
         print(f"    skip ({card['card_layout_type']})")
         return False
 
-    bounds = card.get('artwork_bounds') or {'x': 0.07, 'y': 0.135, 'w': 0.86, 'h': 0.385}
+    bounds = card.get('artwork_bounds') or {'x': 0.123, 'y': 0.143, 'w': 0.742, 'h': 0.368}
 
     try:
         img = load_image_pil(card, local_dir)

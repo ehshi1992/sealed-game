@@ -17,6 +17,12 @@ export const FRAG_SRC = /* glsl */`
   uniform int       u_holo_mode;
   uniform vec4      u_artwork_bounds;
   uniform sampler2D u_cosmo_bitmap;
+  uniform float     u_brightness;
+  uniform float     u_luma_scale;
+  uniform float     u_saturation;
+  uniform float     u_opacity;
+  uniform float     u_tilt_sensitivity;
+  uniform float     u_activation_floor;
 
   vec3 hsl2rgb(float h, float s, float l) {
     h = fract(h);
@@ -63,16 +69,16 @@ export const FRAG_SRC = /* glsl */`
 
       float pixelAngle  = layerUV.x * 4.2 + layerUV.y * 2.7 + u_seed_offset.x * 6.2832 + fi * 3.1416;
       float similarity  = cos(tiltAngle - pixelAngle);
-      float activation  = mix(0.25, similarity * 0.5 + 0.5, min(1.0, tilt * 2.5));
+      float activation  = mix(u_activation_floor, similarity * 0.5 + 0.5, min(1.0, tilt * u_tilt_sensitivity));
 
       float hue = fract(baseHue + layerUV.x * 0.55 + layerUV.y * 0.38 + fi * 0.33);
-      vec3  layerCol = hsl2rgb(hue, 1.0, 0.3 + luma * 0.55);
+      vec3  layerCol = hsl2rgb(hue, u_saturation, u_brightness + luma * u_luma_scale);
 
       float a = luma * activation;
       col   = max(col, layerCol * a);
       alpha = max(alpha, a);
     }
 
-    gl_FragColor = vec4(col, alpha);
+    gl_FragColor = vec4(col, alpha * u_opacity);
   }
 `

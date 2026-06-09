@@ -5,7 +5,7 @@ dotenv.config({ path: '.env.local' })
 import type { ArtworkBounds } from '../src/types'
 
 const LAYOUT_DEFAULTS: Record<string, ArtworkBounds> = {
-  standard: { x: 0.07, y: 0.135, w: 0.86, h: 0.385 },
+  standard: { x: 0.123, y: 0.143, w: 0.742, h: 0.368 },
   ex_gx:    { x: 0.07, y: 0.09,  w: 0.86, h: 0.42  },
   v_vmax:   { x: 0.00, y: 0.00,  w: 1.00, h: 0.65  },
   full_art:  { x: 0.00, y: 0.00,  w: 1.00, h: 1.00  },
