@@ -41,6 +41,7 @@ let webglBroken = false
 
 type Uniforms = {
   u_resolution:      WebGLUniformLocation | null
+  u_viewport_origin: WebGLUniformLocation | null
   u_seed_offset:     WebGLUniformLocation | null
   u_pointer:         WebGLUniformLocation | null
   u_holo_mode:       WebGLUniformLocation | null
@@ -141,6 +142,7 @@ function initGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingContext; uniform
 
   const uniforms: Uniforms = {
     u_resolution:       gl.getUniformLocation(program, 'u_resolution'),
+    u_viewport_origin:  gl.getUniformLocation(program, 'u_viewport_origin'),
     u_seed_offset:      gl.getUniformLocation(program, 'u_seed_offset'),
     u_pointer:          gl.getUniformLocation(program, 'u_pointer'),
     u_holo_mode:        gl.getUniformLocation(program, 'u_holo_mode'),
@@ -202,6 +204,7 @@ export function useHoloShader(
       gl.clear(gl.COLOR_BUFFER_BIT)
 
       gl.uniform2f(uniforms.u_resolution,     canvas!.width, canvas!.height)
+      gl.uniform2f(uniforms.u_viewport_origin, 0.0, 0.0)
       gl.uniform2f(uniforms.u_seed_offset,    seedOffset.x, seedOffset.y)
       gl.uniform2f(uniforms.u_pointer,        pointer.x, pointer.y)
       gl.uniform1i(uniforms.u_holo_mode,      HOLO_MODE_INT[holoMode])

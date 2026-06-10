@@ -12,6 +12,7 @@ export const FRAG_SRC = /* glsl */`
   precision mediump float;
 
   uniform vec2      u_resolution;
+  uniform vec2      u_viewport_origin;
   uniform vec2      u_seed_offset;
   uniform vec2      u_pointer;
   uniform int       u_holo_mode;
@@ -40,7 +41,7 @@ export const FRAG_SRC = /* glsl */`
   }
 
   void main() {
-    vec2 uv = gl_FragCoord.xy / u_resolution;
+    vec2 uv = (gl_FragCoord.xy - u_viewport_origin) / u_resolution;
     uv.y = 1.0 - uv.y;
 
     bool in_art = uv.x >= u_artwork_bounds.x &&
