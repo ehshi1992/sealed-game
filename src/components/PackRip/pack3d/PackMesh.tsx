@@ -48,7 +48,9 @@ export default function PackMesh({ texture, tear, flying, onStripGone }: Props) 
   const bodyMat  = useRef<THREE.ShaderMaterial>(null)
   const stripMat = useRef<THREE.ShaderMaterial>(null)
   const stripGrp = useRef<THREE.Group>(null)
+  const bodyGrp  = useRef<THREE.Group>(null)
   const flight   = useRef({ vx: 2.6, vy: 1.8, vr: 2.4, opacity: 1 })
+  const bodyFall = useRef({ vy: -1.0, done: false })
 
   const bodyGeo  = useMemo(() => makePlane(-TEAR.PACK_H / 2, TEAR.TEAR_Y + JAG_AMP), [])
   const stripGeo = useMemo(() => makePlane(TEAR.TEAR_Y - JAG_AMP, TEAR.PACK_H / 2), [])
@@ -89,30 +91,45 @@ export default function PackMesh({ texture, tear, flying, onStripGone }: Props) 
       stripMat.current.uniforms.uTearX.value = x
     }
 
-    if (flying && stripGrp.current && stripMat.current) {
-      const f = flight.current
-      f.vy -= 4.5 * dt                       // gravity arc
-      stripGrp.current.position.x += f.vx * dt
-      stripGrp.current.position.y += f.vy * dt
-      stripGrp.current.rotation.z -= f.vr * dt * 0.3
-      f.opacity = Math.max(0, f.opacity - dt * 1.4)
-      stripMat.current.uniforms.uOpacity.value = f.opacity
-      if (f.opacity <= 0) onStripGone()
+    if (flying) {
+      // torn strip flutters up and away, fading out
+      if (stripGrp.current && stripMat.current) {
+        const f = flight.current
+        f.vy -= 4.5 * dt                       // gravity arc
+        stripGrp.current.position.x += f.vx * dt
+        stripGrp.current.position.y += f.vy * dt
+        stripGrp.current.rotation.z -= f.vr * dt * 0.3
+        f.opacity = Math.max(0, f.opacity - dt * 1.4)
+        stripMat.current.uniforms.uOpacity.value = f.opacity
+      }
+      // the remaining pack slides straight down off the deck (no tilt), then
+      // we signal completion (→ dealing phase) once it has fully cleared.
+      if (bodyGrp.current && !bodyFall.current.done) {
+        const b = bodyFall.current
+        b.vy -= 9 * dt                         // accelerate downward
+        bodyGrp.current.position.y += b.vy * dt
+        if (bodyGrp.current.position.y < -7) {
+          b.done = true
+          onStripGone()
+        }
+      }
     }
   })
 
   return (
     <>
-      <mesh geometry={bodyGeo} renderOrder={0}>
-        <shaderMaterial
-          ref={bodyMat}
-          vertexShader={foilVert}
-          fragmentShader={foilFrag}
-          uniforms={bodyUniforms}
-          transparent
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      <group ref={bodyGrp}>
+        <mesh geometry={bodyGeo} renderOrder={0}>
+          <shaderMaterial
+            ref={bodyMat}
+            vertexShader={foilVert}
+            fragmentShader={foilFrag}
+            uniforms={bodyUniforms}
+            transparent
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      </group>
       {/* The peeling strip curls toward the viewer, so draw it last with depth
           test off — it always sits over the body instead of interpenetrating
           it (transparent meshes sort by undeformed centroid, which mis-orders
