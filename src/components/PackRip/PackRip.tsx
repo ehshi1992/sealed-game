@@ -20,6 +20,15 @@ type Props = {
 const FLY_THRESHOLD = 130
 const FLY_VELOCITY  = 0.6
 
+// Deterministic per-card seed so summary cards don't all shimmer at the same hue
+// /offset. Cheap hash of the card id → two fractions in [0,1).
+function seedFromId(id: string): { x: number; y: number } {
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
+  const u = (h >>> 0) / 0xffffffff
+  return { x: u, y: (u * 1.618) % 1 }
+}
+
 export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('pack')
@@ -120,19 +129,28 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
 
   const holoEntries: HoloEntry[] = phase === 'dealing'
     ? (cards[deckIndex]
-        ? [{ id: `top-${deckIndex}`, el: topCardRef.current, card: cards[deckIndex], seed: { x: 0.5, y: 0.5 } }]
+        ? [{ id: `top-${deckIndex}`, el: topCardRef.current, card: cards[deckIndex], seed: seedFromId(cards[deckIndex].id) }]
         : [])
     : phase === 'summary'
       ? cards.map((c, i) => ({
           id: `sum-${c.id}-${i}`,
           el: summarySlotsRef.current.get(`${c.id}-${i}`) ?? null,
           card: c,
-          seed: { x: 0.5, y: 0.5 },
+          seed: seedFromId(c.id),
         }))
       : []
 
+  // One shared viewport-normalized pointer drives tilt for every holo card in both
+  // dealing and summary. Read live by the overlay's RAF loop — no re-render needed.
+  function handleRootPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    pointerRef.current = {
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight,
+    }
+  }
+
   return (
-    <div className="pack-rip">
+    <div className="pack-rip" onPointerMove={handleRootPointerMove}>
 
       {/* ── Card deck — hidden until pack WebGL is ready, then sits underneath
             so it's revealed as the pack slides off. Progress + hint only appear once dealing. ── */}
@@ -230,7 +248,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
 
       {burst && <ParticleBurst x={burst.x} y={burst.y} active={true} />}
       {(phase === 'dealing' || phase === 'summary') && (
-        <HoloBatchCanvas entries={holoEntries} pointer={pointerRef.current} />
+        <HoloBatchCanvas entries={holoEntries} pointerRef={pointerRef} />
       )}
     </div>
   )

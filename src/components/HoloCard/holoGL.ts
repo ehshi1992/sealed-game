@@ -124,6 +124,9 @@ export function initHoloGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingConte
     console.error('[HoloShader] link error:', gl.getProgramInfoLog(program))
     gl.deleteShader(vert)
     gl.deleteShader(frag)
+    gl.deleteProgram(program)
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    webglBroken = true
     return null
   }
   gl.useProgram(program)

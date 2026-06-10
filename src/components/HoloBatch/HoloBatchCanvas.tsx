@@ -1,5 +1,6 @@
 // src/components/HoloBatch/HoloBatchCanvas.tsx
 import { useEffect, useRef } from 'react'
+import type { RefObject } from 'react'
 import {
   initHoloGL, releaseContext, resetWebglBroken,
   DEFAULT_HOLO_PARAMS, HOLO_MODE_INT,
@@ -11,19 +12,22 @@ import './HoloBatchCanvas.css'
 
 interface Props {
   entries: HoloEntry[]
-  pointer: { x: number; y: number }
+  // Tilt source. Pass `pointerRef` for live tracking without a re-render per
+  // mousemove (the RAF loop reads it each frame); `pointer` is a static fallback.
+  pointer?: { x: number; y: number }
+  pointerRef?: RefObject<{ x: number; y: number }>
   // `fixed` positions the canvas against the viewport (for scrolling surfaces like
   // the collection grid). Default false = absolute, covers the nearest positioned
   // ancestor (pack opening, which does not scroll).
   fixed?: boolean
 }
 
-export default function HoloBatchCanvas({ entries, pointer, fixed = false }: Props) {
+export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const entriesRef = useRef(entries)
-  const pointerRef = useRef(pointer)
+  const pointerValueRef = useRef(pointer ?? { x: 0.5, y: 0.5 })
   entriesRef.current = entries
-  pointerRef.current = pointer
+  pointerValueRef.current = pointer ?? pointerValueRef.current
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -56,7 +60,7 @@ export default function HoloBatchCanvas({ entries, pointer, fixed = false }: Pro
       gl.enable(gl.SCISSOR_TEST)
 
       const p = DEFAULT_HOLO_PARAMS
-      const ptr = pointerRef.current
+      const ptr = pointerRef?.current ?? pointerValueRef.current
 
       for (const entry of entriesRef.current) {
         if (!entry.el) continue
