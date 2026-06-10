@@ -15,7 +15,7 @@ export default function PackOpening() {
   const packId = (location.state as { packId: string } | null)?.packId
 
   const [cards, setCards] = useState<Card[]>([])
-  const [packImageUrl] = useState('https://images.pokemontcg.io/base1/logo.png')
+  const [packImageUrl, setPackImageUrl] = useState('')
   const [pageState, setPageState] = useState<PageState>('loading')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -35,10 +35,15 @@ export default function PackOpening() {
 
   async function openPack() {
     try {
-      const { data, error } = await supabase.functions.invoke<PackOpenResult>('open-pack', {
-        body: { packId },
-      })
+      const [{ data, error }, packResult] = await Promise.all([
+        supabase.functions.invoke<PackOpenResult>('open-pack', { body: { packId } }),
+        supabase.from('packs').select('image_url').eq('id', packId).single(),
+      ])
       if (error || !data) throw error ?? new Error('No data returned')
+
+      if (packResult.data?.image_url) {
+        setPackImageUrl(packResult.data.image_url)
+      }
 
       startTransition(() => {
         addOptimisticCards(data.cards)
@@ -59,7 +64,7 @@ export default function PackOpening() {
     navigate('/collection')
   }
 
-  if (pageState === 'loading') {
+  if (pageState === 'loading' || !packImageUrl) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '1rem' }}>
         <div className="spinner" />
