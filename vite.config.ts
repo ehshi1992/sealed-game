@@ -8,5 +8,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/__tests__/setup.ts',
+    // Ignore stale worktree copies under .claude/worktrees — they carry their own
+    // broken node_modules and produce false test failures during the main run.
+    exclude: ['**/node_modules/**', '**/dist/**', '.claude/**'],
   },
 })
