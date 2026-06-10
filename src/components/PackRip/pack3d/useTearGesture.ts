@@ -20,6 +20,8 @@ export type TearController = {
   x: number              // current tear-front position (animated)
   target: number         // where x is heading
   mode: 'idle' | 'drag' | 'rip' | 'snap'
+  frames: number         // incremented by PackMesh useFrame (debug: loop alive?)
+  events: number         // incremented by the drag handler (debug: gesture firing?)
   onRip: () => void
   onSnapBack: () => void
 }
@@ -38,6 +40,8 @@ export function useTearGesture({ enabled, onTearStart, onRip, onSnapBack }: Call
     x: TEAR.LEFT_EDGE,
     target: TEAR.LEFT_EDGE,
     mode: 'idle',
+    frames: 0,
+    events: 0,
     onRip,
     onSnapBack,
   })
@@ -47,6 +51,7 @@ export function useTearGesture({ enabled, onTearStart, onRip, onSnapBack }: Call
 
   const bind = useDrag(
     ({ first, last, movement: [mx], velocity: [vx] }) => {
+      tear.current.events++
       if (!enabled) return
       if (first) {
         onTearStart()

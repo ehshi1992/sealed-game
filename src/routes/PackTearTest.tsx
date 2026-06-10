@@ -10,6 +10,7 @@ export default function PackTearTest() {
     <PackTearScene
       packImageUrl={TEST_IMAGE}
       onTornAway={() => console.log('[PackTearTest] torn away')}
+      debug
     />
   )
 }

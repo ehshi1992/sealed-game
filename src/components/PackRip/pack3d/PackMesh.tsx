@@ -61,6 +61,7 @@ export default function PackMesh({ texture, tear, flying, onStripGone }: Props) 
 
     // Advance the tear front toward its target on r3f's own loop.
     const ctl = tear.current
+    ctl.frames++
     if (ctl.mode === 'drag') {
       ctl.x = ctl.target                              // immediate follow while held
     } else if (ctl.mode === 'rip') {
