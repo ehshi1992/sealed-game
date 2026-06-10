@@ -7,6 +7,7 @@ import PackOpening from './routes/PackOpening'
 import Collection from './routes/Collection'
 import HoloTest from './routes/HoloTest'
 import PolygonTest from './routes/PolygonTest'
+import PackTearTest from './routes/PackTearTest'
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { state } = useApp()
@@ -24,6 +25,7 @@ function Router() {
         <Route path="/collection" element={<AuthGuard><AppLayout><Collection /></AppLayout></AuthGuard>} />
         <Route path="/holo-test" element={<HoloTest />} />
         <Route path="/polygon-test" element={<PolygonTest />} />
+        <Route path="/pack-tear-test" element={<PackTearTest />} />
       </Routes>
     </BrowserRouter>
   )

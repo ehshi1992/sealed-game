@@ -57,7 +57,18 @@ export default function PackTearScene({ packImageUrl, onTornAway }: Props) {
   return (
     <div className="pack-tear-scene" {...bind()}>
       <Suspense fallback={<div className="pack-tear-scene__loading"><div className="spinner" /></div>}>
-        <Canvas camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}>
+        <Canvas
+          camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
+          dpr={[1, 2]}
+          onCreated={({ gl }) => {
+            // r3f calls gl.forceContextLoss() when the Canvas unmounts (and
+            // again on StrictMode's dev double-mount). On GPUs with Chrome's
+            // exit_on_context_lost workaround, a forced loss exits the whole
+            // GPU process — white page + sad-face crash. Neuter it so the
+            // context is released by GC instead of a driver-killing loss event.
+            gl.forceContextLoss = () => {}
+          }}
+        >
           <SceneContents
             packImageUrl={packImageUrl}
             flying={phase === 'flying'}
