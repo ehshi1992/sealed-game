@@ -38,20 +38,32 @@ void main() {
     // fraction of strip that has been torn at this vertex's X
     torn = 1.0 - smoothstep(uTearX - 0.45, uTearX + 0.05, p.x);
 
-    // curl: rotate strip around the seam axis
-    float ang = torn * 2.35;            // max ~135° peel
-    float dy  = p.y - TEAR_Y;
+    // sideways roll: curl the freed strip around a VERTICAL axis at the tear
+    // front. The roll angle grows with how long the column has been torn, so
+    // the freed edge rolls forward/around while the front of the tear stays
+    // put — like unrolling the wrapper sideways.
+    float ang = torn * 2.6;
+    float dx  = p.x - uTearX;
     float ca  = cos(ang), sa = sin(ang);
-    float ny  = TEAR_Y + dy * ca - p.z * sa * 0.4;
-    float nz  = p.z * ca + dy * sa;
-    p.y = ny;
+    float nx  = uTearX + dx * ca + p.z * sa;
+    float nz  = -dx * sa + p.z * ca;
+    p.x = nx;
     p.z = nz;
 
-    // crinkle while peeling
-    p.z += torn * 0.05 * sin(p.x * 28.0 + uTime * 6.0);
+    // keep the freed flap in front of the body plane so it never sorts behind
+    p.z += torn * 0.12;
 
-    // slight lateral spread so the strip doesn't overlap the body
-    p.x += torn * torn * 0.12;
+    // irregular crumpled-plastic creases: non-harmonic, cross-hatched folds
+    // with a varying depth envelope so the crinkle looks crumpled rather than
+    // a uniform corrugation. Mostly static, faint time shimmer only.
+    float crinkle =
+        sin(p.x * 17.0 + p.y * 5.0)         * 0.60
+      + sin(p.x * 9.3  - p.y * 13.0 + 2.1)  * 0.45
+      + sin(p.y * 19.0 - p.x * 7.0  + 1.3)  * 0.35
+      + sin(p.x * 27.7 + p.y * 3.3  + 4.7)  * 0.30;
+    float env = 0.55 + 0.45 * sin(p.x * 3.1 + p.y * 2.3);
+    p.z += torn * 0.05 * crinkle * env;
+    p.z += torn * 0.010 * sin(p.x * 38.0 + uTime * 2.0);
   }
 
   vTorn      = torn;

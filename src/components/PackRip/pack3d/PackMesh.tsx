@@ -61,7 +61,6 @@ export default function PackMesh({ texture, tear, flying, onStripGone }: Props) 
 
     // Advance the tear front toward its target on r3f's own loop.
     const ctl = tear.current
-    ctl.frames++
     if (ctl.mode === 'drag') {
       ctl.x = ctl.target                              // immediate follow while held
     } else if (ctl.mode === 'rip') {
@@ -104,7 +103,7 @@ export default function PackMesh({ texture, tear, flying, onStripGone }: Props) 
 
   return (
     <>
-      <mesh geometry={bodyGeo}>
+      <mesh geometry={bodyGeo} renderOrder={0}>
         <shaderMaterial
           ref={bodyMat}
           vertexShader={foilVert}
@@ -114,14 +113,19 @@ export default function PackMesh({ texture, tear, flying, onStripGone }: Props) 
           side={THREE.DoubleSide}
         />
       </mesh>
+      {/* The peeling strip curls toward the viewer, so draw it last with depth
+          test off — it always sits over the body instead of interpenetrating
+          it (transparent meshes sort by undeformed centroid, which mis-orders
+          the curled flap). */}
       <group ref={stripGrp}>
-        <mesh geometry={stripGeo}>
+        <mesh geometry={stripGeo} renderOrder={1}>
           <shaderMaterial
             ref={stripMat}
             vertexShader={foilVert}
             fragmentShader={foilFrag}
             uniforms={stripUniforms}
             transparent
+            depthTest={false}
             side={THREE.DoubleSide}
           />
         </mesh>
