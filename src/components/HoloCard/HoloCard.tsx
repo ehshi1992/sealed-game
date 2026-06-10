@@ -146,7 +146,7 @@ export default function HoloCard({
           className="card__holo-canvas"
         />
       )}
-      {size === 'lg' && artworkBounds && card.subject_layer_url && (
+      {artworkBounds && card.subject_layer_url && (
         <img
           className="card__subject-layer"
           src={card.subject_layer_url}

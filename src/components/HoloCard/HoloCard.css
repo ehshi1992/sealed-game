@@ -2,6 +2,13 @@
   position: relative;
   border-radius: 4.75% / 3.5%;
   cursor: pointer;
+  overflow: visible;
+  display: block;
+  line-height: 0;
+}
+
+/* 3D tilt only on lg (single-card detail view) */
+.card--lg {
   transform-style: preserve-3d;
   transform:
     perspective(600px)
@@ -9,9 +16,6 @@
     rotateY(var(--rotateY));
   transition: transform 0.1s ease-out;
   will-change: transform;
-  overflow: visible;
-  display: block;
-  line-height: 0;
 }
 
 .card--sm { width: 120px; height: 167px; }
@@ -94,49 +98,77 @@
 
 /* --- Holo type activations --- */
 
-/* standard: holo_rare */
-[data-holo-type="standard"] .card__holo,
-[data-holo-type="standard"] .card__glare {
-  opacity: calc(var(--pointer-from-center) * 0.5);
-}
-[data-holo-type="standard"] .card__sparkle {
-  opacity: calc(var(--pointer-from-center) * 0.25);
-}
-
-/* reverse: reverse holo */
-[data-holo-type="reverse"] .card__holo {
-  opacity: calc(var(--pointer-from-center) * 0.35);
-}
-[data-holo-type="reverse"] .card__glare {
-  opacity: calc(var(--pointer-from-center) * 0.35);
-}
-
-/* full_art: ultra_rare */
-[data-holo-type="full_art"] .card__holo {
-  opacity: calc(var(--pointer-from-center) * 0.55);
-}
-[data-holo-type="full_art"] .card__sparkle {
-  opacity: calc(var(--pointer-from-center) * 0.45);
-}
-[data-holo-type="full_art"] .card__glare {
-  opacity: calc(var(--pointer-from-center) * 0.55);
-}
-
-/* rainbow: secret_rare */
-[data-holo-type="rainbow"] .card__holo {
-  opacity: calc(var(--pointer-from-center) * 0.6);
-  animation: rainbow-shift 3s linear infinite;
-}
-[data-holo-type="rainbow"] .card__sparkle {
-  opacity: calc(var(--pointer-from-center) * 0.55);
-}
-[data-holo-type="rainbow"] .card__glare {
-  opacity: calc(var(--pointer-from-center) * 0.6);
+@keyframes holo-passive-drift {
+  0%   { background-position: 25% 25%; }
+  30%  { background-position: 75% 45%; }
+  60%  { background-position: 55% 75%; }
+  100% { background-position: 25% 25%; }
 }
 
 @keyframes rainbow-shift {
-  0% { filter: hue-rotate(0deg); }
+  0%   { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
+}
+
+/* --- Passive shimmer: sm/md cards (no pointer interaction) --- */
+
+[data-holo-type="standard"]:not(.card--lg) .card__holo,
+[data-holo-type="full_art"]:not(.card--lg) .card__holo {
+  opacity: 0.12;
+  animation: holo-passive-drift 7s ease-in-out infinite;
+}
+[data-holo-type="rainbow"]:not(.card--lg) .card__holo {
+  opacity: 0.15;
+  animation: holo-passive-drift 7s ease-in-out infinite, rainbow-shift 4s linear infinite;
+}
+[data-holo-type="reverse"]:not(.card--lg) .card__holo {
+  opacity: 0.08;
+  animation: holo-passive-drift 9s ease-in-out infinite;
+}
+
+[data-holo-type="standard"]:not(.card--lg) .card__sparkle,
+[data-holo-type="full_art"]:not(.card--lg) .card__sparkle,
+[data-holo-type="rainbow"]:not(.card--lg) .card__sparkle {
+  opacity: 0.07;
+}
+[data-holo-type="reverse"]:not(.card--lg) .card__sparkle {
+  opacity: 0.05;
+}
+
+/* --- Pointer-driven: lg (single-card detail view) --- */
+
+[data-holo-type="standard"].card--lg .card__holo,
+[data-holo-type="standard"].card--lg .card__glare {
+  opacity: calc(var(--pointer-from-center) * 0.5);
+}
+[data-holo-type="standard"].card--lg .card__sparkle {
+  opacity: calc(var(--pointer-from-center) * 0.25);
+}
+
+[data-holo-type="reverse"].card--lg .card__holo,
+[data-holo-type="reverse"].card--lg .card__glare {
+  opacity: calc(var(--pointer-from-center) * 0.35);
+}
+
+[data-holo-type="full_art"].card--lg .card__holo {
+  opacity: calc(var(--pointer-from-center) * 0.55);
+}
+[data-holo-type="full_art"].card--lg .card__sparkle {
+  opacity: calc(var(--pointer-from-center) * 0.45);
+}
+[data-holo-type="full_art"].card--lg .card__glare {
+  opacity: calc(var(--pointer-from-center) * 0.55);
+}
+
+[data-holo-type="rainbow"].card--lg .card__holo {
+  opacity: calc(var(--pointer-from-center) * 0.6);
+  animation: rainbow-shift 3s linear infinite;
+}
+[data-holo-type="rainbow"].card--lg .card__sparkle {
+  opacity: calc(var(--pointer-from-center) * 0.55);
+}
+[data-holo-type="rainbow"].card--lg .card__glare {
+  opacity: calc(var(--pointer-from-center) * 0.6);
 }
 
 .card__subject-layer {

@@ -1,6 +1,5 @@
 // src/components/HoloBatch/HoloBatchCanvas.tsx
 import { useEffect, useRef } from 'react'
-import type { RefObject } from 'react'
 import {
   initHoloGL, releaseContext, resetWebglBroken,
   DEFAULT_HOLO_PARAMS, HOLO_MODE_INT,
@@ -12,22 +11,17 @@ import './HoloBatchCanvas.css'
 
 interface Props {
   entries: HoloEntry[]
-  // Tilt source. Pass `pointerRef` for live tracking without a re-render per
-  // mousemove (the RAF loop reads it each frame); `pointer` is a static fallback.
-  pointer?: { x: number; y: number }
-  pointerRef?: RefObject<{ x: number; y: number }>
   // `fixed` positions the canvas against the viewport (for scrolling surfaces like
   // the collection grid). Default false = absolute, covers the nearest positioned
   // ancestor (pack opening, which does not scroll).
   fixed?: boolean
 }
 
-export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = false }: Props) {
+export default function HoloBatchCanvas({ entries, fixed = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
   const entriesRef = useRef(entries)
-  const pointerValueRef = useRef(pointer ?? { x: 0.5, y: 0.5 })
   entriesRef.current = entries
-  pointerValueRef.current = pointer ?? pointerValueRef.current
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -42,6 +36,29 @@ export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = 
     const { gl, uniforms } = ctx
     gl.enable(gl.SCISSOR_TEST)
     let rafId: number
+
+    // Subject overlay <img>s, managed imperatively so their positioning stays in
+    // lockstep with the RAF loop (no React-ref timing races). Keyed by entry id.
+    const overlay = overlayRef.current
+    const subjectImgs = new Map<string, HTMLImageElement>()
+
+    function syncSubjectImg(entry: HoloEntry): HTMLImageElement | null {
+      if (!overlay) return null
+      const url = entry.card.subject_layer_url
+      if (!url) return null
+      let img = subjectImgs.get(entry.id)
+      if (!img) {
+        img = new Image()
+        img.className = 'holo-batch-subjects__img'
+        img.draggable = false
+        img.alt = ''
+        img.src = url
+        img.style.opacity = '0'
+        overlay.appendChild(img)
+        subjectImgs.set(entry.id, img)
+      }
+      return img
+    }
 
     function render() {
       const dpr = window.devicePixelRatio || 1
@@ -60,7 +77,10 @@ export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = 
       gl.enable(gl.SCISSOR_TEST)
 
       const p = DEFAULT_HOLO_PARAMS
-      const ptr = pointerRef?.current ?? pointerValueRef.current
+      const t = performance.now() / 1000
+      const ptr = { x: 0.5 + 0.35 * Math.sin(t * 0.4), y: 0.5 + 0.25 * Math.sin(t * 0.25 + 1.0) }
+
+      const liveIds = new Set<string>()
 
       for (const entry of entriesRef.current) {
         if (!entry.el) continue
@@ -69,7 +89,22 @@ export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = 
         const holoMode = bounds ? deriveHoloMode(card) : 'none'
         if (holoMode === 'none' || !bounds) continue
 
-        const r = domRectToGLRect(entry.el.getBoundingClientRect(), canvasRect, pxH, dpr)
+        const cardRect = entry.el.getBoundingClientRect()
+
+        // Subject overlay sits above the holo canvas so the subject reads crisp
+        // (holo shimmers behind it), matching the single-card detail view. The
+        // <img> covers the full card, mirroring HoloCard's inset:0 subject layer.
+        const img = syncSubjectImg(entry)
+        if (img) {
+          liveIds.add(entry.id)
+          img.style.left    = `${cardRect.left - canvasRect.left}px`
+          img.style.top     = `${cardRect.top  - canvasRect.top}px`
+          img.style.width   = `${cardRect.width}px`
+          img.style.height  = `${cardRect.height}px`
+          img.style.opacity = '1'
+        }
+
+        const r = domRectToGLRect(cardRect, canvasRect, pxH, dpr)
         if (!isGLRectVisible(r, pxW, pxH)) continue
 
         gl.viewport(r.x, r.y, r.w, r.h)
@@ -91,6 +126,14 @@ export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = 
         gl.drawArrays(gl.TRIANGLES, 0, 6)
       }
 
+      // Drop subject imgs whose entry is gone (deck advanced, card removed, etc).
+      for (const [id, img] of subjectImgs) {
+        if (!liveIds.has(id)) {
+          img.remove()
+          subjectImgs.delete(id)
+        }
+      }
+
       rafId = requestAnimationFrame(render)
     }
 
@@ -98,14 +141,22 @@ export default function HoloBatchCanvas({ entries, pointer, pointerRef, fixed = 
 
     return () => {
       cancelAnimationFrame(rafId)
+      for (const img of subjectImgs.values()) img.remove()
+      subjectImgs.clear()
       releaseContext()
     }
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={`holo-batch-canvas${fixed ? ' holo-batch-canvas--fixed' : ''}`}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className={`holo-batch-canvas${fixed ? ' holo-batch-canvas--fixed' : ''}`}
+      />
+      <div
+        ref={overlayRef}
+        className={`holo-batch-subjects${fixed ? ' holo-batch-subjects--fixed' : ''}`}
+      />
+    </>
   )
 }

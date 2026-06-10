@@ -56,7 +56,7 @@ describe('HoloBatchCanvas', () => {
       entryWithRect('a', { left: 10, top: 10, width: 50, height: 70 }),
       entryWithRect('b', { left: 80, top: 10, width: 50, height: 70 }),
     ]
-    render(<HoloBatchCanvas entries={entries} pointer={{ x: 0.5, y: 0.5 }} />)
+    render(<HoloBatchCanvas entries={entries} />)
     await new Promise(r => setTimeout(r, 0))
     expect(glMock.drawArrays).toHaveBeenCalledTimes(2)
   })
@@ -66,7 +66,7 @@ describe('HoloBatchCanvas', () => {
       entryWithRect('a', { left: 10, top: 10, width: 50, height: 70 }),
       entryWithRect('off', { left: 9000, top: 9000, width: 50, height: 70 }),
     ]
-    render(<HoloBatchCanvas entries={entries} pointer={{ x: 0.5, y: 0.5 }} />)
+    render(<HoloBatchCanvas entries={entries} />)
     await new Promise(r => setTimeout(r, 0))
     expect(glMock.drawArrays).toHaveBeenCalledTimes(1)
   })
@@ -75,7 +75,7 @@ describe('HoloBatchCanvas', () => {
     const entries: HoloEntry[] = [
       { id: 'n', el: null, card: card('n'), seed: { x: 0, y: 0 } },
     ]
-    render(<HoloBatchCanvas entries={entries} pointer={{ x: 0.5, y: 0.5 }} />)
+    render(<HoloBatchCanvas entries={entries} />)
     await new Promise(r => setTimeout(r, 0))
     expect(glMock.drawArrays).not.toHaveBeenCalled()
   })
@@ -83,7 +83,7 @@ describe('HoloBatchCanvas', () => {
   it('does not throw when WebGL is unavailable', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
     expect(() =>
-      render(<HoloBatchCanvas entries={[]} pointer={{ x: 0.5, y: 0.5 }} />)
+      render(<HoloBatchCanvas entries={[]} />)
     ).not.toThrow()
   })
 })

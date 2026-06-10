@@ -41,7 +41,6 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const topCardRef   = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
   const mountedRef   = useRef(true)
-  const pointerRef = useRef({ x: 0.5, y: 0.5 })
   const summarySlotsRef = useRef<Map<string, HTMLDivElement | null>>(new Map())
   const [, forceTick] = useState(0)
 
@@ -49,6 +48,21 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     mountedRef.current = true
     return () => { mountedRef.current = false }
   }, [])
+
+  // Preload + decode every card image (and subject layer) up front so advancing
+  // the deck doesn't trigger a decode flash when the next card mounts on top.
+  useEffect(() => {
+    for (const c of cards) {
+      const img = new Image()
+      img.src = c.image_url
+      img.decode?.().catch(() => {})
+      if (c.subject_layer_url) {
+        const s = new Image()
+        s.src = c.subject_layer_url
+        s.decode?.().catch(() => {})
+      }
+    }
+  }, [cards])
 
   useEffect(() => { forceTick(t => t + 1) }, [phase, deckIndex])
 
@@ -64,14 +78,6 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     const dx = e.clientX - dragStartRef.current.x
     const dy = e.clientY - dragStartRef.current.y
     setDragState({ dx, dy })
-    const el = topCardRef.current
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      pointerRef.current = {
-        x: (e.clientX - rect.left) / rect.width,
-        y: (e.clientY - rect.top) / rect.height,
-      }
-    }
   }
 
   function handleCardPointerUp(e: React.PointerEvent<HTMLDivElement>) {
@@ -140,17 +146,8 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
         }))
       : []
 
-  // One shared viewport-normalized pointer drives tilt for every holo card in both
-  // dealing and summary. Read live by the overlay's RAF loop — no re-render needed.
-  function handleRootPointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    pointerRef.current = {
-      x: e.clientX / window.innerWidth,
-      y: e.clientY / window.innerHeight,
-    }
-  }
-
   return (
-    <div className="pack-rip" onPointerMove={handleRootPointerMove}>
+    <div className="pack-rip">
 
       {/* ── Card deck — hidden until pack WebGL is ready, then sits underneath
             so it's revealed as the pack slides off. Progress + hint only appear once dealing. ── */}
@@ -248,7 +245,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
 
       {burst && <ParticleBurst x={burst.x} y={burst.y} active={true} />}
       {(phase === 'dealing' || phase === 'summary') && (
-        <HoloBatchCanvas entries={holoEntries} pointerRef={pointerRef} />
+        <HoloBatchCanvas entries={holoEntries} />
       )}
     </div>
   )
