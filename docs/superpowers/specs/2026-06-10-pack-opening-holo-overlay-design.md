@@ -1,4 +1,4 @@
-# Pack-Opening Holo Overlay — Design
+# Holo Batch Overlay — Design (Pack Opening; reusable for Collection)
 
 **Date:** 2026-06-10
 **Status:** Approved (pending spec review)
@@ -86,11 +86,14 @@ source of GL init for both consumers. Keeps the existing `activeContextCount` ca
 Behavior unchanged. Set `u_viewport_origin = (0,0)`, `u_resolution = canvas size`
 in its render loop. Single-card path stays as-is.
 
-### 3. `PackHoloCanvas.tsx` (new) — the batch overlay
-- Renders one `<canvas className="pack-holo-canvas">`, absolutely positioned to
-  cover the PackRip container (`inset: 0`, `pointer-events: none`, `z-index` above
-  card images, below UI chrome).
-- Props: `entries: HoloEntry[]`, `pointer: {x,y}` (shared global pointer).
+### 3. `HoloBatchCanvas.tsx` (new) — reusable batch overlay
+General, **not** pack-specific (so collection/binder can reuse it — see Follow-up).
+- Renders one `<canvas className="holo-batch-canvas">`, absolutely positioned to
+  cover its container (`inset: 0`, `pointer-events: none`, `z-index` above card
+  images, below UI chrome). `position: fixed` variant via prop for scrolling
+  surfaces (collection) so the canvas tracks the viewport.
+- Props: `entries: HoloEntry[]`, `pointer: {x,y}` (shared pointer), optional
+  `fixed?: boolean`.
 - `HoloEntry = { id: string; el: HTMLElement | null; card: Card; seed: HoloSeed }`.
   `holoMode`/`artworkBounds` derived from `card` (reuse `deriveHoloMode`; skip
   entries with `holoMode === 'none'` or no `artwork_bounds`).
@@ -98,8 +101,17 @@ in its render loop. Single-card path stays as-is.
   data changes never tear down / re-init the context.
 - Each frame: resize canvas to container × DPR (once if changed); clear; for each
   entry compute `glRect` from `el.getBoundingClientRect()` relative to the canvas
-  rect; skip entries fully outside the canvas; draw via scissor/viewport batch.
+  rect; **cull entries fully outside the canvas viewport** (cost ∝ visible cards,
+  not total — required for large collection grids); draw the survivors via
+  scissor/viewport batch.
 - Cleanup: `cancelAnimationFrame` + decrement counter only (no `loseContext`).
+
+### 3b. `useHoloEntry(ref, card, seed)` (new) — registration hook
+Optional ergonomic hook for consumers: registers `{id, el, card, seed}` into a
+caller-provided entries store (or returns a stable entry object the parent
+collects). Lets any grid opt a card into the nearest `HoloBatchCanvas` without the
+parent manually threading every ref. Pack opening can collect refs directly; the
+hook mainly pays off for collection/binder. Build it now, use where convenient.
 
 ### 4. `coords.ts` helper (new, pure) — DOM rect → GL viewport
 ```
@@ -116,7 +128,7 @@ DOM is top-left/y-down; GL viewport is bottom-left/y-up:
   - **Summary:** one entry per grid slot (refs collected into an array/map).
 - Track a shared pointer (reuse existing pointer math; one global pointer drives
   all cards' tilt — natural for a "tilt the whole spread" feel).
-- Render `<PackHoloCanvas entries={entries} pointer={pointer} />` only during
+- Render `<HoloBatchCanvas entries={entries} pointer={pointer} />` only during
   `dealing` and `summary`. Not during `pack` (PackTearScene owns GL then).
 - The flying card: drop it from `entries` during its 320ms fly (or leave it — its
   rect moves and scissor clips correctly; default = keep, revisit if it looks off).
@@ -150,7 +162,23 @@ card refs (PackRip) ──► entries[] ──► PackHoloCanvas (ref) ──►
   pointer; open multiple packs back-to-back → context count stays ~1 (verify via
   `activeContextCount` log / no context-loss warning).
 
+## Follow-up — Collection View (designed, not built in this effort)
+Scope chosen: **pack first, reusable shape.** `HoloBatchCanvas` is built general so
+collection wires in later with minimal work:
+- Collection grid (`Collection.tsx` line ~189, `size="sm"` cards) collects its slot
+  refs into `entries`; render one `<HoloBatchCanvas fixed entries={...} pointer />`
+  over the scroll container.
+- `fixed` canvas + per-frame `getBoundingClientRect` + viewport culling handles
+  scrolling and large card counts at **one context** for the grid.
+- The `lg` modal card keeps its own `useHoloShader` context (separate stacking
+  context above the grid; can't share one canvas across the modal layer).
+- Binder grid + drag overlay can reuse the same component identically.
+- Context budget when collection wired: grid overlay (1) + modal (1, only when
+  open) = ≤2 on that route. No per-card growth.
+
 ## Out of Scope
+- Wiring collection/binder this effort (component is built reusable; see Follow-up).
+- Folding the `lg` modal card into the shared canvas (separate stacking context).
 - Changing the holo look/params (reuse `DEFAULT_HOLO_PARAMS`).
 - Holo on peek/deck-back cards.
 - Per-card independent pointers in summary (single shared pointer).
