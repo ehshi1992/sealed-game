@@ -222,6 +222,7 @@ export function useHoloShader(
     return () => {
       cancelAnimationFrame(rafId)
       activeContextCount = Math.max(0, activeContextCount - 1)
+      gl.getExtension('WEBGL_lose_context')?.loseContext()
     }
   }, [canvasRef, opts.seedOffset.x, opts.seedOffset.y, opts.enabled])
 }
