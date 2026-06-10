@@ -1,5 +1,6 @@
 // src/components/PackRip/pack3d/useTearGesture.ts
-import { useSpring } from '@react-spring/three'
+import { useRef } from 'react'
+import type { RefObject } from 'react'
 import { useDrag } from '@use-gesture/react'
 import { TEAR, tearProgress, shouldRip, clampTearX } from './tearLogic'
 import { CAMERA_Z, CAMERA_FOV } from './sceneConfig'
@@ -7,7 +8,19 @@ import { CAMERA_Z, CAMERA_FOV } from './sceneConfig'
 type Callbacks = {
   enabled: boolean       // only the idle/tearing phases accept drags
   onTearStart: () => void
-  onRip: () => void      // rip spring finished — strip should start flying
+  onRip: () => void      // rip animation finished — strip should start flying
+  onSnapBack: () => void
+}
+
+// Shared, mutable tear state. The gesture (outside the r3f <Canvas>) writes
+// target/mode; PackMesh advances `x` toward `target` inside useFrame, so the
+// animation is driven by r3f's own render loop. This avoids react-spring,
+// whose frameloop does not advance when the spring is created outside Canvas.
+export type TearController = {
+  x: number              // current tear-front position (animated)
+  target: number         // where x is heading
+  mode: 'idle' | 'drag' | 'rip' | 'snap'
+  onRip: () => void
   onSnapBack: () => void
 }
 
@@ -17,38 +30,44 @@ function worldPerPx(): number {
   return (vh * aspect) / window.innerWidth
 }
 
-export function useTearGesture({ enabled, onTearStart, onRip, onSnapBack }: Callbacks) {
-  const [{ x }, api] = useSpring(() => ({
+export function useTearGesture({ enabled, onTearStart, onRip, onSnapBack }: Callbacks): {
+  bind: ReturnType<typeof useDrag>
+  tear: RefObject<TearController>
+} {
+  const tear = useRef<TearController>({
     x: TEAR.LEFT_EDGE,
-    config: { tension: 60, friction: 12 },
-  }))
+    target: TEAR.LEFT_EDGE,
+    mode: 'idle',
+    onRip,
+    onSnapBack,
+  })
+  // Keep the completion callbacks current without re-creating the ref.
+  tear.current.onRip = onRip
+  tear.current.onSnapBack = onSnapBack
 
   const bind = useDrag(
     ({ first, last, movement: [mx], velocity: [vx] }) => {
       if (!enabled) return
-      if (first) onTearStart()
+      if (first) {
+        onTearStart()
+        tear.current.mode = 'drag'
+      }
 
       const next = clampTearX(TEAR.LEFT_EDGE + mx * worldPerPx())
-      api.start({ x: next, immediate: true })
+      tear.current.target = next
 
       if (last) {
         if (shouldRip(tearProgress(next), vx)) {
-          api.start({
-            x: TEAR.RIPPED,
-            config: { tension: 400, friction: 20 },
-            onRest: onRip,
-          })
+          tear.current.mode = 'rip'
+          tear.current.target = TEAR.RIPPED
         } else {
-          api.start({
-            x: TEAR.LEFT_EDGE,
-            config: { tension: 180, friction: 18 },
-            onRest: onSnapBack,
-          })
+          tear.current.mode = 'snap'
+          tear.current.target = TEAR.LEFT_EDGE
         }
       }
     },
     { pointer: { touch: true }, filterTaps: true }
   )
 
-  return { bind, springX: x }
+  return { bind, tear }
 }

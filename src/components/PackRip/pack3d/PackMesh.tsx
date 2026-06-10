@@ -1,17 +1,23 @@
 import { useMemo, useRef } from 'react'
+import type { RefObject } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import type { SpringValue } from '@react-spring/three'
 import { foilVert, foilFrag } from './tearShader'
 import { TEAR } from './tearLogic'
+import type { TearController } from './useTearGesture'
 
 const JAG_AMP = 0.1
 const SEG_X = 44
 const SEG_Y = 56
 
+// Per-second approach rate for the tear front (exponential ease toward target).
+const RIP_RATE  = 12
+const SNAP_RATE = 10
+const SETTLE_EPS = 0.02
+
 type Props = {
   texture: THREE.Texture
-  springX: SpringValue<number>
+  tear: RefObject<TearController>
   flying: boolean
   onStripGone: () => void
 }
@@ -38,7 +44,7 @@ function makePlane(yMin: number, yMax: number): THREE.PlaneGeometry {
   return geo
 }
 
-export default function PackMesh({ texture, springX, flying, onStripGone }: Props) {
+export default function PackMesh({ texture, tear, flying, onStripGone }: Props) {
   const bodyMat  = useRef<THREE.ShaderMaterial>(null)
   const stripMat = useRef<THREE.ShaderMaterial>(null)
   const stripGrp = useRef<THREE.Group>(null)
@@ -52,7 +58,28 @@ export default function PackMesh({ texture, springX, flying, onStripGone }: Prop
 
   useFrame(({ clock }, dt) => {
     const t = clock.getElapsedTime()
-    const x = springX.get()
+
+    // Advance the tear front toward its target on r3f's own loop.
+    const ctl = tear.current
+    if (ctl.mode === 'drag') {
+      ctl.x = ctl.target                              // immediate follow while held
+    } else if (ctl.mode === 'rip') {
+      ctl.x += (ctl.target - ctl.x) * Math.min(1, dt * RIP_RATE)
+      if (Math.abs(ctl.target - ctl.x) < SETTLE_EPS) {
+        ctl.x = ctl.target
+        ctl.mode = 'idle'
+        ctl.onRip()
+      }
+    } else if (ctl.mode === 'snap') {
+      ctl.x += (ctl.target - ctl.x) * Math.min(1, dt * SNAP_RATE)
+      if (Math.abs(ctl.target - ctl.x) < SETTLE_EPS) {
+        ctl.x = ctl.target
+        ctl.mode = 'idle'
+        ctl.onSnapBack()
+      }
+    }
+    const x = ctl.x
+
     if (bodyMat.current) {
       bodyMat.current.uniforms.uTime.value  = t
       bodyMat.current.uniforms.uTearX.value = x

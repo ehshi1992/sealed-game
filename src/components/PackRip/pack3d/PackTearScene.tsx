@@ -15,10 +15,10 @@ type Props = {
   onTornAway: () => void
 }
 
-function SceneContents({ packImageUrl, flying, springX, onStripGone }: {
+function SceneContents({ packImageUrl, flying, tear, onStripGone }: {
   packImageUrl: string
   flying: boolean
-  springX: ReturnType<typeof useTearGesture>['springX']
+  tear: ReturnType<typeof useTearGesture>['tear']
   onStripGone: () => void
 }) {
   const texture = useTexture(packImageUrl)
@@ -28,7 +28,7 @@ function SceneContents({ packImageUrl, flying, springX, onStripGone }: {
       <directionalLight position={[2, 3, 5]} intensity={0.6} />
       <PackMesh
         texture={texture}
-        springX={springX}
+        tear={tear}
         flying={flying}
         onStripGone={onStripGone}
       />
@@ -41,7 +41,7 @@ export default function PackTearScene({ packImageUrl, onTornAway }: Props) {
   const [phase, setPhase] = useState<ScenePhase>('idle')
   const doneRef = useRef(false)
 
-  const { bind, springX } = useTearGesture({
+  const { bind, tear } = useTearGesture({
     enabled: phase === 'idle' || phase === 'tearing',
     onTearStart: () => setPhase('tearing'),
     onRip: () => setPhase('flying'),
@@ -72,7 +72,7 @@ export default function PackTearScene({ packImageUrl, onTornAway }: Props) {
           <SceneContents
             packImageUrl={packImageUrl}
             flying={phase === 'flying'}
-            springX={springX}
+            tear={tear}
             onStripGone={handleStripGone}
           />
         </Canvas>
