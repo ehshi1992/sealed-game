@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import type { Card } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import ParticleBurst from '../ParticleBurst/ParticleBurst'
+import PackTearScene from './pack3d/PackTearScene'
 import './PackRip.css'
-import { calcTearPct, shouldFlyOff } from './packRipLogic'
+import { shouldFlyOff } from './packRipLogic'
 
-type Phase = 'idle' | 'grabbed' | 'tearing' | 'discarded' | 'dealing' | 'summary'
+type Phase = 'pack' | 'dealing' | 'summary'
 
 type Props = {
   packImageUrl: string
@@ -14,22 +15,17 @@ type Props = {
   onComplete: () => void
 }
 
-const TEAR_THRESHOLD = 80   // px horizontal drag to trigger tear
-const TEAR_VELOCITY  = 0.5  // px/ms — fast flick also triggers
-const FLY_THRESHOLD  = 130
-const FLY_VELOCITY   = 0.6
+const FLY_THRESHOLD = 130
+const FLY_VELOCITY  = 0.6
 
 export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const navigate = useNavigate()
-  const [phase, setPhase] = useState<Phase>('idle')
+  const [phase, setPhase] = useState<Phase>('pack')
   const [deckIndex, setDeckIndex] = useState(0)
   const [dragState, setDragState] = useState<{ dx: number; dy: number } | null>(null)
   const [flying, setFlying] = useState<{ dx: number; dy: number } | null>(null)
   const [burst, setBurst] = useState<{ x: number; y: number } | null>(null)
 
-  const packRef      = useRef<HTMLDivElement>(null)
-  const grabXRef     = useRef(0)
-  const grabTimeRef  = useRef(0)
   const topCardRef   = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
   const mountedRef   = useRef(true)
@@ -38,59 +34,6 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     mountedRef.current = true
     return () => { mountedRef.current = false }
   }, [])
-
-  // ── Drag handlers ──────────────────────────────────────
-  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    if (phase !== 'idle') return
-    e.currentTarget.setPointerCapture(e.pointerId)
-    grabXRef.current    = e.clientX
-    grabTimeRef.current = performance.now()
-    setPhase('grabbed')
-  }
-
-  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (phase !== 'grabbed') return
-    const dx = e.clientX - grabXRef.current
-    const pct = calcTearPct(dx, TEAR_THRESHOLD)
-    packRef.current?.style.setProperty('--tear-pct', String(pct))
-  }
-
-  function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
-    if (phase !== 'grabbed') return
-    const dx  = Math.abs(e.clientX - grabXRef.current)
-    const dt  = performance.now() - grabTimeRef.current
-    const vel = dt > 0 ? dx / dt : 0
-
-    if (shouldFlyOff(dx, TEAR_THRESHOLD, vel, TEAR_VELOCITY)) {
-      doTear()
-    } else {
-      snapBack()
-    }
-  }
-
-  function handlePointerCancel() {
-    if (phase === 'grabbed') snapBack()
-  }
-
-  function snapBack() {
-    packRef.current?.style.setProperty('--tear-pct', '0')
-    setPhase('idle')
-  }
-
-  function doTear() {
-    setPhase('tearing')
-    setTimeout(() => {
-      if (!mountedRef.current) return
-      setPhase('discarded')
-      setDeckIndex(0)
-      setDragState(null)
-      setFlying(null)
-      setTimeout(() => {
-        if (!mountedRef.current) return
-        setPhase('dealing')
-      }, 100)
-    }, 450)
-  }
 
   // ── Card drag handlers ─────────────────────────────────
   function handleCardPointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -162,39 +105,12 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   return (
     <div className="pack-rip">
 
-      {/* ── Pack (idle / grabbed / tearing) ── */}
-      {(phase === 'idle' || phase === 'grabbed' || phase === 'tearing') && (
-        <>
-          <div
-            ref={packRef}
-            className={[
-              'pack-rip__pack',
-              phase === 'idle'    ? 'pack-rip__pack--idle'    : '',
-              phase === 'grabbed' ? 'pack-rip__pack--grabbed' : '',
-            ].join(' ').trim()}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerCancel}
-          >
-            <div className="pack-rip__body">
-              <img src={packImageUrl} alt="" aria-hidden />
-            </div>
-            <div className={`pack-rip__flap${phase === 'tearing' ? ' pack-rip__flap--tearing' : ''}`}>
-              <img src={packImageUrl} alt="Pack" />
-            </div>
-            <div className="pack-rip__perf" aria-hidden>
-              <svg width="100%" height="100%" viewBox="0 0 200 8" preserveAspectRatio="none">
-                <line x1="8" y1="4" x2="90" y2="4" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeDasharray="5 3" />
-                <line x1="110" y1="4" x2="192" y2="4" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeDasharray="5 3" />
-                <polygon points="96,1 104,1 100,7" fill="rgba(255,255,255,0.95)" />
-              </svg>
-            </div>
-          </div>
-          {phase === 'idle' && (
-            <p className="pack-rip__hint">Drag to rip open</p>
-          )}
-        </>
+      {/* ── 3D pack tear ── */}
+      {phase === 'pack' && (
+        <PackTearScene
+          packImageUrl={packImageUrl}
+          onTornAway={() => setPhase('dealing')}
+        />
       )}
 
       {/* ── Dealing phase — draggable card deck ── */}

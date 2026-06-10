@@ -1,20 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcTearPct, shouldFlyOff } from './packRipLogic'
-
-describe('calcTearPct', () => {
-  it('returns 0 at no drag', () => {
-    expect(calcTearPct(0, 80)).toBe(0)
-  })
-  it('returns 0.5 at half threshold', () => {
-    expect(calcTearPct(40, 80)).toBe(0.5)
-  })
-  it('clamps to 1 beyond threshold', () => {
-    expect(calcTearPct(100, 80)).toBe(1)
-  })
-  it('handles negative dx (drag left)', () => {
-    expect(calcTearPct(-40, 80)).toBe(0.5)
-  })
-})
+import { shouldFlyOff } from './packRipLogic'
 
 describe('shouldFlyOff', () => {
   it('triggers when distance meets threshold', () => {
