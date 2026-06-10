@@ -4,6 +4,8 @@ import type { Card } from '../../types'
 import HoloCard from '../HoloCard/HoloCard'
 import ParticleBurst from '../ParticleBurst/ParticleBurst'
 import PackTearScene from './pack3d/PackTearScene'
+import HoloBatchCanvas from '../HoloBatch/HoloBatchCanvas'
+import type { HoloEntry } from '../HoloBatch/types'
 import './PackRip.css'
 import { shouldFlyOff } from './packRipLogic'
 
@@ -25,15 +27,21 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const [dragState, setDragState] = useState<{ dx: number; dy: number } | null>(null)
   const [flying, setFlying] = useState<{ dx: number; dy: number } | null>(null)
   const [burst, setBurst] = useState<{ x: number; y: number } | null>(null)
+  const [packReady, setPackReady] = useState(false)
 
   const topCardRef   = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
   const mountedRef   = useRef(true)
+  const pointerRef = useRef({ x: 0.5, y: 0.5 })
+  const summarySlotsRef = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  const [, forceTick] = useState(0)
 
   useEffect(() => {
     mountedRef.current = true
     return () => { mountedRef.current = false }
   }, [])
+
+  useEffect(() => { forceTick(t => t + 1) }, [phase, deckIndex])
 
   // ── Card drag handlers ─────────────────────────────────
   function handleCardPointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -47,6 +55,14 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     const dx = e.clientX - dragStartRef.current.x
     const dy = e.clientY - dragStartRef.current.y
     setDragState({ dx, dy })
+    const el = topCardRef.current
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      pointerRef.current = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      }
+    }
   }
 
   function handleCardPointerUp(e: React.PointerEvent<HTMLDivElement>) {
@@ -102,21 +118,29 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
     : 0
   const isCommitting = dragDistance > FLY_THRESHOLD * 0.75
 
+  const holoEntries: HoloEntry[] = phase === 'dealing'
+    ? (cards[deckIndex]
+        ? [{ id: `top-${deckIndex}`, el: topCardRef.current, card: cards[deckIndex], seed: { x: 0.5, y: 0.5 } }]
+        : [])
+    : phase === 'summary'
+      ? cards.map((c, i) => ({
+          id: `sum-${c.id}-${i}`,
+          el: summarySlotsRef.current.get(`${c.id}-${i}`) ?? null,
+          card: c,
+          seed: { x: 0.5, y: 0.5 },
+        }))
+      : []
+
   return (
     <div className="pack-rip">
 
-      {/* ── 3D pack tear ── */}
-      {phase === 'pack' && (
-        <PackTearScene
-          packImageUrl={packImageUrl}
-          onTornAway={() => setPhase('dealing')}
-        />
-      )}
-
-      {/* ── Dealing phase — draggable card deck ── */}
-      {phase === 'dealing' && cards[deckIndex] && (
+      {/* ── Card deck — hidden until pack WebGL is ready, then sits underneath
+            so it's revealed as the pack slides off. Progress + hint only appear once dealing. ── */}
+      {((phase === 'pack' && packReady) || phase === 'dealing') && cards[deckIndex] && (
         <div className="pack-rip__deck">
-          <p className="pack-rip__progress">{deckIndex + 1} / {cards.length}</p>
+          {phase === 'dealing' && (
+            <p className="pack-rip__progress">{deckIndex + 1} / {cards.length}</p>
+          )}
           <div className="pack-rip__deck-stack">
             {[2, 1].map(offset => {
               const idx = deckIndex + offset
@@ -158,8 +182,19 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
               <HoloCard card={cards[deckIndex]} size="md" />
             </div>
           </div>
-          <p className="pack-rip__hint">Drag to reveal next</p>
+          {phase === 'dealing' && (
+            <p className="pack-rip__hint">Drag to reveal next</p>
+          )}
         </div>
+      )}
+
+      {/* ── 3D pack tear — overlays the deck; slides off to reveal it ── */}
+      {phase === 'pack' && (
+        <PackTearScene
+          packImageUrl={packImageUrl}
+          onTornAway={() => setPhase('dealing')}
+          onReady={() => setPackReady(true)}
+        />
       )}
 
       {/* ── Summary — all cards ── */}
@@ -169,6 +204,7 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
             {cards.map((card, i) => (
               <div
                 key={card.id + i}
+                ref={el => { summarySlotsRef.current.set(`${card.id}-${i}`, el) }}
                 className={[
                   'pack-rip__card-slot',
                   card.rarity === 'secret_rare' || card.rarity === 'ultra_rare'
@@ -193,6 +229,9 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
       )}
 
       {burst && <ParticleBurst x={burst.x} y={burst.y} active={true} />}
+      {(phase === 'dealing' || phase === 'summary') && (
+        <HoloBatchCanvas entries={holoEntries} pointer={pointerRef.current} />
+      )}
     </div>
   )
 }
