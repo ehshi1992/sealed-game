@@ -53,6 +53,10 @@ export type Uniforms = {
   u_opacity:          WebGLUniformLocation | null
   u_tilt_sensitivity: WebGLUniformLocation | null
   u_activation_floor: WebGLUniformLocation | null
+  u_card_mode:        WebGLUniformLocation | null
+  u_card_center:      WebGLUniformLocation | null
+  u_card_half:        WebGLUniformLocation | null
+  u_card_angle:       WebGLUniformLocation | null
 }
 
 function compileShader(gl: WebGLRenderingContext, type: number, src: string): WebGLShader | null {
@@ -156,6 +160,10 @@ export function initHoloGL(canvas: HTMLCanvasElement): { gl: WebGLRenderingConte
     u_opacity:          gl.getUniformLocation(program, 'u_opacity'),
     u_tilt_sensitivity: gl.getUniformLocation(program, 'u_tilt_sensitivity'),
     u_activation_floor: gl.getUniformLocation(program, 'u_activation_floor'),
+    u_card_mode:        gl.getUniformLocation(program, 'u_card_mode'),
+    u_card_center:      gl.getUniformLocation(program, 'u_card_center'),
+    u_card_half:        gl.getUniformLocation(program, 'u_card_half'),
+    u_card_angle:       gl.getUniformLocation(program, 'u_card_angle'),
   }
   gl.uniform1i(uniforms.u_cosmo_bitmap, 1)
 

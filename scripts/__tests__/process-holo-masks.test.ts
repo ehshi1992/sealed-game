@@ -3,7 +3,7 @@ import { getLayoutBounds } from '../process-holo-masks'
 
 describe('getLayoutBounds', () => {
   it('returns standard bounds for unknown layout type', () => {
-    expect(getLayoutBounds('unknown')).toEqual({ x: 0.07, y: 0.135, w: 0.86, h: 0.385 })
+    expect(getLayoutBounds('unknown')).toEqual({ x: 0.12, y: 0.115, w: 0.778, h: 0.396 })
   })
   it('returns full coverage for full_art', () => {
     expect(getLayoutBounds('full_art')).toEqual({ x: 0, y: 0, w: 1, h: 1 })

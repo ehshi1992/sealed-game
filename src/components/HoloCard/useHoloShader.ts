@@ -11,6 +11,10 @@ import {
 export type { HoloShaderParams } from './holoGL'
 export { DEFAULT_HOLO_PARAMS } from './holoGL'
 
+// Must match `.card__holo-canvas { inset: -12px }` in HoloCard.css — the holo
+// canvas extends this many CSS px past the card on every side (for the glow).
+const CANVAS_BLEED_PX = 12
+
 interface HoloShaderOpts {
   enabled:       boolean
   seedOffset:    HoloSeed
@@ -59,8 +63,12 @@ export function useHoloShader(
       gl.viewport(0, 0, canvas!.width, canvas!.height)
       gl.clear(gl.COLOR_BUFFER_BIT)
 
-      gl.uniform2f(uniforms.u_resolution,      canvas!.width, canvas!.height)
-      gl.uniform2f(uniforms.u_viewport_origin, 0, 0)
+      // The canvas bleeds CANVAS_BLEED_PX past the card on every side (for glow), so
+      // map UV to the card region — not the full canvas — to keep artwork_bounds
+      // card-relative and identical to the batch overlay.
+      const bleed = CANVAS_BLEED_PX * dpr
+      gl.uniform2f(uniforms.u_resolution,      canvas!.width - bleed * 2, canvas!.height - bleed * 2)
+      gl.uniform2f(uniforms.u_viewport_origin, bleed, bleed)
       gl.uniform2f(uniforms.u_seed_offset,     seedOffset.x, seedOffset.y)
       gl.uniform2f(uniforms.u_pointer,         pointer.x, pointer.y)
       gl.uniform1i(uniforms.u_holo_mode,       HOLO_MODE_INT[holoMode])

@@ -24,6 +24,13 @@ export const FRAG_SRC = /* glsl */`
   uniform float     u_opacity;
   uniform float     u_tilt_sensitivity;
   uniform float     u_activation_floor;
+  // Card-local mode (1): derive UV from the card's center/half-extents/rotation
+  // so the holo rotates and clips with a transformed card. Default (0) uses the
+  // viewport-origin/resolution mapping (single-card canvas, no rotation).
+  uniform int       u_card_mode;
+  uniform vec2      u_card_center;   // device px, gl_FragCoord space (y-up)
+  uniform vec2      u_card_half;     // half extents in device px
+  uniform float     u_card_angle;    // CSS rotation, radians (clockwise positive)
 
   vec3 hsl2rgb(float h, float s, float l) {
     h = fract(h);
@@ -41,8 +48,25 @@ export const FRAG_SRC = /* glsl */`
   }
 
   void main() {
-    vec2 uv = (gl_FragCoord.xy - u_viewport_origin) / u_resolution;
-    uv.y = 1.0 - uv.y;
+    vec2 uv;
+    if (u_card_mode == 1) {
+      // Map gl_FragCoord into the card's local, un-rotated UV. Derivation accounts
+      // for gl_FragCoord being y-up while CSS rotation is y-down clockwise; result
+      // is top-left-origin UV matching u_artwork_bounds. Fragments in the scissor
+      // bbox but outside the rotated card fall outside [0,1] and are discarded.
+      vec2  d = gl_FragCoord.xy - u_card_center;
+      float c = cos(u_card_angle);
+      float s = sin(u_card_angle);
+      vec2  local = vec2(c * d.x - s * d.y, -s * d.x - c * d.y);
+      uv = local / u_card_half * 0.5 + 0.5;
+      if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+        gl_FragColor = vec4(0.0);
+        return;
+      }
+    } else {
+      uv = (gl_FragCoord.xy - u_viewport_origin) / u_resolution;
+      uv.y = 1.0 - uv.y;
+    }
 
     bool in_art = uv.x >= u_artwork_bounds.x &&
                   uv.x <= u_artwork_bounds.x + u_artwork_bounds.z &&

@@ -5,6 +5,7 @@ import HoloCard from '../HoloCard/HoloCard'
 import ParticleBurst from '../ParticleBurst/ParticleBurst'
 import PackTearScene from './pack3d/PackTearScene'
 import HoloBatchCanvas from '../HoloBatch/HoloBatchCanvas'
+import type { ArtworkBounds } from '../HoloBatch/HoloBatchCanvas'
 import type { HoloEntry } from '../HoloBatch/types'
 import './PackRip.css'
 import { shouldFlyOff } from './packRipLogic'
@@ -19,6 +20,10 @@ type Props = {
 
 const FLY_THRESHOLD = 130
 const FLY_VELOCITY  = 0.6
+
+// Show the holo-cutoff slider panel only when the page is opened with ?debug=true.
+const DEBUG_BOUNDS = typeof window !== 'undefined' &&
+  new URLSearchParams(window.location.search).get('debug') === 'true'
 
 // Deterministic per-card seed so summary cards don't all shimmer at the same hue
 // /offset. Cheap hash of the card id → two fractions in [0,1).
@@ -37,11 +42,19 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
   const [flying, setFlying] = useState<{ dx: number; dy: number } | null>(null)
   const [burst, setBurst] = useState<{ x: number; y: number } | null>(null)
   const [packReady, setPackReady] = useState(false)
+  // Dev-only: live-tune the holo cutoff rect (artwork_bounds) with sliders. Seeded
+  // from the first card's bounds; bake the printed values back into the data.
+  const [boundsOverride, setBoundsOverride] = useState<ArtworkBounds>(
+    () => cards[0]?.artwork_bounds ?? { x: 0.06, y: 0.11, w: 0.88, h: 0.52 },
+  )
 
   const topCardRef   = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
   const mountedRef   = useRef(true)
   const summarySlotsRef = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  // Viewport-normalized pointer driving the holo shimmer (not card tilt). Read
+  // live by the overlay's RAF loop — no re-render.
+  const pointerRef = useRef({ x: 0.5, y: 0.5 })
   const [, forceTick] = useState(0)
 
   useEffect(() => {
@@ -135,19 +148,35 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
 
   const holoEntries: HoloEntry[] = phase === 'dealing'
     ? (cards[deckIndex]
-        ? [{ id: `top-${deckIndex}`, el: topCardRef.current, card: cards[deckIndex], seed: seedFromId(cards[deckIndex].id) }]
+        ? [{
+            id: `top-${deckIndex}`,
+            el: topCardRef.current,
+            getEl: () => topCardRef.current,
+            card: cards[deckIndex],
+            seed: seedFromId(cards[deckIndex].id),
+          }]
         : [])
     : phase === 'summary'
       ? cards.map((c, i) => ({
           id: `sum-${c.id}-${i}`,
           el: summarySlotsRef.current.get(`${c.id}-${i}`) ?? null,
+          getEl: () => summarySlotsRef.current.get(`${c.id}-${i}`) ?? null,
           card: c,
           seed: seedFromId(c.id),
         }))
       : []
 
+  // Drive holo shimmer from the pointer. Does not tilt the card — only feeds the
+  // shader's pointer uniform via the overlay's RAF loop.
+  function handleRootPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    pointerRef.current = {
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight,
+    }
+  }
+
   return (
-    <div className="pack-rip">
+    <div className="pack-rip" onPointerMove={handleRootPointerMove}>
 
       {/* ── Card deck — hidden until pack WebGL is ready, then sits underneath
             so it's revealed as the pack slides off. Progress + hint only appear once dealing. ── */}
@@ -245,8 +274,48 @@ export default function PackRip({ packImageUrl, cards, onComplete }: Props) {
 
       {burst && <ParticleBurst x={burst.x} y={burst.y} active={true} />}
       {(phase === 'dealing' || phase === 'summary') && (
-        <HoloBatchCanvas entries={holoEntries} />
+        <HoloBatchCanvas entries={holoEntries} pointerRef={pointerRef} boundsOverride={boundsOverride} />
       )}
+
+      {DEBUG_BOUNDS && (phase === 'dealing' || phase === 'summary') && (
+        <BoundsPanel value={boundsOverride} onChange={setBoundsOverride} />
+      )}
+    </div>
+  )
+}
+
+// Dev-only slider panel to tune the holo cutoff rect around the portrait. Copy the
+// printed values into the card's artwork_bounds once aligned.
+function BoundsPanel({ value, onChange }: {
+  value: ArtworkBounds
+  onChange: (v: ArtworkBounds) => void
+}) {
+  const rows: { key: keyof ArtworkBounds; label: string }[] = [
+    { key: 'x', label: 'left x' },
+    { key: 'y', label: 'top y' },
+    { key: 'w', label: 'width' },
+    { key: 'h', label: 'height' },
+  ]
+  return (
+    <div className="subject-adjust-panel">
+      <div className="subject-adjust-panel__title">holo cutoff (artwork_bounds)</div>
+      {rows.map(({ key, label }) => (
+        <label key={key} className="subject-adjust-panel__row">
+          <span>{label}</span>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.002}
+            value={value[key]}
+            onChange={e => onChange({ ...value, [key]: Number(e.target.value) })}
+          />
+          <code>{value[key].toFixed(3)}</code>
+        </label>
+      ))}
+      <div className="subject-adjust-panel__row">
+        <code>{`{ "x": ${value.x.toFixed(3)}, "y": ${value.y.toFixed(3)}, "w": ${value.w.toFixed(3)}, "h": ${value.h.toFixed(3)} }`}</code>
+      </div>
     </div>
   )
 }
