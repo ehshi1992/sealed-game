@@ -4,9 +4,9 @@
   inset: 0;
   z-index: 50;
   touch-action: none;
-  background:
-    radial-gradient(ellipse at 50% 40%, rgba(124, 58, 237, 0.22) 0%, transparent 55%),
-    var(--bg);
+  /* Transparent: the deck is rendered beneath this overlay and must show
+     through as the pack slides off. The .pack-rip page supplies the bg. */
+  background: transparent;
 }
 
 .pack-tear-scene__hint {

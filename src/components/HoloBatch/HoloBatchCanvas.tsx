@@ -6,6 +6,7 @@ import {
   DEFAULT_HOLO_PARAMS, HOLO_MODE_INT,
 } from '../HoloCard/holoGL'
 import { domRectToGLRect, isGLRectVisible } from '../HoloCard/coords'
+import { holoDriftPointer } from '../HoloCard/holoDrift'
 import { deriveHoloMode } from '../HoloCard/HoloCard'
 import type { HoloEntry } from './types'
 import './HoloBatchCanvas.css'
@@ -102,15 +103,9 @@ export default function HoloBatchCanvas({ entries, fixed = false, pointerRef, bo
       gl.enable(gl.SCISSOR_TEST)
 
       const p = DEFAULT_HOLO_PARAMS
-      const t = performance.now() / 1000
       // Passive drift keeps cards alive when the mouse is still; the real pointer
       // (when present) steers the shimmer on top of it.
-      const driftX = 0.35 * Math.sin(t * 0.4)
-      const driftY = 0.25 * Math.sin(t * 0.25 + 1.0)
-      const m = pointerRef?.current
-      const ptr = m
-        ? { x: 0.5 + (m.x - 0.5) * 0.9 + driftX * 0.4, y: 0.5 + (m.y - 0.5) * 0.9 + driftY * 0.4 }
-        : { x: 0.5 + driftX, y: 0.5 + driftY }
+      const ptr = holoDriftPointer(performance.now(), pointerRef?.current)
 
       const liveIds = new Set<string>()
 

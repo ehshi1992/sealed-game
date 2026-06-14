@@ -7,6 +7,7 @@ import {
   DEFAULT_HOLO_PARAMS, HOLO_MODE_INT,
   type HoloShaderParams,
 } from './holoGL'
+import { holoDriftPointer } from './holoDrift'
 
 export type { HoloShaderParams } from './holoGL'
 export { DEFAULT_HOLO_PARAMS } from './holoGL'
@@ -70,7 +71,10 @@ export function useHoloShader(
       gl.uniform2f(uniforms.u_resolution,      canvas!.width - bleed * 2, canvas!.height - bleed * 2)
       gl.uniform2f(uniforms.u_viewport_origin, bleed, bleed)
       gl.uniform2f(uniforms.u_seed_offset,     seedOffset.x, seedOffset.y)
-      gl.uniform2f(uniforms.u_pointer,         pointer.x, pointer.y)
+      // Blend the live pointer with a time-based drift so the card keeps
+      // shimmering even when the pointer is still (or absent).
+      const ptr = holoDriftPointer(performance.now(), pointer)
+      gl.uniform2f(uniforms.u_pointer,         ptr.x, ptr.y)
       gl.uniform1i(uniforms.u_holo_mode,       HOLO_MODE_INT[holoMode])
       gl.uniform4f(uniforms.u_artwork_bounds,  bounds.x, bounds.y, bounds.w, bounds.h)
       gl.uniform1f(uniforms.u_brightness,        p.brightness)
